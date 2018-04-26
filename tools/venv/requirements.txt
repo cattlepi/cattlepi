@@ -1,0 +1,17 @@
+ansible==2.5.1
+asn1crypto==0.24.0
+bcrypt==3.1.4
+cffi==1.11.5
+cryptography==2.2.2
+enum34==1.1.6
+idna==2.6
+ipaddress==1.0.22
+Jinja2==2.10
+MarkupSafe==1.0
+paramiko==2.4.1
+pkg-resources==0.0.0
+pyasn1==0.4.2
+pycparser==2.18
+PyNaCl==1.2.1
+PyYAML==3.12
+six==1.11.0
