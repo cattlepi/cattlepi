@@ -1,0 +1,11 @@
+---
+- hosts: buildernodes
+  remote_user: pi
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: check internet connectivity
+      shell: curl -s https://www.google.com > /dev/null
+    - name: update apt
+      apt:
+        update_cache: yes
