@@ -4,8 +4,21 @@
   become: yes
   become_method: sudo
   tasks:
-    - name: check internet connectivity
-      shell: curl -s https://www.google.com > /dev/null
-    - name: update apt
-      apt:
+    - name: install packages 
+      apt: 
+        name: "{{ item }}"
         update_cache: yes
+        state: latest
+      with_items: 
+        - vim 
+        - initramfs-tools
+        - squashfs-tools
+        - unionfs-fuse
+        - ufw
+    - name: disable swap
+      command: dphys-swapfile swapoff
+    - name: disable swap - make sure if does not come back
+      command: dphys-swapfile uninstall
+    - name: upgrade packages and dist
+      apt:
+        upgrade: full

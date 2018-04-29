@@ -15,5 +15,5 @@ source $VENVDIR/bin/activate
 # export ANSIBLE_DEBUG=1
 # will need to generate the hosts and check the return code
 # leave it as is for now 
-cd $TOPDIR && ansible-playbook -i hosts stages.yml -k
+cd $BUILDERDIR && ansible-playbook -vvv -i hosts stages.yml -k
 deactivate
