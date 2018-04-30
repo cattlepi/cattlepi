@@ -4,25 +4,8 @@
   become: yes
   become_method: sudo
   tasks:
-    - name: install packages 
-      apt: 
-        name: "{{ item }}"
-        update_cache: yes
-        force: yes
-        state: latest
-      with_items: 
-        - vim 
-        - initramfs-tools
-        - squashfs-tools
-        - unionfs-fuse
-        - ufw
-    - name: disable swap
-      command: dphys-swapfile swapoff
-    - name: disable swap - make sure if does not come back
-      command: dphys-swapfile uninstall
-    - name: upgrade packages and dist
-      apt:
-        upgrade: full
-    - import_tasks: reboot_and_wait.yml
-    - name: sentinel
+    - name: sentinel start
+      command: echo start
+    - import_tasks: update_software.yml
+    - name: sentinel done
       command: echo done

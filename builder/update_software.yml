@@ -1,0 +1,20 @@
+- name: install packages 
+  apt: 
+    name: "{{ item }}"
+    update_cache: yes
+    force: yes
+    state: latest
+  with_items: 
+    - vim 
+    - initramfs-tools
+    - squashfs-tools
+    - unionfs-fuse
+    - ufw
+- name: disable swap
+  command: dphys-swapfile swapoff
+- name: disable swap - make sure if does not come back
+  command: dphys-swapfile uninstall
+- name: upgrade packages and dist
+  apt:
+    upgrade: full
+- import_tasks: reboot_and_wait.yml
