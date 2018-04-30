@@ -8,6 +8,7 @@
       apt: 
         name: "{{ item }}"
         update_cache: yes
+        force: yes
         state: latest
       with_items: 
         - vim 
@@ -22,3 +23,6 @@
     - name: upgrade packages and dist
       apt:
         upgrade: full
+    - import_tasks: reboot_and_wait.yml
+    - name: sentinel
+      command: echo done
