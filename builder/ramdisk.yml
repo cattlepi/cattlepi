@@ -20,3 +20,12 @@
       shell: /bin/cp -R /boot/* /tmp/ramdisk/
     - name: remove the old kernel
       shell: rm -rf /tmp/ramdisk/kernel*img
+    - archive:
+        path: /tmp/ramdisk/
+        dest: /tmp/ramdisk.tgz
+    - file: 
+        path: /tmp/ramdisk
+        state: absent
+    - file: 
+        path: /tmp/ramdisk.tgz
+        state: absent
