@@ -11,6 +11,9 @@
         path: /tmp/ramdisk
         state: directory
         mode: 0755
+    - lineinfile:
+        path: /etc/initramfs-tools/modules 
+        line: squashfs
     - name: create the ramdisk file
       shell: mkinitramfs -o /tmp/ramdisk/cattlekernel.img
     - name: bring in the rest of boot
