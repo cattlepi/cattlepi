@@ -15,7 +15,7 @@
         path: /etc/initramfs-tools/modules 
         line: squashfs
     - name: create the ramdisk file
-      shell: mkinitramfs -o /tmp/ramdisk/cattlekernel.img
+      shell: mkinitramfs -v -o /tmp/ramdisk/cattlekernel.img
     - name: bring in the rest of boot
       shell: /bin/cp -R /boot/* /tmp/ramdisk/
     - name: remove the old kernel
