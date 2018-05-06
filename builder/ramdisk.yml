@@ -8,24 +8,46 @@
         path: /tmp/ramdisk
         state: absent
     - file: 
+        path: /tmp/ramdisk.tgz
+        state: absent
+    - file: 
         path: /tmp/ramdisk
         state: directory
         mode: 0755
+    - file:
+        path: /tmp/resources
+        state: absent
+    - file:
+        path: /tmp/output
+        state: absent
     - lineinfile:
         path: /etc/initramfs-tools/modules 
         line: squashfs
+    - lineinfile:
+        path: /usr/share/initramfs-tools/init
+        line: . /scripts/cattlepi
+        insertbefore: '^\.\s\/scripts\/\${BOOT}'
+    - copy:
+        src: resources
+        dest: /tmp
+        owner: root
+        group: root
+        mode: 0755
     - name: create the ramdisk file
       shell: mkinitramfs -v -o /tmp/ramdisk/cattleinit.img
+    - name: set ramdisk permissions
+      shell: chmod 0755 /tmp/ramdisk/cattleinit.img
     - name: bring in the rest of boot
       shell: /bin/cp -R /boot/* /tmp/ramdisk/
-    - name: remove the old kernel
-      shell: rm -rf /tmp/ramdisk/kernel*img
+    - lineinfile:
+        path: /tmp/ramdisk/config.txt
+        line: initramfs cattleinit.img 0x00a00000
+    - name: build the cmdline
+      shell: printf "dwc_org.lpm_enable=0 console=serial0,115200 console=tty1 boot=cattlepi initrd=0x00a00000,0x%x\n" `stat -c "%s" /tmp/ramdisk/cattleinit.img` > /tmp/ramdisk/cmdline
     - archive:
         path: /tmp/ramdisk/
         dest: /tmp/ramdisk.tgz
-    - file: 
-        path: /tmp/ramdisk
-        state: absent
-    - file: 
-        path: /tmp/ramdisk.tgz
-        state: absent
+    - fetch:
+        src: /tmp/ramdisk.tgz
+        dest: output/
+        flat: true
