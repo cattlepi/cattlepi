@@ -43,7 +43,9 @@
         path: /tmp/ramdisk/config.txt
         line: initramfs cattleinit.img 0x00a00000
     - name: build the cmdline
-      shell: printf "dwc_org.lpm_enable=0 console=serial0,115200 console=tty1 boot=cattlepi initrd=0x00a00000,0x%x\n" `stat -c "%s" /tmp/ramdisk/cattleinit.img` > /tmp/ramdisk/cmdline
+      shell: printf "dwc_org.lpm_enable=0 console=serial0,115200 console=tty1 boot=cattlepi initrd=0x00a00000,0x%x\n" `stat -c "%s" /tmp/ramdisk/cattleinit.img` > /tmp/ramdisk/cmdline.txt
+    - name: set cmline permissions
+      shell: chmod 0755 /tmp/ramdisk/cmdline.txt
     - archive:
         path: /tmp/ramdisk/
         dest: /tmp/ramdisk.tgz
