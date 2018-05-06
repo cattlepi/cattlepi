@@ -2,71 +2,71 @@
 
 cattlepi_top()
 {
-	if [ "${cattlepi_top_used}" != "yes" ]; then
-		[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/cattlepi-top"
-		run_scripts /scripts/cattlepi-top
-		[ "$quiet" != "y" ] && log_end_msg
-	fi
-	cattlepi_top_used=yes
+    if [ "${cattlepi_top_used}" != "yes" ]; then
+        [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/cattlepi-top"
+        run_scripts /scripts/cattlepi-top
+        [ "$quiet" != "y" ] && log_end_msg
+    fi
+    cattlepi_top_used=yes
 }
 
 cattlepi_premount()
 {
-	if [ "${cattlepi_premount_used}" != "yes" ]; then
-		[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/cattlepi-premount"
-		run_scripts /scripts/cattlepi-premount
-		[ "$quiet" != "y" ] && log_end_msg
-	fi
-	cattlepi_premount_used=yes
+    if [ "${cattlepi_premount_used}" != "yes" ]; then
+        [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/cattlepi-premount"
+        run_scripts /scripts/cattlepi-premount
+        [ "$quiet" != "y" ] && log_end_msg
+    fi
+    cattlepi_premount_used=yes
 }
 
 cattlepi_bottom()
 {
-	if [ "${cattlepi_premount_used}" = "yes" ] || [ "${cattlepi_top_used}" = "yes" ]; then
-		[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/cattlepi-bottom"
-		run_scripts /scripts/cattlepi-bottom
-		[ "$quiet" != "y" ] && log_end_msg
-	fi
-	cattlepi_premount_used=no
-	cattlepi_top_used=no
+    if [ "${cattlepi_premount_used}" = "yes" ] || [ "${cattlepi_top_used}" = "yes" ]; then
+        [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/cattlepi-bottom"
+        run_scripts /scripts/cattlepi-bottom
+        [ "$quiet" != "y" ] && log_end_msg
+    fi
+    cattlepi_premount_used=no
+    cattlepi_top_used=no
 }
 
 # parse cattlepi bootargs and mount cattlepi
 cattlepi_mount_root_impl()
 {
-	configure_networking
+    configure_networking
 
     # TODO: gather info about what we are mounting
     
-	cattlepi_premount
+    cattlepi_premount
 
     mount -t tmpfs -o size=512 none ${rootmnt}
-	mkdir -p ${rootmnt}/sbin
-	echo "echo yahaha" > ${rootmnt}/sbin/init
-	echo "sleep 600"  > ${rootmnt}/sbin/init
+    mkdir -p ${rootmnt}/sbin
+    echo "echo yahaha" > ${rootmnt}/sbin/init
+    echo "sleep 600"  > ${rootmnt}/sbin/init
 }
 
 # CATTLEPI root mounting
 cattlepi_mount_root()
 {
-	cattlepi_top
+    cattlepi_top
 
-	modprobe squashfs
-	wait_for_udev 10
+    modprobe squashfs
+    wait_for_udev 10
 
-	# loop until cattlepimount succeeds
-	cattlepi_mount_root_impl
-	ret=$?
-	cattlepi_retry_count=0
-	while [ ${cattlepi_retry_count} -lt ${delay} ] \
-		&& [ $ret -ne 0 ] ; do
-		[ "$quiet" != "y" ] && log_begin_msg "Retrying cattlepi mount"
-		/bin/sleep 1
-		cattlepi_mount_root_impl
-		ret=$?
-		cattlepi_retry_count=$(( ${cattlepi_retry_count} + 1 ))
-		[ "$quiet" != "y" ] && log_end_msg
-	done
+    # loop until cattlepimount succeeds
+    cattlepi_mount_root_impl
+    ret=$?
+    cattlepi_retry_count=0
+    while [ ${cattlepi_retry_count} -lt ${delay} ] \
+        && [ $ret -ne 0 ] ; do
+        [ "$quiet" != "y" ] && log_begin_msg "Retrying cattlepi mount"
+        /bin/sleep 1
+        cattlepi_mount_root_impl
+        ret=$?
+        cattlepi_retry_count=$(( ${cattlepi_retry_count} + 1 ))
+        [ "$quiet" != "y" ] && log_end_msg
+    done
 }
 
 cattlepi_mount_fs()
@@ -77,23 +77,23 @@ cattlepi_mount_fs()
 
 mountroot()
 {
-	cattlepi_mount_root
+    cattlepi_mount_root
 }
 
 mount_top()
 {
-	# Note, also called directly in case it's overridden.
-	cattlepi_top
+    # Note, also called directly in case it's overridden.
+    cattlepi_top
 }
 
 mount_premount()
 {
-	# Note, also called directly in case it's overridden.
-	cattlepi_premount
+    # Note, also called directly in case it's overridden.
+    cattlepi_premount
 }
 
 mount_bottom()
 {
-	# Note, also called directly in case it's overridden.
-	cattlepi_bottom
+    # Note, also called directly in case it's overridden.
+    cattlepi_bottom
 }
