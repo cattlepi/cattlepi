@@ -33,17 +33,22 @@
         owner: root
         group: root
         mode: 0755
+    - name: bring in the cattlepi initramfs script
+      shell: cp -R /tmp/resources/usr /
     - name: create the ramdisk file
-      shell: mkinitramfs -v -o /tmp/ramdisk/cattleinit.img
+      shell: mkinitramfs -v -o /tmp/ramdisk/cattleinit.gz
     - name: set ramdisk permissions
-      shell: chmod 0755 /tmp/ramdisk/cattleinit.img
+      shell: chmod 0755 /tmp/ramdisk/cattleinit.gz
     - name: bring in the rest of boot
       shell: /bin/cp -R /boot/* /tmp/ramdisk/
     - lineinfile:
         path: /tmp/ramdisk/config.txt
-        line: initramfs cattleinit.img 0x00a00000
+        line: initramfs cattleinit.gz followkernel
+    - lineinfile:
+        path: /tmp/ramdisk/config.txt
+        line: bootdelay=2
     - name: build the cmdline
-      shell: printf "dwc_org.lpm_enable=0 console=serial0,115200 console=tty1 boot=cattlepi initrd=0x00a00000,0x%x\n" `stat -c "%s" /tmp/ramdisk/cattleinit.img` > /tmp/ramdisk/cmdline.txt
+      shell: echo "dwc_otg.lpm_enable=0 console=tty1 boot=cattlepi earlyprintk elevator=deadline root=/dev/ram0 rw rootwait initrd=-1" > /tmp/ramdisk/cmdline.txt
     - name: set cmline permissions
       shell: chmod 0755 /tmp/ramdisk/cmdline.txt
     - archive:
