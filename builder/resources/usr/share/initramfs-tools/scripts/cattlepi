@@ -42,11 +42,13 @@ cattlepi_mount_root_impl()
 
     echo ${rootmnt}
     sleep 10
-    mount -t tmpfs -o size=512 none ${rootmnt}
+    mount -t tmpfs -o size=512m none ${rootmnt}
     mount --bind ${rootmnt} ${rootmnt}
     mkdir -p ${rootmnt}/sbin
-    echo "echo yahaha" > ${rootmnt}/sbin/init
-    echo "sleep 600"  > ${rootmnt}/sbin/init
+    echo "#!/bin/sh" > ${rootmnt}/sbin/init
+    echo "echo yahaha" >> ${rootmnt}/sbin/init
+    echo "sleep 600"  >> ${rootmnt}/sbin/init
+    chmod 0755 ${rootmnt}/sbin/init
     ls -lah ${rootmnt}
     sleep 10
 }
