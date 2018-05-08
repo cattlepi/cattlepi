@@ -35,22 +35,17 @@ cattlepi_bottom()
 cattlepi_mount_root_impl()
 {
     configure_networking
-
-    maybe_break cattlepi
-
     # TODO: gather info about what we are mounting
-    
+
     cattlepi_premount
 
-    /bin/sleep 10
-    mount -t tmpfs -o size=512m none ${rootmnt}
-    mount --bind ${rootmnt} ${rootmnt}
+    mount -n -t tmpfs -o size=512m none ${rootmnt}
+    mount -n -t none -o bind ${rootmnt} ${rootmnt}
     mkdir -p ${rootmnt}/sbin
     echo "#!/bin/sh" > ${rootmnt}/sbin/init
     echo "echo yahaha" >> ${rootmnt}/sbin/init
-    echo "sleep 600"  >> ${rootmnt}/sbin/init
-    chmod 0755 ${rootmnt}/sbin/init
-    /bin/sleep 10
+    echo "sleep 600"  >> ${rootmnt}/sbin/init    
+    chmod +x ${rootmnt}/sbin/init    
 }
 
 # CATTLEPI root mounting

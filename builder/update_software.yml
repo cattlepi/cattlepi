@@ -6,6 +6,7 @@
     state: latest
   with_items: 
     - vim 
+    - busybox
     - initramfs-tools
     - squashfs-tools
     - unionfs-fuse

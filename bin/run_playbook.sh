@@ -8,5 +8,5 @@ if [ "$#" -ne 1 ]; then
 fi
 
 source $SELFDIR/"activate"
-cd $BUILDERDIR && ansible-playbook -vvv -i hosts $1 -k
+cd $BUILDERDIR && ansible-playbook -vv -i hosts $1 -k
 deactivate
