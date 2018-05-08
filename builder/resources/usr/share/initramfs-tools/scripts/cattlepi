@@ -36,6 +36,8 @@ cattlepi_mount_root_impl()
 {
     configure_networking
 
+    maybe_break cattlepi
+
     # TODO: gather info about what we are mounting
     
     cattlepi_premount

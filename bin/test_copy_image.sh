@@ -6,7 +6,12 @@ IMGFILE="ramdisk.tgz"
 sudo umount /mnt/SD
 sudo rm -rf /mnt/SD
 sudo mkdir -p /mnt/SD
-sudo mount -t vfat /dev/mmcblk0p1 /mnt/SD 
+sudo mount -t vfat /dev/mmcblk0p1 /mnt/SD
+if [ $? -ne 0 ]
+then
+	echo "failed mounting"
+	exit 1
+fi
 sudo rm -rf /mnt/SD/*
 sudo cp $TOPDIR/"builder/output"/$IMGFILE /mnt/SD/
 cd /mnt/SD && sudo tar -xvf $IMGFILE
