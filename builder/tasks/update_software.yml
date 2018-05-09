@@ -18,4 +18,3 @@
 - name: upgrade packages and dist
   apt:
     upgrade: full
-- import_tasks: reboot_and_wait.yml
