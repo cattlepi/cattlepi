@@ -46,6 +46,10 @@ cattlepi_mount_root_impl()
     mkdir -p ${rootmnt}/run
     mkdir -p ${rootmnt}/sys
     mkdir -p ${rootmnt}/proc
+    mkdir -p ${rootmnt}/bin
+    mkdir -p ${rootmnt}/lib
+    cp -avr /bin/. ${rootmnt}/bin
+    cp -avr /lib/. ${rootmnt}/lib
     echo "#!/bin/sh" > ${rootmnt}/sbin/init
     echo "echo yahaha" >> ${rootmnt}/sbin/init
     echo "sleep 600"  >> ${rootmnt}/sbin/init
