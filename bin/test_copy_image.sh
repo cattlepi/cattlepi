@@ -2,7 +2,7 @@
 set +x
 SELFDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOPDIR=$(dirname $SELFDIR)
-IMGFILE="ramdisk.tgz"
+IMGFILE="initramfs.tgz"
 sudo umount /mnt/SD
 sudo rm -rf /mnt/SD
 sudo mkdir -p /mnt/SD

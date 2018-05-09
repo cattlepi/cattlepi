@@ -1,11 +1,11 @@
 - file: 
-    path: /tmp/ramdisk
+    path: /tmp/initramfs
     state: absent
 - file: 
-    path: /tmp/ramdisk.tgz
+    path: /tmp/initramfs.tgz
     state: absent
 - file: 
-    path: /tmp/ramdisk
+    path: /tmp/initramfs
     state: directory
     mode: 0755
 - file:
@@ -29,26 +29,26 @@
     mode: 0755
 - name: bring in the cattlepi initramfs script
   shell: cp -R /tmp/resources/usr /
-- name: create the ramdisk file
-  shell: mkinitramfs -v -o /tmp/ramdisk/cattleinit.gz
-- name: set ramdisk permissions
-  shell: chmod 0755 /tmp/ramdisk/cattleinit.gz
+- name: create the initramfs file
+  shell: mkinitramfs -v -o /tmp/initramfs/cattleinit.gz
+- name: set initramfs permissions
+  shell: chmod 0755 /tmp/initramfs/cattleinit.gz
 - name: bring in the rest of boot
-  shell: /bin/cp -R /boot/* /tmp/ramdisk/
+  shell: /bin/cp -R /boot/* /tmp/initramfs/
 - lineinfile:
-    path: /tmp/ramdisk/config.txt
+    path: /tmp/initramfs/config.txt
     line: initramfs cattleinit.gz followkernel
 - lineinfile:
-    path: /tmp/ramdisk/config.txt
+    path: /tmp/initramfs/config.txt
     line: bootdelay=2
 - name: build the cmdline
-  shell: echo "dwc_otg.lpm_enable=0 console=tty1 boot=cattlepi earlyprintk elevator=deadline root=/dev/ram0 rw rootwait initrd=-1 break=cattlepi boot_delay=50" > /tmp/ramdisk/cmdline.txt
+  shell: echo "dwc_otg.lpm_enable=0 console=tty1 boot=cattlepi earlyprintk elevator=deadline root=/dev/ram0 rw rootwait initrd=-1 break=cattlepi boot_delay=50" > /tmp/initramfs/cmdline.txt
 - name: set cmline permissions
-  shell: chmod 0755 /tmp/ramdisk/cmdline.txt
+  shell: chmod 0755 /tmp/initramfs/cmdline.txt
 - archive:
-    path: /tmp/ramdisk/
-    dest: /tmp/ramdisk.tgz
+    path: /tmp/initramfs/
+    dest: /tmp/initramfs.tgz
 - fetch:
-    src: /tmp/ramdisk.tgz
+    src: /tmp/initramfs.tgz
     dest: output/
     flat: true
