@@ -1,0 +1,34 @@
+- file: 
+    path: /tmp/squashfs
+    state: absent
+- file: 
+    path: /tmp/squashfs/rootfs
+    state: directory
+    mode: 0755
+- file:
+    path: /tmp/resources
+    state: absent
+- file:
+    path: /tmp/output
+    state: absent
+- copy:
+    src: resources
+    dest: /tmp
+    owner: root
+    group: root
+    mode: 0755
+- name: clone the root in order to customize it
+  shell: sudo rsync -aHAXS --info=progress2 --exclude={"/boot/*","/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} / /tmp/squashfs/rootfs
+  args:
+    chdir: /
+- name: create the squash fs file
+  shell: sudo mksquashfs /tmp/rootfs /tmp/squashfs/rootfs.sqsh -info
+- file:
+    path: /tmp/squashfs/rootfs.sqsh
+    owner: pi
+    group: pi
+    mode: 0644
+- fetch:
+    src: /tmp/squashfs/rootfs.sqsh
+    dest: output/
+    flat: true

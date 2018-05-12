@@ -1,0 +1,7 @@
+---
+- hosts: buildernodes
+  remote_user: pi
+  become: yes
+  become_method: sudo
+  tasks:
+    - import_tasks: tasks/squashfs.yml
