@@ -1,0 +1,31 @@
+# some notes on how we will squash what's currently on the rootfs
+
+# create the appropriate structures
+rm -rf /tmp/rootfs
+mkdir -p /tmp/rootfs
+rm -rf /tmp/squashfs
+mkdir -p /tmp/squashfs
+
+# this is the exclude list
+cat /tmp/exclude_list 
+/boot/
+/proc/
+/dev/
+/sys/
+/run/
+/tmp/rootfs/
+/tmp/squashfs/
+# for speed - will not be in final incarnation
+/lib/
+/usr/
+/opt/
+/var/
+
+# need to prestage the fs
+# look at how nfs share is created 
+https://www.raspberrypi.org/documentation/hardware/raspberrypi/bootmodes/net_tutorial.md
+# also
+https://wiki.archlinux.org/index.php/rsync#File_system_cloning
+
+# create the squashed filesystem ?
+sudo mksquashfs / /tmp/rootfs /tmp/squashfs/root.squashed -info -ef /tmp/exclude_list
