@@ -15,6 +15,10 @@
   command: dphys-swapfile swapoff
 - name: disable swap - make sure if does not come back
   command: dphys-swapfile uninstall
+- name: ufw allow ssh connectivity
+  shell: ufw allow ssh/tcp
+- name: enable ufw (ufw is UncomplicatedFirewall)
+  shell: yes | ufw enable
 - name: upgrade packages and dist
   apt:
     upgrade: full
