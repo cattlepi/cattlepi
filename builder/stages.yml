@@ -8,5 +8,7 @@
       command: echo start
     - import_tasks: tasks/update_software.yml
     - import_tasks: tasks/reboot_and_wait.yml
+    - import_tasks: tasks/initramfs.yml
+    - import_tasks: tasks/squashfs.yml
     - name: sentinel done
       command: echo done

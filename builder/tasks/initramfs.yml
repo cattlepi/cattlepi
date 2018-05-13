@@ -48,7 +48,7 @@
 - archive:
     path: /tmp/initramfs/
     dest: /tmp/initramfs.tgz
-- fetch:
+- synchronize:
+    mode: pull
     src: /tmp/initramfs.tgz
     dest: output/
-    flat: true
