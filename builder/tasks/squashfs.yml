@@ -26,8 +26,7 @@
     owner: pi
     group: pi
     mode: 0644
-- fetch:
+- synchronize:
+    mode: pull
     src: /tmp/squashfs/rootfs.sqsh
-    become: no
     dest: output/
-    flat: true
