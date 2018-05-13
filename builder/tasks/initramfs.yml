@@ -42,7 +42,7 @@
     path: /tmp/initramfs/config.txt
     line: bootdelay=2
 - name: build the cmdline
-  shell: echo "dwc_otg.lpm_enable=0 console=tty1 boot=cattlepi earlyprintk elevator=deadline root=/dev/ram0 rw rootwait initrd=-1 break=cattlepi boot_delay=50" > /tmp/initramfs/cmdline.txt
+  shell: echo "dwc_otg.lpm_enable=0 console=tty1 boot=cattlepi elevator=deadline rw rootwait initrd=-1" > /tmp/initramfs/cmdline.txt
 - name: set cmline permissions
   shell: chmod 0755 /tmp/initramfs/cmdline.txt
 - archive:
