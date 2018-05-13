@@ -28,6 +28,6 @@
     mode: 0644
 - fetch:
     src: /tmp/squashfs/rootfs.sqsh
-    become: false
+    become: no
     dest: output/
     flat: true
