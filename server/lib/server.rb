@@ -2,6 +2,8 @@ require 'sinatra'
 require 'json'
 require 'digest'
 
+set :bind, '0.0.0.0'
+
 def get_filepath(filename)
   File.expand_path("../builder/output/#{filename}")
 end

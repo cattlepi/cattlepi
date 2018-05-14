@@ -5,11 +5,12 @@
     force: yes
     state: latest
   with_items: 
-    - vim 
+    - vim
     - busybox
     - initramfs-tools
     - squashfs-tools
     - unionfs-fuse
+    - jq
     - ufw
 - name: disable swap
   command: dphys-swapfile swapoff
