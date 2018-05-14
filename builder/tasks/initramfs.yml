@@ -11,9 +11,6 @@
 - file:
     path: /tmp/resources
     state: absent
-- file:
-    path: /tmp/output
-    state: absent
 - lineinfile:
     path: /etc/initramfs-tools/modules 
     line: squashfs
@@ -30,19 +27,19 @@
 - name: bring in the cattlepi initramfs script
   shell: cp -R /tmp/resources/usr /
 - name: create the initramfs file
-  shell: mkinitramfs -v -o /tmp/initramfs/cattleinit.gz
+  shell: mkinitramfs -v -o /tmp/initramfs/cattleinit.cpio
 - name: set initramfs permissions
-  shell: chmod 0755 /tmp/initramfs/cattleinit.gz
+  shell: chmod 0755 /tmp/initramfs/cattleinit.cpio
 - name: bring in the rest of boot
   shell: /bin/cp -R /boot/* /tmp/initramfs/
 - lineinfile:
     path: /tmp/initramfs/config.txt
-    line: initramfs cattleinit.gz followkernel
+    line: initramfs cattleinit.cpio followkernel
 - lineinfile:
     path: /tmp/initramfs/config.txt
-    line: bootdelay=2
+    line: '# end config'
 - name: build the cmdline
-  shell: echo "dwc_otg.lpm_enable=0 console=tty1 boot=cattlepi elevator=deadline rw rootwait initrd=-1" > /tmp/initramfs/cmdline.txt
+  shell: echo "dwc_otg.lpm_enable=0 console=tty1 boot=cattlepi initrd=-1 elevator=deadline rw rootwait rootdelay=5" > /tmp/initramfs/cmdline.txt
 - name: set cmline permissions
   shell: chmod 0755 /tmp/initramfs/cmdline.txt
 - archive:

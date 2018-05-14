@@ -2,6 +2,7 @@
 
 cattlepi_top()
 {
+    sleep 2
     if [ "${cattlepi_top_used}" != "yes" ]; then
         [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/cattlepi-top"
         run_scripts /scripts/cattlepi-top
@@ -41,6 +42,9 @@ cattlepi_mount_root_impl()
 
     mount -n -t tmpfs -o size=512m none ${rootmnt}
     mount -n -t none -o bind ${rootmnt} ${rootmnt}
+
+    wait_for_udev 10
+
     mkdir -p ${rootmnt}/sbin
     mkdir -p ${rootmnt}/dev
     mkdir -p ${rootmnt}/run
@@ -61,8 +65,8 @@ cattlepi_mount_root()
 {
     cattlepi_top
 
-    modprobe squashfs
     wait_for_udev 10
+    modprobe squashfs    
 
     # loop until cattlepimount succeeds
     cattlepi_mount_root_impl

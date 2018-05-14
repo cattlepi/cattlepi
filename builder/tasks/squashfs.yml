@@ -8,9 +8,6 @@
 - file:
     path: /tmp/resources
     state: absent
-- file:
-    path: /tmp/output
-    state: absent
 - copy:
     src: resources
     dest: /tmp
