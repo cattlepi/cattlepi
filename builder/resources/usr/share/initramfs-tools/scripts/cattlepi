@@ -35,9 +35,6 @@ cattlepi_bottom()
 # parse cattlepi bootargs and mount cattlepi
 cattlepi_mount_root_impl()
 {
-    configure_networking
-    # TODO: gather info about what we are mounting
-
     cattlepi_premount
 
     mount -n -t tmpfs -o size=512m none ${rootmnt}

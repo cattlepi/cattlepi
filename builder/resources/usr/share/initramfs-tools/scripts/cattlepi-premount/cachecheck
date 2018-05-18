@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PREREQ="cachecheck"
+PREREQ="sdmount"
 
 prereqs()
 {
@@ -14,5 +14,9 @@ case "$1" in
     ;;
 esac
 
+. /scripts/functions
 
+configure_networking
 echo "cattlepi pre - cache and check"
+
+curl http://192.168.0.1:4567/boot/23:45:34:33:33:12/config

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PREREQ="sdmount"
+PREREQ=""
 
 prereqs()
 {
@@ -14,4 +14,6 @@ case "$1" in
     ;;
 esac
 
-echo "cattlepi pre - cache and check"
+echo "cattlepi pre - sdmount"
+mkdir /boot
+mount -n -t vfat /dev/mmcblk0p1 /boot

@@ -15,4 +15,5 @@ fi
 sudo rm -rf /mnt/SD/*
 sudo cp $TOPDIR/"builder/output"/$IMGFILE /mnt/SD/
 cd /mnt/SD && sudo tar -xvf $IMGFILE
+sudo rm /mnt/SD/$IMGFILE
 cd $SELFDIR && sudo umount /mnt/SD
