@@ -2,26 +2,30 @@ require 'sinatra'
 require 'json'
 require 'digest'
 
-set :bind, '0.0.0.0'
+set :bind, ENV['SERVERIP']
 
 def get_filepath(filename)
   File.expand_path("../builder/output/#{filename}")
+end
+
+def get_filedescriptor(filename)
+  {
+    url: File.join("http://#{ENV['SERVERIP']}:4567/file/#{filename}"),
+    md5sum: Digest::MD5.file(get_filepath(filename))
+  }
 end
 
 get '/boot/:mac/config' do
   content_type :json
   { msg: 'Hello',
     mac: params['mac'],
-    initfs: { id: 'initfs', md5sum: Digest::MD5.file(get_filepath('initramfs.tgz')) },
-    rootfs: { id: 'rootfs', md5sum: Digest::MD5.file(get_filepath('rootfs.sqsh')) } }.to_json
+    initfs: get_filedescriptor('initramfs.tgz'),
+    rootfs: get_filedescriptor('rootfs.sqsh') }.to_json
 end
 
-get '/boot/:mac/:fileid' do
-  case params['fileid']
-  when 'initfs'
-    send_file(get_filepath('initramfs.tgz'))
-  when 'rootfs'
-    send_file(get_filepath('rootfs.sqsh'))
+get '/file/:fileid' do
+  if ['initramfs.tgz', 'rootfs.sqsh'].include?(params['fileid'])
+    send_file(get_filepath(params['fileid']))
   else
     status 404
   end
