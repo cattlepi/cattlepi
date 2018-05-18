@@ -1,0 +1,18 @@
+#!/bin/sh
+
+PREREQ="sdmount"
+
+prereqs()
+{
+	echo "${PREREQ}"
+}
+
+case "$1" in
+    prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+
+echo "cattlepi pre - buildroot"
