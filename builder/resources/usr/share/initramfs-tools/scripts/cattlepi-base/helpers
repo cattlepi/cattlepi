@@ -1,0 +1,55 @@
+# export important params
+export CATTLEPI_BASE=
+export CATTLEPI_APIKEY=
+export CATTLEPI_DIR=
+export CATTLEPI_ID=
+
+cattlepi_find_params()
+{
+    if [ "${cattlepi_find_params_used}" != "yes" ]; then
+        for x in $(cat /proc/cmdline); do
+            case $x in
+            cattlepi_base=*)
+                CATTLEPI_BASE=${x#cattlepi_base=}
+                ;;
+            cattlepi_apikey=*)
+                CATTLEPI_APIKEY=${x#cattlepi_apikey=}
+                ;;
+            cattlepi_id=*)
+                CATTLEPI_APIKEY=${x#cattlepi_id=}
+                ;;
+            cattlepi_dir=*)
+                CATTLEPI_ID=${x#cattlepi_dir=}
+                ;;
+            esac
+        done
+        # set default values
+        CATTLEPI_BASE=${CATTLEPI_BASE-'http://192.168.0.1:4567'}    
+        CATTLEPI_DIR=${CATTLEPI_DIR-'/boot/cattlepi}
+        mkdir -p "${CATTLEPI_DIR}"
+
+        # pick it up from kernel boot param, if not from file and if not either give it default value
+        if [ -z ${CATTLEPI_APIKEY+x} ]; then
+            [ -r "${CATTLEPI_DIR}/apikey" ] && CATTLEPI_APIKEY=$(head -n 1 "${CATTLEPI_DIR}/apikey")
+            CATTLEPI_APIKEY=${CATTLEPI_APIKEY-'5a1eab1e-1857-b33f-b005-c001deadbeef'}
+        fi
+
+        # same as with the api key
+        if [ -z ${CATTLEPI_ID+x} ]; then
+            CATTLEPI_MAC=$(cat /sys/class/net/*/address | grep -v ^00: | sort | head -n 1)
+            [ -r "${CATTLEPI_DIR}/id" ] && CATTLEPI_ID=$(head -n 1 "${CATTLEPI_DIR}/id")
+            CATTLEPI_ID=${CATTLEPI_ID-$CATTLEPI_MAC}
+        fi
+    fi
+    cattlepi_find_params_used=yes 
+}
+
+cattlepi_download()
+{
+    # basic 
+    curl -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $CATTLEPI_BASE/boot/$CATTLEPI_ID/config
+    # not wired anywhere. still TODO
+    ## take a parameter for where to download
+    ## look a errorcode (use -f?)
+    ## follow redirects
+}
