@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PREREQ="cachecheck"
+PREREQ="sdmountro"
 
 prereqs()
 {
