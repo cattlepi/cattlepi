@@ -128,8 +128,9 @@ cattlepi_update_boot_part()
         tar -xvzf "${CATTLEPI_DIR}/${target_initfs}" -C /boot/
         mv /tmp/target_initfs /boot/initfs
         umount /boot
-        sleep 2
-        reboot
+        sleep 5
+        # reboot 
+        echo b >/proc/sysrq-trigger
     fi
 }
 

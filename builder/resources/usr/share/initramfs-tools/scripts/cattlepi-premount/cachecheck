@@ -17,6 +17,7 @@ esac
 . /scripts/functions
 . scripts/cattlepi-base/helpers
 
+set -x 
 configure_networking
 echo "cattlepi pre - cache and check"
 cattlepi_fetch_update_images
