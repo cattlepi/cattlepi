@@ -19,5 +19,6 @@ esac
 
 configure_networking
 echo "cattlepi pre - cache and check"
-set -x
 cattlepi_fetch_update_images
+echo "cattlepi pre - update boot if needed"
+cattlepi_update_boot_part

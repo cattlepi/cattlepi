@@ -117,3 +117,23 @@ cattlepi_fetch_update_images()
         fi
     done
 }
+
+cattlepi_update_boot_part() 
+{
+    cattlepi_fetch_update_config
+    local target_initfs=$(cat "${CATTLEPI_DIR}/config" | jq -r .initfs.md5sum )
+    echo $target_initfs > /tmp/target_initfs
+    cmp -s /boot/initfs /tmp/target_initfs 
+    if [ $? -ne 0 ]; then
+        tar -xvzf "${CATTLEPI_DIR}/${target_initfs}" -C /boot/
+        mv /tmp/target_initfs /boot/initfs
+        umount /boot
+        sleep 2
+        reboot
+    fi
+}
+
+cattlepi_build_root_filesystem()
+{
+    echo "yahaha. nothing in here yet"
+}
