@@ -15,8 +15,8 @@ case "$1" in
 esac
 
 . /scripts/functions
+. scripts/cattlepi-base/helpers
 
 configure_networking
 echo "cattlepi pre - cache and check"
-
-curl http://192.168.0.1:4567/boot/23:45:34:33:33:12/config
+cattlepi_fetch_update_images

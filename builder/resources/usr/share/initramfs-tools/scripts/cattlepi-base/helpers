@@ -3,7 +3,7 @@
 # inspired by https://stackoverflow.com/questions/8350942/how-to-re-run-the-curl-command-automatically-when-the-error-occurs/8351489#8351489
 with_backoff() 
 {
-  local max_attempts=${ATTEMPTS-5}
+  local max_attempts=${ATTEMPTS-8}
   local timeout=${TIMEOUT-1}
   local attempt=1
   local exitCode=0
@@ -22,9 +22,10 @@ with_backoff()
     attempt=$(( attempt + 1 ))
     timeout=$(( timeout * 2 ))
   done
-  return $exitCode
+  panic "failed to execute command with retries"
 }
 
+# identify the params we are working with
 cattlepi_find_params()
 {
     if [ "${cattlepi_find_params_used}" != "yes" ]; then
@@ -69,11 +70,51 @@ cattlepi_find_params()
     cattlepi_find_params_used=yes 
 }
 
+# generic download wrapper
 cattlepi_download()
 {
     cattlepi_find_params        
     local downloc outloc
     downloc="$1"
     outloc="$2"
-    with_backoff curl -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $CATTLEPI_BASE/$downloc -o $outloc
+    cattlepi_absolute_download $CATTLEPI_BASE/$downloc $outloc
+}
+
+# generic donwnload wrapper w/ absolute path
+cattlepi_absolute_download()
+{
+    cattlepi_find_params
+    local downloc outloc
+    downloc="$1"
+    outloc="$2"
+    with_backoff curl -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $downloc -o $outloc
+}
+
+# get/update config 
+cattlepi_fetch_update_config()
+{
+    if [ "${cattlepi_fetch_update_config_invoked}" != "yes" ]; then
+        cattlepi_download boot/$CATTLEPI_ID/config /tmp/config
+        mkdir -p "${CATTLEPI_DIR}"
+        cmp -s /tmp/config "${CATTLEPI_DIR}/config" || cp /tmp/config "${CATTLEPI_DIR}/config"
+    fi
+    cattlepi_fetch_update_config_invoked=yes
+}
+
+cattlepi_fetch_update_images()
+{
+    cattlepi_fetch_update_config
+    for img in initfs rootfs; do
+        local md5sum=$(cat "${CATTLEPI_DIR}/config" | jq -r .${img}.md5sum )
+        if [ -r "${CATTLEPI_DIR}/${md5sum}" ]; then
+            echo "${md5sum}  ${CATTLEPI_DIR}/${md5sum}" > /tmp/check_md5
+            md5sum --quiet -c /tmp/check_md5 || rm -rf ${CATTLEPI_DIR}/${md5sum}
+        fi
+        if [ ! -r "${CATTLEPI_DIR}/${md5sum}" ]; then 
+            local filetodownload=$(cat "${CATTLEPI_DIR}/config" | jq -r .${img}.url )
+            cattlepi_absolute_download $filetodownload "${CATTLEPI_DIR}/${md5sum}"
+            echo "${md5sum}  ${CATTLEPI_DIR}/${md5sum}" > /tmp/check_md5
+            md5sum --quiet -c /tmp/check_md5 || panic "checksum verification failed"
+        fi
+    done
 }
