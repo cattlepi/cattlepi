@@ -19,4 +19,5 @@ esac
 
 configure_networking
 echo "cattlepi pre - cache and check"
+set -x
 cattlepi_fetch_update_images
