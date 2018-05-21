@@ -15,6 +15,5 @@ case "$1" in
 esac
 
 echo "cattlepi pre - sdmount"
-set -x
 mkdir /boot
 mount -n -t vfat /dev/mmcblk0p1 /boot
