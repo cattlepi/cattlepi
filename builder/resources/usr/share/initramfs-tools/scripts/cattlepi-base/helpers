@@ -1,8 +1,29 @@
 # export important params
-export CATTLEPI_BASE=
-export CATTLEPI_APIKEY=
-export CATTLEPI_DIR=
-export CATTLEPI_ID=
+
+# inspired by https://stackoverflow.com/questions/8350942/how-to-re-run-the-curl-command-automatically-when-the-error-occurs/8351489#8351489
+with_backoff() 
+{
+  local max_attempts=${ATTEMPTS-5}
+  local timeout=${TIMEOUT-1}
+  local attempt=1
+  local exitCode=0
+
+  while (( $attempt < $max_attempts ))
+  do
+    if "$@"
+    then
+      return 0
+    else
+      exitCode=$?
+    fi
+
+    echo "Failure! Retrying in $timeout.." 1>&2
+    sleep $timeout
+    attempt=$(( attempt + 1 ))
+    timeout=$(( timeout * 2 ))
+  done
+  return $exitCode
+}
 
 cattlepi_find_params()
 {
@@ -25,7 +46,7 @@ cattlepi_find_params()
         done
         # set default values
         CATTLEPI_BASE=${CATTLEPI_BASE-'http://192.168.0.1:4567'}    
-        CATTLEPI_DIR=${CATTLEPI_DIR-'/boot/cattlepi}
+        CATTLEPI_DIR=${CATTLEPI_DIR-'/boot/cattlepi'}
         mkdir -p "${CATTLEPI_DIR}"
 
         # pick it up from kernel boot param, if not from file and if not either give it default value
@@ -40,16 +61,19 @@ cattlepi_find_params()
             [ -r "${CATTLEPI_DIR}/id" ] && CATTLEPI_ID=$(head -n 1 "${CATTLEPI_DIR}/id")
             CATTLEPI_ID=${CATTLEPI_ID-$CATTLEPI_MAC}
         fi
+        export CATTLEPI_BASE
+        export CATTLEPI_APIKEY
+        export CATTLEPI_DIR
+        export CATTLEPI_ID
     fi
     cattlepi_find_params_used=yes 
 }
 
 cattlepi_download()
 {
-    # basic 
-    curl -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $CATTLEPI_BASE/boot/$CATTLEPI_ID/config
-    # not wired anywhere. still TODO
-    ## take a parameter for where to download
-    ## look a errorcode (use -f?)
-    ## follow redirects
+    cattlepi_find_params        
+    local downloc outloc
+    downloc="$1"
+    outloc="$2"
+    with_backoff curl -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $CATTLEPI_BASE/$downloc -o $outloc
 }
