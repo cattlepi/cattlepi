@@ -15,7 +15,7 @@ case "$1" in
 esac
 
 . /scripts/functions
-. scripts/cattlepi-base/helpers
+. /scripts/cattlepi-base/helpers
 
 set -x 
 configure_networking

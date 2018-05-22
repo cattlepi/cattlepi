@@ -14,6 +14,9 @@ case "$1" in
     ;;
 esac
 
+. /scripts/functions
+. /scripts/cattlepi-base/helpers
+
 echo "cattlepi pre - buildroot"
 set -x
 cattlepi_build_root_filesystem
