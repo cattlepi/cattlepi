@@ -37,24 +37,11 @@ cattlepi_mount_root_impl()
 {
     cattlepi_premount
 
-    mount -n -t tmpfs -o size=512m none ${rootmnt}
-    mount -n -t none -o bind ${rootmnt} ${rootmnt}
-
+    # swap the rootmnt value
+    rootmnt=/rootfs/union
+    echo "swap complete"
+    sleep 2
     wait_for_udev 10
-
-    mkdir -p ${rootmnt}/sbin
-    mkdir -p ${rootmnt}/dev
-    mkdir -p ${rootmnt}/run
-    mkdir -p ${rootmnt}/sys
-    mkdir -p ${rootmnt}/proc
-    mkdir -p ${rootmnt}/bin
-    mkdir -p ${rootmnt}/lib
-    cp -avr /bin/. ${rootmnt}/bin
-    cp -avr /lib/. ${rootmnt}/lib
-    echo "#!/bin/sh" > ${rootmnt}/sbin/init
-    echo "echo yahaha" >> ${rootmnt}/sbin/init
-    echo "sleep 600"  >> ${rootmnt}/sbin/init
-    chmod +x ${rootmnt}/sbin/init
 }
 
 # CATTLEPI root mounting
