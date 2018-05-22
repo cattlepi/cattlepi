@@ -136,5 +136,20 @@ cattlepi_update_boot_part()
 
 cattlepi_build_root_filesystem()
 {
-    echo "yahaha. nothing in here yet"
+    local target_rootsfs=$(cat "${CATTLEPI_DIR}/config" | jq -r .rootfs.md5sum )
+    # mount bottom layer - squash fs 
+    mkdir -p /rootfs/bottomro
+    mount -n -t squashfs -o loop "${CATTLEPI_DIR}/${target_rootsfs}" /rootfs/bottomro
+    # mount top layer - tmpfs
+    mkdir -p /rootfs/toprw
+    mount -n -t tmpfs -o size=512m tmpfs /root/toprw
+    # create root fs which is an union of the 2 layers 
+    mkdir -p /rootfs/union
+    unionfs-fuse -o cow,allow_other,suid,use_ino,nonempty,dev /rootfs/toprw=RW:/rootfs/bottomro=RO /rootfs/union
+    mkdir -p /rootfs/union/cattlepi
+    # copy the env vars
+    cp "${CATTLEPI_DIR}/config" /rootfs/union/cattlepi/
+    [ -r "${CATTLEPI_DIR}/apikey" ] && cp "${CATTLEPI_DIR}/apikey" /rootfs/union/cattlepi/
+    [ -r "${CATTLEPI_DIR}/id" ] && cp "${CATTLEPI_DIR}/id" /rootfs/union/cattlepi/
+    echo $CATTLEPI_BASE > /rootfs/union/cattlepi/base
 }
