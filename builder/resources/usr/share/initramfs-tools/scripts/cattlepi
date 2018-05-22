@@ -36,12 +36,9 @@ cattlepi_bottom()
 cattlepi_mount_root_impl()
 {
     cattlepi_premount
-
-    # swap the rootmnt value
-    rootmnt=/rootfs/union
-    echo "swap complete"
-    sleep 2
     wait_for_udev 10
+    echo "cattlepi_mount_root_impl complete "
+    sleep 5
 }
 
 # CATTLEPI root mounting
