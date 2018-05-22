@@ -20,5 +20,6 @@ esac
 copy_exec /usr/bin/md5sum /bin
 copy_exec /usr/bin/jq /bin
 copy_exec /usr/bin/curl /bin
+copy_exec /usr/bin/unionfs-fuse /bin
 
 exit 0
