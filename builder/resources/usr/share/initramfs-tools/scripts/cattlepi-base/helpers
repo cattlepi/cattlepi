@@ -136,13 +136,18 @@ cattlepi_update_boot_part()
 
 cattlepi_build_root_filesystem()
 {
+    # ensure we have the needed params and load the modules we use
+    cattlepi_find_params
+    modprobe squashfs
+    modprobe fuse
+    # figure out what rootfs we are using
     local target_rootsfs=$(cat "${CATTLEPI_DIR}/config" | jq -r .rootfs.md5sum )
     # mount bottom layer - squash fs 
     mkdir -p /rootfs/bottomro
     mount -n -t squashfs -o loop "${CATTLEPI_DIR}/${target_rootsfs}" /rootfs/bottomro
     # mount top layer - tmpfs
     mkdir -p /rootfs/toprw
-    mount -n -t tmpfs -o size=512m tmpfs /root/toprw
+    mount -n -t tmpfs -o size=512m tmpfs /rootfs/toprw
     # create root fs which is an union of the 2 layers 
     mkdir -p /rootfs/union
     unionfs-fuse -o cow,allow_other,suid,use_ino,nonempty,dev /rootfs/toprw=RW:/rootfs/bottomro=RO /rootfs/union

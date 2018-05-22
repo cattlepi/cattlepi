@@ -50,7 +50,6 @@ cattlepi_mount_root()
     cattlepi_top
 
     wait_for_udev 10
-    modprobe squashfs    
 
     # loop until cattlepimount succeeds
     cattlepi_mount_root_impl
