@@ -127,9 +127,10 @@ cattlepi_update_boot_part()
     if [ $? -ne 0 ]; then
         tar -xvzf "${CATTLEPI_DIR}/${target_initfs}" -C /boot/
         mv /tmp/target_initfs /boot/initfs
-        umount /boot
+        echo "initfs updated. will reboot to pick it up shortly"
+        umount /boot        
         sleep 5
-        # reboot 
+        # reboot
         echo b >/proc/sysrq-trigger
     fi
 }
@@ -149,12 +150,13 @@ cattlepi_build_root_filesystem()
     mkdir -p /rootfs/toprw
     mount -n -t tmpfs -o size=512m tmpfs /rootfs/toprw
     # create root fs which is an union of the 2 layers 
-    mkdir -p /rootfs/union
-    unionfs-fuse -o cow,allow_other,suid,use_ino,nonempty,dev /rootfs/toprw=RW:/rootfs/bottomro=RO /rootfs/union
-    mkdir -p /rootfs/union/cattlepi
+    unionfs-fuse -o cow,allow_other,suid,use_ino,nonempty,dev /rootfs/toprw=RW:/rootfs/bottomro=RO ${rootmnt}
+    mount -n -t none -o bind ${rootmnt} ${rootmnt}
+    mkdir -p "${rootmnt}/cattlepi"
     # copy the env vars
-    cp "${CATTLEPI_DIR}/config" /rootfs/union/cattlepi/
-    [ -r "${CATTLEPI_DIR}/apikey" ] && cp "${CATTLEPI_DIR}/apikey" /rootfs/union/cattlepi/
-    [ -r "${CATTLEPI_DIR}/id" ] && cp "${CATTLEPI_DIR}/id" /rootfs/union/cattlepi/
-    echo $CATTLEPI_BASE > /rootfs/union/cattlepi/base
+    cp "${CATTLEPI_DIR}/config" "${rootmnt}/cattlepi/"
+    [ -r "${CATTLEPI_DIR}/apikey" ] && cp "${CATTLEPI_DIR}/apikey" "${rootmnt}/cattlepi/"
+    [ -r "${CATTLEPI_DIR}/id" ] && cp "${CATTLEPI_DIR}/id" "${rootmnt}/cattlepi/"
+    echo $CATTLEPI_BASE > "${rootmnt}/cattlepi/base"
+    echo "boot/${CATTLEPI_ID}/config" > "${rootmnt}/cattlepi/base_relative_config"
 }
