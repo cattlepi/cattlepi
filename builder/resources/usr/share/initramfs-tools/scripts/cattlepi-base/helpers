@@ -151,7 +151,7 @@ cattlepi_build_root_filesystem()
     mount -n -t tmpfs -o size=512m tmpfs /rootfs/toprw
     # create root fs which is an union of the 2 layers 
     unionfs-fuse -o cow,allow_other,suid,use_ino,nonempty,dev /rootfs/toprw=RW:/rootfs/bottomro=RO ${rootmnt}
-    mount -n -t none -o bind ${rootmnt} ${rootmnt}
+    mount --bind ${rootmnt} ${rootmnt}
     mkdir -p "${rootmnt}/cattlepi"
     # copy the env vars
     cp "${CATTLEPI_DIR}/config" "${rootmnt}/cattlepi/"
