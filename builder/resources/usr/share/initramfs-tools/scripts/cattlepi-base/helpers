@@ -141,18 +141,24 @@ cattlepi_build_root_filesystem()
     cattlepi_find_params
     modprobe squashfs
     modprobe fuse
-    # figure out what rootfs we are using
+
+    # figure out what rootfs squashed file we'll be using
     local target_rootsfs=$(cat "${CATTLEPI_DIR}/config" | jq -r .rootfs.md5sum )
-    # mount bottom layer - squash fs 
+    mkdir -p /rootfs
+    mount -n -t tmpfs -o size=512m tmpfs /rootfs
+
+    # bottom layer - squash fs 
     mkdir -p /rootfs/bottomro
     mount -n -t squashfs -o loop "${CATTLEPI_DIR}/${target_rootsfs}" /rootfs/bottomro
-    # mount top layer - tmpfs
+
+    # top layer - tmpfs
     mkdir -p /rootfs/toprw
-    mount -n -t tmpfs -o size=512m tmpfs /rootfs/toprw
+
     # create root fs which is an union of the 2 layers 
     unionfs-fuse -o cow,allow_other,suid,use_ino,nonempty,dev /rootfs/toprw=RW:/rootfs/bottomro=RO ${rootmnt}
     mount --bind ${rootmnt} ${rootmnt}
     mkdir -p "${rootmnt}/cattlepi"
+
     # copy the env vars
     cp "${CATTLEPI_DIR}/config" "${rootmnt}/cattlepi/"
     [ -r "${CATTLEPI_DIR}/apikey" ] && cp "${CATTLEPI_DIR}/apikey" "${rootmnt}/cattlepi/"
