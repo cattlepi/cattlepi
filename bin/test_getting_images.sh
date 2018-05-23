@@ -1,4 +1,6 @@
 #!/bin/bash
+# tests if the server is up and running
+# TODO: same note on extracting the hardcoded part out (ie 192.168.0.1)
 set -euxo pipefail
 export TMPFILE=/tmp/config.json
 export TMPBOOTFILES=/tmp/boot

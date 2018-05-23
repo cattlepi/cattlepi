@@ -1,5 +1,7 @@
 #!/bin/bash
-set +x
+# takes the initramfs from the builder output and writes it on the sdcard
+# useful when experimenting with the initramfs OR when you want to write the image for the SD card for one of your pis
+set -x
 SELFDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOPDIR=$(dirname $SELFDIR)
 IMGFILE="initramfs.tgz"

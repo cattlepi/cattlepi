@@ -1,4 +1,5 @@
 #!/bin/bash
+# builds the needed virtualenv under which ansible runs
 oldstate=$(set +o)
 set -euxo pipefail
 
