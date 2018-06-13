@@ -44,14 +44,14 @@ cattlepi_find_params()
             esac
         done
         # set default values
-        CATTLEPI_BASE=${CATTLEPI_BASE-'http://192.168.0.1:4567'}    
+        CATTLEPI_BASE=${CATTLEPI_BASE-'https://api.cattlepi.com'}
         CATTLEPI_DIR=${CATTLEPI_DIR-'/boot/cattlepi'}
         mkdir -p "${CATTLEPI_DIR}"
 
         # pick it up from kernel boot param, if not from file and if not either give it default value
         if [ -z ${CATTLEPI_APIKEY+x} ]; then
             [ -r "${CATTLEPI_DIR}/apikey" ] && CATTLEPI_APIKEY=$(head -n 1 "${CATTLEPI_DIR}/apikey")
-            CATTLEPI_APIKEY=${CATTLEPI_APIKEY-'5a1eab1e-1857-b33f-b005-c001deadbeef'}
+            CATTLEPI_APIKEY=${CATTLEPI_APIKEY-'deadbeef'}
         fi
 
         # same as with the api key
