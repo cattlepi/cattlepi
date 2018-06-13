@@ -1,5 +1,6 @@
 ---
 - hosts: buildernodes
+  gather_facts: no
   remote_user: pi
   become: yes
   become_method: sudo
