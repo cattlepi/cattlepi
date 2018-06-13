@@ -85,7 +85,7 @@ cattlepi_absolute_download()
     local downloc outloc
     downloc="$1"
     outloc="$2"
-    with_backoff curl -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $downloc -o $outloc
+    with_backoff curl --http1.1 --cacert /etc/ssl/certs/ca-certificates.crt -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $downloc -o $outloc
 }
 
 # get/update config 

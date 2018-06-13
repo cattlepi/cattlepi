@@ -23,16 +23,11 @@ copy_exec /usr/bin/curl /bin
 copy_exec /usr/bin/unionfs-fuse /bin
 copy_exec /usr/bin/strace /bin
 
-# the dns resolution so 
-# seems that the resolver does some shady stuff 
-# normally when picking up curl and deps this should work
-set -x
-for libnss_dns in `ldconfig -p | grep nss_dns | awk '{ print $8 }'` 
-do
-	copy_file library $(readlink -fn ${libnss_dns}) || echo "already in place"
-	copy_file library $(readlink -fn ${libnss_dns}) /lib || echo "already in place"
-	copy_file library ${libnss_dns} || echo "already in place"
-	copy_file library ${libnss_dns} /lib || echo "already in place"
-done
+# make dns and ssl great again
+cp -a /etc/ssl ${DESTDIR}/etc/ssl
+mkdir -p ${DESTDIR}/usr/share/
+echo "nameserver 8.8.8.8" > ${DESTDIR}/etc/resolv.conf
+cp -a /usr/share/ca-certificates ${DESTDIR}/usr/share/      
+cp -a /lib/arm-linux-gnueabihf/libnss_dns* ${DESTDIR}/lib/arm-linux-gnueabihf/
 
 exit 0
