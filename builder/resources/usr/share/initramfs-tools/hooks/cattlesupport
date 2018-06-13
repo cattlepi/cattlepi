@@ -23,4 +23,18 @@ copy_exec /usr/bin/curl /bin
 copy_exec /usr/bin/unionfs-fuse /bin
 copy_exec /usr/bin/strace /bin
 
+# the dns resolution so 
+# seems that the resolver does some shady stuff 
+# normally when picking up curl and deps this should work
+for libnss_files in `ldconfig -p | grep nss_files | awk '{ print $8 }'` 
+do
+	copy_file library ${libnss_files}
+	copy_file library ${libnss_files} /lib
+done
+for libnss_dns in `ldconfig -p | grep nss_dns | awk '{ print $8 }'` 
+do
+	copy_file library ${libnss_dns}
+	copy_file library ${libnss_dns} /lib
+done
+
 exit 0
