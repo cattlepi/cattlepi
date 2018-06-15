@@ -78,13 +78,19 @@ cattlepi_download()
     cattlepi_absolute_download $CATTLEPI_BASE/$downloc $outloc
 }
 
+# generic time adjust 
+cattlepi_adjust_time()
+{
+    with_backoff curl --http1.1 -sSkI $CATTLEPI_BASE/ping | grep date | sed -e 's/date: //' | xargs -I {} date -I -s "{}"
+}
+
 # generic donwnload wrapper w/ absolute path
 cattlepi_absolute_download()
 {
     cattlepi_find_params
     local downloc outloc
     downloc="$1"
-    outloc="$2"
+    outloc="$2"    
     with_backoff curl --http1.1 --cacert /etc/ssl/certs/ca-certificates.crt -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $downloc -o $outloc
 }
 
@@ -102,6 +108,7 @@ cattlepi_fetch_update_config()
 
 cattlepi_fetch_update_images()
 {
+    cattlepi_adjust_time
     cattlepi_fetch_update_config
     for img in initfs rootfs; do
         local md5sum=$(cat "${CATTLEPI_DIR}/config" | jq -r .${img}.md5sum )
