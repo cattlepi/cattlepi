@@ -65,6 +65,7 @@ cattlepi_find_params()
         export CATTLEPI_DIR
         export CATTLEPI_ID
     fi
+    cattlepi_adjust_time
     cattlepi_find_params_used=yes 
 }
 
@@ -81,7 +82,12 @@ cattlepi_download()
 # generic time adjust 
 cattlepi_adjust_time()
 {
-    with_backoff curl --http1.1 -sSkI $CATTLEPI_BASE/ping | grep date | sed -e 's/date: //' | xargs -I {} date -I -s "{}"
+    if [ "${cattlepi_adjust_time_invoked}" != "yes" ]; then
+        with_backoff curl --http1.1 -sSkI $CATTLEPI_BASE/ping | grep -i date | sed -e 's/date: //I' > /tmp/date
+        /bin/gnudate -I -s "$(cat /tmp/date)"
+        rm /tmp/date
+    fi
+    cattlepi_adjust_time_invoked=yes
 }
 
 # generic donwnload wrapper w/ absolute path
@@ -108,7 +114,6 @@ cattlepi_fetch_update_config()
 
 cattlepi_fetch_update_images()
 {
-    cattlepi_adjust_time
     cattlepi_fetch_update_config
     for img in initfs rootfs; do
         local md5sum=$(cat "${CATTLEPI_DIR}/config" | jq -r .${img}.md5sum )

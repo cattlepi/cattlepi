@@ -22,6 +22,7 @@ copy_exec /usr/bin/jq /bin
 copy_exec /usr/bin/curl /bin
 copy_exec /usr/bin/unionfs-fuse /bin
 copy_exec /usr/bin/strace /bin
+copy_exec /bin/date /bin/gnudate
 
 # make dns and ssl great again
 cp -a /etc/ssl ${DESTDIR}/etc/ssl
