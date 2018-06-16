@@ -5,4 +5,3 @@ echo "Topdir is "$TOPDIR
 VENVDIR=$TOPDIR"/tools/venv"
 source $VENVDIR/bin/activate
 BUILDERDIR=$TOPDIR"/builder"
-

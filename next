@@ -1,10 +1,11 @@
 TODO:
 0) write brief README.md - explain what it is 
 1) secure ssh: https://github.com/vitalk/ansible-secure-ssh 
+
 2) refactor bin/build into 1 script + add makefile
+
 3) add option to skip the md5 checksum for files (and make it default)
 4) add support for altering config.txt via options provided in api/config file
 5) maybe generate server keys on boot vs static generator
 6) add support for booting without the nextwork (if config files are already there?)
 7) refactor default options (api, default key, etc) into a env vars/external file to make them easy to alter
-8)
