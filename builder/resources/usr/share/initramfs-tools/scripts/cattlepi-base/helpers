@@ -41,6 +41,9 @@ cattlepi_find_params()
             cattlepi_dir=*)
                 CATTLEPI_DIR=${x#cattlepi_dir=}
                 ;;
+            cattlepi_md5skip=*)
+                CATTLEPI_MD5SKIP=${x#cattlepi_md5skip=}
+                ;;
             esac
         done
         # set default values
@@ -60,10 +63,19 @@ cattlepi_find_params()
             [ -r "${CATTLEPI_DIR}/id" ] && CATTLEPI_ID=$(head -n 1 "${CATTLEPI_DIR}/id")
             CATTLEPI_ID=${CATTLEPI_ID-$CATTLEPI_MAC}
         fi
+        
+        # do the same for the md5skip 
+        if [ -z ${CATTLEPI_MD5SKIP+x} ]; then
+            CATTLEPI_MD5SKIP_DEFAULT=yes
+            [ -r "${CATTLEPI_DIR}/md5skip" ] && CATTLEPI_MD5SKIP=$(head -n 1 "${CATTLEPI_DIR}/md5skip")
+            CATTLEPI_MD5SKIP=${CATTLEPI_MD5SKIP-$CATTLEPI_MD5SKIP_DEFAULT}
+        fi
+
         export CATTLEPI_BASE
         export CATTLEPI_APIKEY
         export CATTLEPI_DIR
         export CATTLEPI_ID
+        export CATTLEPI_MD5SKIP
     fi
     cattlepi_adjust_time
     cattlepi_find_params_used=yes 
@@ -117,15 +129,19 @@ cattlepi_fetch_update_images()
     cattlepi_fetch_update_config
     for img in initfs rootfs; do
         local md5sum=$(cat "${CATTLEPI_DIR}/config" | jq -r .${img}.md5sum )
-        if [ -r "${CATTLEPI_DIR}/${md5sum}" ]; then
-            echo "${md5sum}  ${CATTLEPI_DIR}/${md5sum}" > /tmp/check_md5
-            md5sum --quiet -c /tmp/check_md5 || rm -rf ${CATTLEPI_DIR}/${md5sum}
+        if [ -r "${CATTLEPI_DIR}/${md5sum}" ]; then        
+            if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then 
+                echo "${md5sum}  ${CATTLEPI_DIR}/${md5sum}" > /tmp/check_md5
+                md5sum --quiet -c /tmp/check_md5 || rm -rf ${CATTLEPI_DIR}/${md5sum}
+            fi
         fi
         if [ ! -r "${CATTLEPI_DIR}/${md5sum}" ]; then 
             local filetodownload=$(cat "${CATTLEPI_DIR}/config" | jq -r .${img}.url )
             cattlepi_absolute_download $filetodownload "${CATTLEPI_DIR}/${md5sum}"
-            echo "${md5sum}  ${CATTLEPI_DIR}/${md5sum}" > /tmp/check_md5
-            md5sum --quiet -c /tmp/check_md5 || panic "checksum verification failed"
+            if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then
+                echo "${md5sum}  ${CATTLEPI_DIR}/${md5sum}" > /tmp/check_md5
+                md5sum --quiet -c /tmp/check_md5 || panic "checksum verification failed"
+            fi
         fi
     done
 }

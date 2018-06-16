@@ -5,7 +5,7 @@ TOPDIR=$(dirname $SELFDIR)
 
 function run_playbook {
     source $SELFDIR/"activate"
-    cd $BUILDERDIR && ansible-playbook -vv -i hosts $1 -k
+    cd $BUILDERDIR && ansible-playbook -vv -i hosts $1
     deactivate
 }
 
@@ -52,6 +52,7 @@ all)
     ;;
 tools_copy_initfs_to_sdcard)
     logdisplay "copying built initfs to sdcard"
+    set -x
     IMGFILE="initramfs.tgz"
     sudo umount /mnt/SD
     sudo rm -rf /mnt/SD
@@ -64,7 +65,7 @@ tools_copy_initfs_to_sdcard)
     fi
     sudo rm -rf /mnt/SD/*
     sudo cp $TOPDIR/"builder/output"/$IMGFILE /mnt/SD/
-    cd /mnt/SD && sudo tar -xvf $IMGFILE
+    cd /mnt/SD && sudo tar --no-same-owner -xvf $IMGFILE
     sudo rm /mnt/SD/$IMGFILE
     cd $SELFDIR && sudo umount /mnt/SD
     ;;
