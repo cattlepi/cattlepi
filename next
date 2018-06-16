@@ -2,5 +2,4 @@ TODO:
 0) write brief README.md - explain what it is
 1) secure ssh: https://github.com/vitalk/ansible-secure-ssh
 4) add support for altering config.txt via options provided in api/config file
-5) maybe generate server keys on boot vs static generator
 7) refactor default options (api, default key, etc) into a env vars/external file to make them easy to alter
