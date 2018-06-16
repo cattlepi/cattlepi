@@ -16,16 +16,16 @@
     mode: 0755
 - name: clone the root in order to customize it
   shell: /tmp/resources/bin/clone_root.sh
+- name: bring in the bootstrap script
+  shell: cp -R /tmp/resources/bin/bootstrap.sh /tmp/squashfs/rootfs/etc/bootstrap.sh
+- name: permissions on the bootstrap script
+  shell: chmod 0755 /tmp/squashfs/rootfs/etc/bootstrap.sh
+- lineinfile:
+    path: /tmp/squashfs/rootfs/etc/rc.local
+    line: /etc/bootstrap.sh
+    insertbefore: 'exit 0'
 - name: clear fstab 
   shell: echo '' > /tmp/squashfs/rootfs/etc/fstab
-- name: regenerate keys 1
-  shell: yes | ssh-keygen -f /tmp/squashfs/rootfs/etc/ssh/ssh_host_rsa_key -N '' -t rsa
-- name: regenerate keys 2
-  shell: yes | ssh-keygen -f /tmp/squashfs/rootfs/etc/ssh/ssh_host_dsa_key -N '' -t dsa
-- name: regenerate keys 3
-  shell: yes | ssh-keygen -f /tmp/squashfs/rootfs/etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa -b 521
-- name: regenerate keys 4
-  shell: yes | ssh-keygen -f /tmp/squashfs/rootfs/etc/ssh/ssh_host_ed25519_key -N '' -t ed25519
 - name: create the squash fs file
   shell: sudo mksquashfs /tmp/squashfs/rootfs /tmp/squashfs/rootfs.sqsh -info
 - file:
