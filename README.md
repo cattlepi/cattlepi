@@ -11,7 +11,7 @@ We've all heard about and want to treat out servers as [cattle and not pets](htt
 ## How does it work?
 This repository provides the tooling and wiring needed to build/generate 2 filesystem images. We're going to refer to these 2 images as the **initfs** image and the **rootfs** image.  
 The **initfs** image needs to be written onto a FAT partition for the SDCard that is going to be used with your RPi. This partition is the one used by the RPi in the boot process to read the kernel, various hardware configuration parameters and modules.  
-Baken within the initramfs image that ships with **initfs** there are scripts that download and apply the latest **initfs** and **rootfs** images and build the final root filesystem that will be used by your RPi.  
+Baked within the initramfs image that ships with **initfs** there are scripts that download and apply the latest **initfs** and **rootfs** images and build the final root filesystem that will be used by your RPi.  
 The boot process uses an external API endpoint to retrieve the configuration associated with your RPi and to figure out where the image files are located.  
 
 ## Quickstart
