@@ -3,7 +3,7 @@ The overall boot RPi boot process has been described over and over again. You ca
 
 This part specifically talks about how CattlePi works within the boot context and not about the whole boot process.
 
- * The **initfs** will contains the initramfs and the kernel is instructed via options both in config.txt (initramfs cattleinit.cpio followkernel) and cmdline.txt (initrd=-1) to load and start the initramfs. 
+ * The **initfs** image contains the initramfs and the kernel is instructed via options both in config.txt (initramfs cattleinit.cpio followkernel) and cmdline.txt (initrd=-1) to load and start the initramfs. 
  * Once it starts, it will run the init script within the initramfs. The init script will invoke all the logic needed. It will:
  * [Download the configuration](https://github.com/cattlepi/cattlepi/blob/2168b9a0ca742d87dd63b6c8ca13dcd6b2254b44/builder/resources/usr/share/initramfs-tools/scripts/cattlepi-base/helpers#L116) associated with the device from <endpoint>/boot/<device_id>/config
  * [Download the images](https://github.com/cattlepi/cattlepi/blob/2168b9a0ca742d87dd63b6c8ca13dcd6b2254b44/builder/resources/usr/share/initramfs-tools/scripts/cattlepi-base/helpers#L130) specified in the config

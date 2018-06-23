@@ -28,7 +28,9 @@ To quickly get going, you can use a prebuild **initfs** image that you can find 
 This image uses the following API endpoint: https://api.cattlepi.com   
 The image uses the following API key: **deadbeef**   
 
-Starting with an empty SD cards, format it to contain one FAT partion and write the image to the FAT partition. Insert the card into the RPi and watch it boot.
+Starting with an empty SD cards, format it to contain one FAT partion and write the image to the FAT partition. Insert the card into the RPi and watch it boot. You will get the default image that was configured and please keep in mind the **deadbeef** is a demo/shared API key. 
+
+Learn more details on https://cattlepi.com
 
 ## Tooling Used
 Following [main pieces of software] are used: 
