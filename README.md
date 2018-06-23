@@ -22,6 +22,8 @@ To build and test images locally, [follow this guide](https://github.com/cattlep
 
 A little more detail on the boot process can be [found here](https://github.com/cattlepi/cattlepi/blob/master/doc/BOOT.md)
 
+Also please look at the [FAQ associated with the project](https://github.com/cattlepi/cattlepi/blob/master/doc/FAQ.md)
+
 ## Quickstart
 To quickly get going, you can use a prebuild **initfs** image that you can find [here](http://cattlepi.com/initfs).  
 
