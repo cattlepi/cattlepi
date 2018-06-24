@@ -1,5 +1,5 @@
 # CattlePi
-We've all heard about and want to treat out servers as [cattle and not pets](http://cloudscaling.com/blog/cloud-computing/the-history-of-pets-vs-cattle/). The goal of this project is to help you do just that. 
+We've all heard about and want to treat out devices as [cattle and not pets](http://cloudscaling.com/blog/cloud-computing/the-history-of-pets-vs-cattle/). The goal of this project is to help you do just that. 
 
 **What does this mean?** Several things, including but not limited to:
  * ability to run a RPi headless, without the need to physically interact with the device 
@@ -25,7 +25,7 @@ A little more detail on the boot process can be [found here](https://github.com/
 Also please look at the [FAQ associated with the project](https://github.com/cattlepi/cattlepi/blob/master/doc/FAQ.md)
 
 ## Quickstart
-To quickly get going, you can use a prebuild **initfs** image that you can find [here](http://cattlepi.com/initfs).  
+To quickly get going, you can use a prebuild **initfs** image that you can find [here](https://cattlepi.com/images/initramfs.tgz).  
 
 This image uses the following API endpoint: https://api.cattlepi.com   
 The image uses the following API key: **deadbeef**   
