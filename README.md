@@ -25,7 +25,7 @@ A little more detail on the boot process can be [found here](https://github.com/
 Also please look at the [FAQ associated with the project](https://github.com/cattlepi/cattlepi/blob/master/doc/FAQ.md)
 
 ## Quickstart
-To quickly get going, you can use a prebuild **initfs** image that you can find [here](https://cattlepi.com/images/initramfs.tgz).  
+To quickly get going, you can use a prebuild **initfs** image that you can find [here](https://api.cattlepi.com/images/global/initramfs.tgz?apiKey=deadbeef).  
 
 This image uses the following API endpoint: https://api.cattlepi.com   
 The image uses the following API key: **deadbeef**   
