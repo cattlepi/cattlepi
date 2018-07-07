@@ -9,4 +9,4 @@ This part specifically talks about how CattlePi works within the boot context an
  * [Download the images](https://github.com/cattlepi/cattlepi/blob/2168b9a0ca742d87dd63b6c8ca13dcd6b2254b44/builder/resources/usr/share/initramfs-tools/scripts/cattlepi-base/helpers#L130) specified in the config
  * [Update the boot partition if needed](https://github.com/cattlepi/cattlepi/blob/2168b9a0ca742d87dd63b6c8ca13dcd6b2254b44/builder/resources/usr/share/initramfs-tools/scripts/cattlepi-base/helpers#L152)
  * It will [build the root filesystem](https://github.com/cattlepi/cattlepi/blob/2168b9a0ca742d87dd63b6c8ca13dcd6b2254b44/builder/resources/usr/share/initramfs-tools/scripts/cattlepi-base/helpers#L166)
- * Finally it will swap to using the built root filesystem (happens right at the end of init where control is given to the init specified in the rootfs - usually systemd for raspbian)
+ * Finally it will swap to using the built root filesystem (this happens right at the end of init where control is given to the init specified in the rootfs - usually systemd for Raspbian).
