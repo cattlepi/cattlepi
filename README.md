@@ -1,4 +1,9 @@
 # CattlePi
+
+> "It takes a family of three to care for a single puppy, but a few cowboys can drive tens of thousands of cows over great distances, all while drinking whiskey"
+
+— [Joshua McKenty (CTO of OpenStack's Piston Cloud)](https://www.networkworld.com/article/2165267/cloud-computing/why-servers-should-be-seen-like-cows--not-puppies.html) 
+
 Most Raspberry Pi (RPi) projects treat their hardware as pets. That is, a lot of time and care is devoted to—at most—a handful of curated, indispensable, computing units. If a single unit goes out, the project goes down. This is fine for a single DIY and/or educational project. But is hardly scalable. Imagine if a modern cloud service provider required a devoted technician for each node that threatened to fail or cried out for some handcrafted update. 
 
 The analogy of scaling up computational resources to that of agriculture became clear when we started to refer to 'server farms'. In a similar vein, this project attempts to automate and replicate multiple Raspberry Pi nodes, with intelligent fail-safe and fallback mechanisms. Hopefully with as little friction and human intervention as possible. You can read about the [history of the cattle vs. pets analogy here](http://cloudscaling.com/blog/cloud-computing/the-history-of-pets-vs-cattle/). 
