@@ -153,7 +153,7 @@ cattlepi_update_boot_part()
     echo $target_initfs > /tmp/target_initfs
     cmp -s /boot/initfs /tmp/target_initfs 
     if [ $? -ne 0 ]; then
-        tar -xvzf "${CATTLEPI_DIR}/${target_initfs}" -C /boot/
+        tar -xvzf "${CATTLEPI_DIR}/${target_initfs}" -C /boot/ --exclude='sizing'
         mv /tmp/target_initfs /boot/initfs
         echo "initfs updated. will reboot to pick it up shortly"
         umount /boot        
