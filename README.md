@@ -35,7 +35,7 @@ A little more detail on the boot process can be [found here](https://github.com/
 Also please look at the [FAQ associated with this project](https://github.com/cattlepi/cattlepi/blob/master/doc/FAQ.md)
 
 ## Quickstart
-To quickly get going, you can use a prebuilt **initfs** image that you can find [here](https://api.cattlepi.com/images/global/initramfs.tgz?apiKey=deadbeef).  
+To quickly get going, you can use a prebuilt **initfs** image that you can find [here](https://api.cattlepi.com/images/global/raspbian-lite/2018-06-29/v1/initramfs.tgz?apiKey=deadbeef).  
 
 This image uses the following API endpoint: https://api.cattlepi.com and the following API key: **deadbeef**   
 
