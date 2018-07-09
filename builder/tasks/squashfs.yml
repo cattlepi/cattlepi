@@ -22,7 +22,7 @@
   shell: chmod 0755 /tmp/squashfs/rootfs/etc/bootstrap.sh
 - lineinfile:
     path: /tmp/squashfs/rootfs/etc/rc.local
-    line: /etc/bootstrap.sh
+    line: /etc/bootstrap.sh > /tmp/bootstrap.log 2>&1
     insertbefore: 'exit 0'
 - name: clear fstab 
   shell: echo '' > /tmp/squashfs/rootfs/etc/fstab
