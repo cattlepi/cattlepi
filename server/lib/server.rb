@@ -18,6 +18,15 @@ def bootcode_simple
   'IyEvYmluL3NoCmVjaG8gImJvb3RpbmciCnNsZWVwIDUKZWNobyAiY29udGludWUgYm9vdGluZyIK'
 end
 
+def usercode_none
+  ''
+end
+
+def usercode_reboot_in_30
+  # same as bootcode_simple
+  'IyEvYmluL3NoCnNsZWVwIDMwCi9zYmluL3NodXRkb3duIC1yIG5vdwo='
+end
+
 def get_filedescriptor(filename)
   {
     url: File.join("http://#{ENV['SERVERIP']}:4567/file/#{filename}"),
@@ -31,8 +40,8 @@ get '/boot/:mac/config' do
     mac: params['mac'],
     initfs: get_filedescriptor('initramfs.tgz'),
     rootfs: get_filedescriptor('rootfs.sqsh'),
-    bootcode: bootcode_none,
-    usercode: '' }.to_json
+    bootcode: bootcode_simple,
+    usercode: usercode_none }.to_json
 end
 
 get '/file/:fileid' do
