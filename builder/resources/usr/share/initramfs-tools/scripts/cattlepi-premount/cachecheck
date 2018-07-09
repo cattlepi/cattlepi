@@ -23,3 +23,5 @@ echo "cattlepi pre - cache and check"
 cattlepi_fetch_update_images
 echo "cattlepi pre - update boot if needed"
 cattlepi_update_boot_part
+echo "cattlepi pre - running bootcode if any"
+cattlepi_run_bootcode

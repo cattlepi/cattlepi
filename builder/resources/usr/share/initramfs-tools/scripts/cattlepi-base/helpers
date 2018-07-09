@@ -124,6 +124,20 @@ cattlepi_fetch_update_config()
     cattlepi_fetch_update_config_invoked=yes
 }
 
+# run the bootcode
+cattlepi_run_bootcode() 
+{
+    cattlepi_fetch_update_config
+    if [ "${cattlepi_run_bootcode_invoked}" != "yes" ]; then
+        cat "${CATTLEPI_DIR}/config" | jq -r .bootcode | base64 -d > /tmp/bootcode.sh
+        if [ $? -eq 0 ]; then
+            chmod +x /tmp/bootcode.sh
+            /tmp/bootcode.sh || panic "failed to run the bootcode"
+        fi
+    fi
+    cattlepi_run_bootcode_invoked=yes
+}
+
 cattlepi_fetch_update_images()
 {
     cattlepi_fetch_update_config
