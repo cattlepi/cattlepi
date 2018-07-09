@@ -26,6 +26,18 @@
     insertbefore: 'exit 0'
 - name: clear fstab 
   shell: echo '' > /tmp/squashfs/rootfs/etc/fstab
+- lineinfile:
+    path: /tmp/squashfs/rootfs/etc/ssh/sshd_config
+    regexp: '^#?PermitEmptyPasswords'
+    line: 'PermitEmptyPasswords no'
+- lineinfile:
+    path: /tmp/squashfs/rootfs/etc/ssh/sshd_config
+    regexp: '^#?PermitRootLogin'
+    line: 'PermitRootLogin no'
+- lineinfile:
+    path: /tmp/squashfs/rootfs/etc/ssh/sshd_config
+    regexp: '^(#\s*)?PasswordAuthentication '
+    line: 'PasswordAuthentication no'
 - name: create the squash fs file
   shell: sudo mksquashfs /tmp/squashfs/rootfs /tmp/squashfs/rootfs.sqsh -info
 - file:
