@@ -17,4 +17,3 @@ esac
 echo "cattlepi pre - sdmount"
 mkdir /boot
 mount -n -t vfat /dev/mmcblk0p1 /boot
-rm -rf /boot/sizing

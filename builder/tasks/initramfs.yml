@@ -45,8 +45,6 @@
   shell: echo "dwc_otg.lpm_enable=0 console=tty1 boot=cattlepi cattlepi_base={{cattlepi_base|mandatory}} cattlepi_apikey={{cattlepi_apikey|mandatory}} initrd=-1 elevator=deadline rw rootwait panic=20" > /tmp/initramfs/cmdline.txt
 - name: set cmline permissions
   shell: chmod 0755 /tmp/initramfs/cmdline.txt
-- name: create sizing helper
-  shell: fallocate -l 2G /tmp/initramfs/sizing
 - archive:
     path: /tmp/initramfs/
     dest: /tmp/initramfs.tgz
