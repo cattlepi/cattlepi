@@ -8,6 +8,16 @@ def get_filepath(filename)
   File.expand_path("../builder/output/#{filename}")
 end
 
+def bootcode_none
+  ''
+end
+
+def bootcode_simple
+  # to see the script (echo booting + sleep + echo continue) issue:
+  #   echo IyEvYmluL3NoCmVjaG8gImJvb3RpbmciCnNsZWVwIDUKZWNobyAiY29udGludWUgYm9vdGluZyIK | base64 -d
+  'IyEvYmluL3NoCmVjaG8gImJvb3RpbmciCnNsZWVwIDUKZWNobyAiY29udGludWUgYm9vdGluZyIK'
+end
+
 def get_filedescriptor(filename)
   {
     url: File.join("http://#{ENV['SERVERIP']}:4567/file/#{filename}"),
@@ -20,7 +30,9 @@ get '/boot/:mac/config' do
   { msg: 'Hello',
     mac: params['mac'],
     initfs: get_filedescriptor('initramfs.tgz'),
-    rootfs: get_filedescriptor('rootfs.sqsh') }.to_json
+    rootfs: get_filedescriptor('rootfs.sqsh'),
+    bootcode: bootcode_none,
+    usercode: '' }.to_json
 end
 
 get '/file/:fileid' do
