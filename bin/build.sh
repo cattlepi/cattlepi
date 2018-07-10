@@ -4,8 +4,10 @@ SELFDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOPDIR=$(dirname $SELFDIR)
 
 function run_playbook {
+    # $1 hosts to use 
+    # $2 playbook to use
     source $SELFDIR/"activate"
-    cd $BUILDERDIR && ansible-playbook -vv -i hosts $1
+    cd $BUILDERDIR && ansible-playbook -vv -i $1 $2
     deactivate
 }
 
@@ -20,6 +22,11 @@ if [ $# -ne 1 ]; then
 else
     target=$1
 fi
+
+# set the default host file
+${HOSTSFILE:=hosts_cloud}
+echo "using hosts file: "$HOSTSFILE
+sleep 1
 
 case $target in
 clean)
@@ -40,15 +47,15 @@ tools_setup)
     ;;
 initfs)
     logdisplay "building initfs"
-    run_playbook initramfs.yml
+    run_playbook $HOSTSFILE initramfs.yml
     ;;
 rootfs)
     logdisplay "building rootfs"
-    run_playbook rootfs.yml
+    run_playbook $HOSTSFILE rootfs.yml
     ;;
 all)
     logdisplay "building all stages"
-    run_playbook stages.yml
+    run_playbook $HOSTSFILE stages.yml
     ;;
 tools_copy_initfs_to_sdcard)
     logdisplay "copying built initfs to sdcard"
