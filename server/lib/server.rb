@@ -8,7 +8,7 @@ def get_filepath(filename)
   File.expand_path("../builder/output/#{filename}")
 end
 
-def bootcode_none
+def code_none
   ''
 end
 
@@ -16,10 +16,6 @@ def bootcode_simple
   # to see the script (echo booting + sleep + echo continue) issue:
   #   echo IyEvYmluL3NoCmVjaG8gImJvb3RpbmciCnNsZWVwIDUKZWNobyAiY29udGludWUgYm9vdGluZyIK | base64 -d
   'IyEvYmluL3NoCmVjaG8gImJvb3RpbmciCnNsZWVwIDUKZWNobyAiY29udGludWUgYm9vdGluZyIK'
-end
-
-def usercode_none
-  ''
 end
 
 def usercode_reboot_in_30
@@ -41,7 +37,7 @@ get '/boot/:mac/config' do
     initfs: get_filedescriptor('initramfs.tgz'),
     rootfs: get_filedescriptor('rootfs.sqsh'),
     bootcode: bootcode_simple,
-    usercode: usercode_none }.to_json
+    usercode: code_none }.to_json
 end
 
 get '/file/:fileid' do
