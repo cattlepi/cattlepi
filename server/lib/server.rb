@@ -32,12 +32,19 @@ end
 
 get '/boot/:mac/config' do
   content_type :json
-  { msg: 'Hello',
-    mac: params['mac'],
+  {
     initfs: get_filedescriptor('initramfs.tgz'),
     rootfs: get_filedescriptor('rootfs.sqsh'),
     bootcode: bootcode_simple,
-    usercode: code_none }.to_json
+    usercode: code_none,
+    config: {
+      ssh: {
+        pi: {
+          authorized_keys: [File.read(File.join(ENV['HOME'], '.ssh/id_rsa.pub')).strip]
+        }
+      }
+    }
+  }.to_json
 end
 
 get '/file/:fileid' do
