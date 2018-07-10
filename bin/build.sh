@@ -24,8 +24,8 @@ else
 fi
 
 # set the default host file
-${HOSTSFILE:=hosts_cloud}
-echo "using hosts file: "$HOSTSFILE
+
+echo "using hosts file: "${HOSTSFILE:=hosts_cloud}
 sleep 1
 
 case $target in
