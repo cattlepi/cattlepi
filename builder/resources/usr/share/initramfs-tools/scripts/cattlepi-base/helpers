@@ -95,7 +95,7 @@ cattlepi_download()
 cattlepi_adjust_time()
 {
     if [ "${cattlepi_adjust_time_invoked}" != "yes" ]; then
-        with_backoff curl --http1.1 -sSkI $CATTLEPI_BASE/ping | grep -i date | sed -e 's/date: //I' > /tmp/date
+        with_backoff curl -sSkI $CATTLEPI_BASE/ping | grep -i date | sed -e 's/date: //I' > /tmp/date
         /bin/gnudate -I -s "$(cat /tmp/date)"
         rm /tmp/date
     fi
@@ -109,7 +109,7 @@ cattlepi_absolute_download()
     local downloc outloc
     downloc="$1"
     outloc="$2"    
-    with_backoff curl --http1.1 --cacert /etc/ssl/certs/ca-certificates.crt -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $downloc -o $outloc
+    with_backoff curl --cacert /etc/ssl/certs/ca-certificates.crt -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $downloc -o $outloc
 }
 
 # get/update config 
