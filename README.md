@@ -1,14 +1,7 @@
 # CattlePi
+A lot of Raspberry Pi projects treat their software and hardware as pets. A lot of time is put into configuring and tweaking the setup. If the hardware dies or the SD card wears out it can be very challenging or time consuming to rebuild/replicate the setup. Normally this is fine for a single DIY and/or educational project. But it's hardly scalable. 
 
-> "It takes a family of three to care for a single puppy, but a few cowboys can drive tens of thousands of cows over great distances, all while drinking whiskey"  
-> -- [Joshua McKenty](https://www.networkworld.com/article/2165267/cloud-computing/why-servers-should-be-seen-like-cows--not-puppies.html) 
-
-A lot of Raspberry Pi (RPi - Raspberry Pi is a trademark of the [Raspberry Pi Foundation](https://www.raspberrypi.org/)) projects treat their software and hardware as pets. That is, a lot of time and care is devoted to configuring and tweaking the setup.
-
-If the hardware dies or the SD card wears out it can be very challenging or time consuming to rebuild/replicate the setup. Normally this is fine for a single DIY and/or educational project. But it's hardly scalable. 
-
-This goal of the project is to automate and replicate seting up and running multiple Raspberry Pi nodes, with intelligent fail-safe and fallback mechanisms. Hopefully with as little friction and human intervention as possible. You can read about the [history of the cattle vs. pets analogy here](http://cloudscaling.com/blog/cloud-computing/the-history-of-pets-vs-cattle/).  
-We want to turn your pet project into a cattle project. 
+This goal of the project is to automate seting up and running multiple Raspberry Pi nodes, with intelligent fail-safe and fallback mechanisms. We want to turn your pet project into a cattle project. 
 
 **What does this mean?** Several things, including but not limited to:
  * the ability to run a RPi headless, without the need to physically interact with the device 
@@ -19,7 +12,9 @@ We want to turn your pet project into a cattle project.
  * graceful fall-back mechanisms
 
 ## How does it work?
-An image (**initfs**) is written onto an SD card partition. This image contains code to both self-update and to download the final root filesystem (**rootfs**) used by the RPi. 
+Using the builder in this project you can create and use two images: an **initfs** image and a **rootfs** image.
+
+The (**initfs**) is written onto an SD card partition. This image contains code to both self-update and to download the final root filesystem (**rootfs**) used by the RPi. 
 
 The boot code communicates with with an external API endpoint, to retrieve the configuration associated with your RPi, as well as to figure out where the image files are located and download them (i.e. both the boot image and the rootfs image can freely change between boots).
 
@@ -49,4 +44,7 @@ The following software is used in the project:
  * [initramfs-tools](https://manpages.debian.org/jessie/initramfs-tools/initramfs-tools.8.en.html) to build the initramfs ramdisk image that will be used. You can learn more about it [here](https://www.kernel.org/doc/Documentation/early-userspace/README) and [here](https://archive.is/20130104033427/http://www.linuxfordevices.com/c/a/Linux-For-Devices-Articles/Introducing-initramfs-a-new-model-for-initial-RAM-disks/).
  * [unionfs-fuse](http://manpages.ubuntu.com/manpages/trusty/man8/unionfs-fuse.8.html) - the final root filesystem is a [FUSE](https://en.wikipedia.org/wiki/Filesystem_in_Userspace) [union](https://en.wikipedia.org/wiki/UnionFS) filesystem. The union has two layers: a bottom, read-only, one mounted with the **rootfs** image, and a top, copy-on-write, read/write **tmpfs**.
  * [squashfs-tools](http://tldp.org/HOWTO/SquashFS-HOWTO/index.html) - used for the bottom layer of the root union file system. SquashFs is a compressed, read-only file system. 
+
+
+Raspberry Pi is a trademark of the [Raspberry Pi Foundation](https://www.raspberrypi.org/)
  

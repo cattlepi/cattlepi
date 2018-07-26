@@ -21,6 +21,13 @@ It's not. It's different.
 With CattlePi the idea is to make the network set-up as simple as possible. It also aims to make the set-up and maintenance as touch-free as possible.  
 For PiNet/PiServer I believe the goals are somewhat different (empowering learning and exposing people to using a Pi) and the set-up definitely needs to be maintained/thought about over time.
 
+## Why is it called CattlePi?
+> "It takes a family of three to care for a single puppy, but a few cowboys can drive tens of thousands of cows over great distances, all while drinking whiskey"  
+> -- [Joshua McKenty](https://www.networkworld.com/article/2165267/cloud-computing/why-servers-should-be-seen-like-cows--not-puppies.html) 
+
+You can read about the [history of the cattle vs. pets analogy here](http://cloudscaling.com/blog/cloud-computing/the-history-of-pets-vs-cattle/).
+We want to turn your pet project into a cattle project. 
+
 ## How do I get my RPi's IP address?
 
 This can be done a number of ways.
