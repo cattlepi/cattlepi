@@ -4,6 +4,7 @@ bcrypt==3.1.4
 cffi==1.11.5
 cryptography==2.2.2
 enum34==1.1.6
+falcon==1.4.1
 idna==2.6
 ipaddress==1.0.22
 Jinja2==2.10
@@ -13,5 +14,6 @@ pkg-resources==0.0.0
 pyasn1==0.4.2
 pycparser==2.18
 PyNaCl==1.2.1
+python-mimeparse==1.6.0
 PyYAML==3.12
 six==1.11.0
