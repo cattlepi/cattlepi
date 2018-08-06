@@ -78,7 +78,8 @@ tools_copy_initfs_to_sdcard)
     ;;
 tools_run_local_api)
     logdisplay "running local api"
-    cd $TOPDIR && server/bin/run_server.sh
+    source $SELFDIR/"activate" 
+    cd $TOPDIR/server && GUNICORN_CMD_ARGS="--bind=192.168.1.166:4567 --log-file=-" gunicorn server:app
     ;;
 tools_test_local_api)
     logdisplay "testing local api"
