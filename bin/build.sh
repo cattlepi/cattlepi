@@ -2,6 +2,7 @@
 # master build script
 SELFDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOPDIR=$(dirname $SELFDIR)
+export LOCALAPI="192.168.1.166:4567"
 
 function run_playbook {
     # $1 hosts to use 
@@ -79,7 +80,7 @@ tools_copy_initfs_to_sdcard)
 tools_run_local_api)
     logdisplay "running local api"
     source $SELFDIR/"activate" 
-    cd $TOPDIR/server && GUNICORN_CMD_ARGS="--bind=192.168.1.166:4567 --log-file=-" gunicorn server:app
+    cd $TOPDIR/server && GUNICORN_CMD_ARGS="--bind=$LOCALAPI --access-logfile - --log-level debug" gunicorn server:app
     ;;
 tools_test_local_api)
     logdisplay "testing local api"
@@ -90,7 +91,7 @@ tools_test_local_api)
     rm -rf $(echo $TMPBOOTFILES"_*")
     rm -rf $TMPCHECKSUM
     # get config
-    curl -fsk http://192.168.0.1:4567/boot/23:45:34:33:33:12/config > $TMPFILE
+    curl -fsk http://$LOCALAPI/boot/23:45:34:33:33:12/config > $TMPFILE
     # fetch file
     for FILEID in initfs rootfs
     do
