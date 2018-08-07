@@ -80,7 +80,7 @@ tools_copy_initfs_to_sdcard)
 tools_run_local_api)
     logdisplay "running local api"
     source $SELFDIR/"activate" 
-    cd $TOPDIR/server && GUNICORN_CMD_ARGS="--bind=$LOCALAPI --access-logfile - --log-level debug" gunicorn server:app
+    cd $TOPDIR/server && GUNICORN_CMD_ARGS="--bind=$LOCALAPI --timeout 300 --graceful-timeout 300 --access-logfile - --log-level debug" gunicorn server:app
     ;;
 tools_test_local_api)
     logdisplay "testing local api"

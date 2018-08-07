@@ -43,7 +43,9 @@ class DeviceConfigResource(object):
             'usercode': '',
             'config': {
                 'ssh': {
-                    'pi': ServerUtils.get_my_rsa_key()
+                    'pi': {
+                        'authorized_keys': [ ServerUtils.get_my_rsa_key() ]
+                    }
                 }
             }
         }
