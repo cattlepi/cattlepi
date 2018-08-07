@@ -54,14 +54,12 @@ class DeviceConfigResource(object):
 class TrackAllResource(object):
     def on_get(self, req, resp):
         resp.status = falcon.HTTP_200
-        dirname = os.path.dirname(__file__)
-        relpath = os.path.join(dirname, '../builder/output')
-        resp.body = "Ok " + os.path.abspath(relpath)
+        resp.body = "Ok: dummy response"
 
 class TrackResource(object):
     def on_get(self, req, resp):
         resp.status = falcon.HTTP_200
-        resp.body = "Ok"
+        resp.body = "Ok: dummy response"
 
 app = falcon.API()
 app.add_route('/boot/{deviceid}/config', DeviceConfigResource())
