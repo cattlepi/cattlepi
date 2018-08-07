@@ -78,10 +78,10 @@ In the cattlepi directory, edit the **builder/hosts** file by swapping out your 
 
 Replace the API endpoint with http://192.168.1.166:4567 where 192.168.1.166 is the IP of your development machine.
 
-In the cattlepi directory, edit the **server/bin/run_server.sh** file by putting your development machine's IP address in the SERVERIP export (same as above, e.g. 192.168.1.166):
+In the cattlepi directory, edit the **/bin/build.sh** file by putting your development machine's IP address in the LOCALAPI export (same as above, e.g. 192.168.1.166):
 
 ```bash
-export SERVERIP=192.168.1.166 # the ip which the server will listen to (change to the IP address of your development machine)
+export LOCALAPI=192.168.1.166 # the ip which the server will listen to (change to the IP address of your development machine)
 ```
 
 ## Step 11 - build the images
