@@ -51,23 +51,23 @@ cattlepi_find_params()
         CATTLEPI_DIR=${CATTLEPI_DIR-'/boot/cattlepi'}
         mkdir -p "${CATTLEPI_DIR}"
 
-        # pick it up from kernel boot param, if not from file and if not either give it default value
+        # pick it up from kernel boot param, if file present override. if it's not set by any give it the default value
+        [ -r "${CATTLEPI_DIR}/apikey" ] && CATTLEPI_APIKEY=$(head -n 1 "${CATTLEPI_DIR}/apikey")
         if [ -z ${CATTLEPI_APIKEY+x} ]; then
-            [ -r "${CATTLEPI_DIR}/apikey" ] && CATTLEPI_APIKEY=$(head -n 1 "${CATTLEPI_DIR}/apikey")
             CATTLEPI_APIKEY=${CATTLEPI_APIKEY-'deadbeef'}
         fi
 
-        # same as with the api key
+        # same as with the api key - default value is the mac address
+        [ -r "${CATTLEPI_DIR}/id" ] && CATTLEPI_ID=$(head -n 1 "${CATTLEPI_DIR}/id")
         if [ -z ${CATTLEPI_ID+x} ]; then
             CATTLEPI_MAC=$(cat /sys/class/net/*/address | grep -v ^00: | sort | head -n 1)
-            [ -r "${CATTLEPI_DIR}/id" ] && CATTLEPI_ID=$(head -n 1 "${CATTLEPI_DIR}/id")
             CATTLEPI_ID=${CATTLEPI_ID-$CATTLEPI_MAC}
         fi
         
-        # do the same for the md5skip 
+        # do the same for the md5skip
+        [ -r "${CATTLEPI_DIR}/md5skip" ] && CATTLEPI_MD5SKIP=$(head -n 1 "${CATTLEPI_DIR}/md5skip")
         if [ -z ${CATTLEPI_MD5SKIP+x} ]; then
             CATTLEPI_MD5SKIP_DEFAULT=yes
-            [ -r "${CATTLEPI_DIR}/md5skip" ] && CATTLEPI_MD5SKIP=$(head -n 1 "${CATTLEPI_DIR}/md5skip")
             CATTLEPI_MD5SKIP=${CATTLEPI_MD5SKIP-$CATTLEPI_MD5SKIP_DEFAULT}
         fi
 
