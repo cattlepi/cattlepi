@@ -21,11 +21,11 @@ tools_setup)
     $UTILDIR/setup_env.sh
     ;;
 initfs)
-    source $TOPDIR"/recipes/raspbian_all"
+    source $TOPDIR"/recipes/raspbian_initfs"
     $UTILDIR/recipe_builder.sh
     ;;
 rootfs)
-    source $TOPDIR"/recipes/raspbian_all"
+    source $TOPDIR"/recipes/raspbian_rootfs"
     $UTILDIR/recipe_builder.sh
     ;;
 all)
