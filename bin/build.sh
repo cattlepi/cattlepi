@@ -1,22 +1,10 @@
 #!/bin/bash
 # master build script
+
 SELFDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-TOPDIR=$(dirname $SELFDIR)
-export LOCALAPI="192.168.1.166:4567"
-
-function run_playbook {
-    # $1 hosts to use 
-    # $2 playbook to use
-    source $SELFDIR/"activate"
-    cd $BUILDERDIR && ansible-playbook -vv -i $1 $2
-    deactivate
-}
-
-function logdisplay {
-    echo "---------------------------------------------------------"
-    echo $1
-    echo "---------------------------------------------------------"
-}
+export TOPDIR=$(dirname $SELFDIR)
+export BUILDDIR=$TOPDIR"/builder"
+export UTILDIR=$TOPDIR"/tools/util"
 
 if [ $# -ne 1 ]; then
     target="all"
@@ -24,27 +12,13 @@ else
     target=$1
 fi
 
-# set the default host file
-
-echo "using hosts file: "${HOSTSFILE:=hosts_cloud}
-sleep 1
-
 case $target in
 clean)
     logdisplay "cleaning build output"
     rm -rf $TOPDIR/builder/output/*
     ;;
 tools_setup)
-    logdisplay "performing environment tools setup"
-    VENVDIR=$TOPDIR"/tools/venv"
-    CFGDIR=$TOPDIR"/tools/cfg"
-
-    rm -rf $VENVDIR/*
-    virtualenv $VENVDIR
-    cp $CFGDIR"/requirements.txt" $VENVDIR"/"
-    source $VENVDIR/bin/activate
-    cd $VENVDIR && pip install -r requirements.txt
-    deactivate
+    $UTILDIR/setup_env.sh
     ;;
 initfs)
     logdisplay "building initfs"

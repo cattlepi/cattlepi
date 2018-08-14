@@ -1,0 +1,6 @@
+[buildernodes]
+{{BUILDER_NODE}}
+
+[buildernodes:vars]
+cattlepi_base={{CATTLEPI_BASE}}
+cattlepi_apikey={{CATTLEPI_APIKEY}}
