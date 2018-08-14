@@ -33,23 +33,8 @@ all)
     $UTILDIR/recipe_builder.sh
     ;;
 tools_copy_initfs_to_sdcard)
-    echo "copying built initfs to sdcard"
-    set -x
-    IMGFILE="initramfs.tgz"
-    sudo umount /mnt/SD
-    sudo rm -rf /mnt/SD
-    sudo mkdir -p /mnt/SD
-    sudo mount -t vfat /dev/mmcblk0p1 /mnt/SD
-    if [ $? -ne 0 ]
-    then
-        echo "failed mounting"
-        exit 1
-    fi
-    sudo rm -rf /mnt/SD/*
-    sudo cp $TOPDIR/"builder/output"/$IMGFILE /mnt/SD/
-    cd /mnt/SD && sudo tar --no-same-owner -xvf $IMGFILE
-    sudo rm /mnt/SD/$IMGFILE
-    cd $SELFDIR && sudo umount /mnt/SD
+    source $TOPDIR"/recipes/copy_initfs_to_sdcard"
+    $UTILDIR/recipe_builder.sh    
     ;;
 tools_run_local_api)
     source $TOPDIR"/recipes/localapi_run"

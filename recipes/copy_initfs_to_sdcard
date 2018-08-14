@@ -1,0 +1,3 @@
+#!/bin/bash
+export RECIPE_DIR=$TOPDIR"/templates/sdcard"
+export RECIPE_CMD="$BUILDDIR/copy_initfs.sh"
