@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import pystache
 import json
+import os
+import stat
 import sys
 from argparse import ArgumentParser
 
@@ -18,6 +20,7 @@ else:
     sys.exit(2)
 
 print("Expanding %s using params from %s into %s" % (args.template, args.param, output_file))
+pystache.defaults.MISSING_TAGS = 'strict'
 
 with open(args.param) as f:
     params = json.load(f)
@@ -25,3 +28,7 @@ with open(args.param) as f:
 with open(output_file, "w") as o:
     with open(args.template) as f:
         o.write(pystache.render(f.read(), params))
+
+current_permissions = stat.S_IMODE(os.lstat(args.template).st_mode)
+os.chmod(output_file, current_permissions)
+

@@ -7,7 +7,7 @@ class ServerUtils(object):
     @staticmethod
     def get_file_location(filename):
         dirname = os.path.dirname(__file__)
-        relpath = os.path.join(dirname, '../builder/output', filename)
+        relpath = os.path.join(dirname, '../builder/latest/output', filename)
         return os.path.abspath(relpath)
 
     @staticmethod

@@ -1,9 +1,9 @@
 #!/bin/bash
 # master build script
-
 SELFDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export TOPDIR=$(dirname $SELFDIR)
-export BUILDDIR=$TOPDIR"/builder"
+export BUILDDIR=$TOPDIR"/builder/"$(date +"%d_%b_%Y_%H_%M_%S_%Z")
+export BUILDDIRLATEST=$TOPDIR"/builder/latest"
 export UTILDIR=$TOPDIR"/tools/util"
 
 if [ $# -ne 1 ]; then
@@ -14,26 +14,26 @@ fi
 
 case $target in
 clean)
-    logdisplay "cleaning build output"
-    rm -rf $TOPDIR/builder/output/*
+    source $TOPDIR"/recipes/clean"
+    $UTILDIR/recipe_builder.sh
     ;;
 tools_setup)
     $UTILDIR/setup_env.sh
     ;;
 initfs)
-    logdisplay "building initfs"
-    run_playbook $HOSTSFILE initramfs.yml
+    source $TOPDIR"/recipes/raspbian_all"
+    $UTILDIR/recipe_builder.sh
     ;;
 rootfs)
-    logdisplay "building rootfs"
-    run_playbook $HOSTSFILE rootfs.yml
+    source $TOPDIR"/recipes/raspbian_all"
+    $UTILDIR/recipe_builder.sh
     ;;
 all)
-    logdisplay "building all stages"
-    run_playbook $HOSTSFILE stages.yml
+    source $TOPDIR"/recipes/raspbian_all"
+    $UTILDIR/recipe_builder.sh
     ;;
 tools_copy_initfs_to_sdcard)
-    logdisplay "copying built initfs to sdcard"
+    echo "copying built initfs to sdcard"
     set -x
     IMGFILE="initramfs.tgz"
     sudo umount /mnt/SD
@@ -52,29 +52,14 @@ tools_copy_initfs_to_sdcard)
     cd $SELFDIR && sudo umount /mnt/SD
     ;;
 tools_run_local_api)
-    logdisplay "running local api"
-    source $SELFDIR/"activate" 
-    cd $TOPDIR/server && GUNICORN_CMD_ARGS="--bind=$LOCALAPI --timeout 300 --graceful-timeout 300 --access-logfile - --log-level debug" gunicorn server:app
+    source $TOPDIR"/recipes/localapi_run"
+    $UTILDIR/recipe_builder.sh
     ;;
 tools_test_local_api)
-    logdisplay "testing local api"
-    export TMPFILE=/tmp/config.json
-    export TMPBOOTFILES=/tmp/boot
-    export TMPCHECKSUM=/tmp/md5check
-    rm -rf $TMPFILE
-    rm -rf $(echo $TMPBOOTFILES"_*")
-    rm -rf $TMPCHECKSUM
-    # get config
-    curl -fsk http://$LOCALAPI/boot/23:45:34:33:33:12/config > $TMPFILE
-    # fetch file
-    for FILEID in initfs rootfs
-    do
-        curl -fsk $(cat $TMPFILE | jq -r .$FILEID.url) > $TMPBOOTFILES"_"$FILEID
-        echo "$(cat $TMPFILE | jq -r .$FILEID.md5sum) $TMPBOOTFILES"_"$FILEID" >> $TMPCHECKSUM
-    done
-    md5sum -c $TMPCHECKSUM
+    source $TOPDIR"/recipes/localapi_test"
+    $UTILDIR/recipe_builder.sh
     ;;
 *)
-    logdisplay "unknown option"
+    echo "unknown option"
     ;;
 esac

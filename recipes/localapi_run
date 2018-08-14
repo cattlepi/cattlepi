@@ -1,0 +1,3 @@
+#!/bin/bash
+export RECIPE_DIR=$TOPDIR"/templates/localapi"
+export RECIPE_CMD="$BUILDDIR/run.sh"
