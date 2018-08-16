@@ -2,7 +2,7 @@ ansible==2.5.1
 asn1crypto==0.24.0
 bcrypt==3.1.4
 cffi==1.11.5
-cryptography==2.2.2
+cryptography==2.3
 enum34==1.1.6
 falcon==1.4.1
 gunicorn==19.9.0
