@@ -1,0 +1,3 @@
+#!/bin/bash
+export CATTLEPI_LOCALAPI={{CATTLEPI_LOCALAPI}}
+cd $TOPDIR/server && GUNICORN_CMD_ARGS="--bind={{CATTLEPI_LOCALAPI}} --timeout 300 --graceful-timeout 300 --access-logfile - --log-level debug" gunicorn server:app

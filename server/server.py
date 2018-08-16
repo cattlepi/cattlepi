@@ -7,7 +7,7 @@ class ServerUtils(object):
     @staticmethod
     def get_file_location(filename):
         dirname = os.path.dirname(__file__)
-        relpath = os.path.join(dirname, '../builder/output', filename)
+        relpath = os.path.join(dirname, '../builder/latest/output', filename)
         return os.path.abspath(relpath)
 
     @staticmethod
@@ -30,7 +30,7 @@ class DeviceConfigResource(object):
 
     def get_filedescriptor(self, filename):
         return {
-            'url': "http://%s/images/global/%s" % (os.environ['LOCALAPI'], filename),
+            'url': "http://%s/images/global/%s" % (os.environ['CATTLEPI_LOCALAPI'], filename),
             'md5sum': self.md5(ServerUtils.get_file_location(filename))
         }
 

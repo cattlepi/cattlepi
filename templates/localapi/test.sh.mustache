@@ -1,0 +1,17 @@
+#!/bin/bash
+export CATTLEPI_LOCALAPI={{CATTLEPI_LOCALAPI}}
+export TMPFILE=/tmp/config.json
+export TMPBOOTFILES=/tmp/boot
+export TMPCHECKSUM=/tmp/md5check
+rm -rf $TMPFILE
+rm -rf $(echo $TMPBOOTFILES"_*")
+rm -rf $TMPCHECKSUM
+# get config
+curl -fsk http://{{CATTLEPI_LOCALAPI}}/boot/23:45:34:33:33:12/config > $TMPFILE
+# fetch file
+for FILEID in initfs rootfs
+do
+    curl -fsk $(cat $TMPFILE | jq -r .$FILEID.url) > $TMPBOOTFILES"_"$FILEID
+    echo "$(cat $TMPFILE | jq -r .$FILEID.md5sum) $TMPBOOTFILES"_"$FILEID" >> $TMPCHECKSUM
+done
+md5sum -c $TMPCHECKSUM

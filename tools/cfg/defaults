@@ -1,0 +1,5 @@
+# conditionally set the params if not set
+BUILDER_NODE=${BUILDER_NODE:-192.168.1.12}
+CATTLEPI_BASE=${CATTLEPI_BASE:-https://api.cattlepi.com}
+CATTLEPI_APIKEY=${CATTLEPI_APIKEY:-deadbeef}
+CATTLEPI_LOCALAPI=${CATTLEPI_LOCALAPI:-192.168.1.166:4567}
