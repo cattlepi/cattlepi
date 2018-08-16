@@ -63,9 +63,7 @@ find your model [listed here](http://www.routerpasswords.com/), however, only us
 are legally entitled to do so.
 
 ## How do I set up passwordless ssh on the Raspberry Pi?
-
-We couldn't have put it better than [this fine article on raspberrypi.org](
-https://www.raspberrypi.org/documentation/remote-access/ssh/passwordless.md)
+See here: https://www.raspberrypi.org/documentation/remote-access/ssh/passwordless.md
 
 ---
 
