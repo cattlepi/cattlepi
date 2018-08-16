@@ -1,3 +1,0 @@
-#!/bin/bash
-export RECIPE_DIR=$TOPDIR"/templates/dummy"
-export RECIPE_CMD="rm -rf $TOPDIR/builder/* || echo done"
