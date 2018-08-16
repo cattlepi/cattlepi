@@ -1,5 +1,4 @@
 #!/bin/bash
-$UTILDIR/banner.sh performing environment tools setup
 VENVDIR=$TOPDIR"/tools/venv"
 CFGDIR=$TOPDIR"/tools/cfg"
 
