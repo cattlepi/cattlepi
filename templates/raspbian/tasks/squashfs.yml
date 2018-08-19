@@ -8,12 +8,17 @@
 - file:
     path: /tmp/resources
     state: absent
+- file:
+    path: /tmp/builder-support
+    state: absent
 - copy:
     src: resources
     dest: /tmp
     owner: root
     group: root
     mode: 0755
+- name: build unionfs-fuse binaries
+  shell: /tmp/resources/bin/build_union_fs.sh
 - name: clone the root in order to customize it
   shell: /tmp/resources/bin/clone_root.sh
 - name: bring in the bootstrap script
