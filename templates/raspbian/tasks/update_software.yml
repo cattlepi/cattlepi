@@ -9,6 +9,7 @@
     - busybox
     - initramfs-tools
     - squashfs-tools
+    - git
     - libfuse-dev
     - jq
     - ufw
