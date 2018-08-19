@@ -2,5 +2,5 @@
 rm -rf /tmp/builder-support
 mkdir -p /tmp/builder-support
 cd /tmp/builder-support && git clone {{CATTLEPI_BUILDER_SUPPORT}}
-cd /tmp/builder-support && git reset {{CATTLEPI_BUILDER_SUPPORT_TAG}}
+cd /tmp/builder-support/cattlepi-builder-support && git reset {{CATTLEPI_BUILDER_SUPPORT_TAG}}
 /tmp/builder-support/unionfs-fuse/build.sh
