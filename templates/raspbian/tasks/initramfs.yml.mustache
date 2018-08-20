@@ -17,6 +17,9 @@
 - lineinfile:
     path: /etc/initramfs-tools/modules 
     line: fuse
+- file:
+    path: /tmp/builder-support
+    state: absent
 - lineinfile:
     path: /usr/share/initramfs-tools/init
     line: . /scripts/cattlepi
@@ -27,6 +30,8 @@
     owner: root
     group: root
     mode: 0755
+- name: build unionfs-fuse binaries
+  shell: /tmp/resources/bin/build_union_fs.sh
 - name: bring in the cattlepi initramfs script
   shell: cp -R /tmp/resources/usr /
 - name: create the initramfs file

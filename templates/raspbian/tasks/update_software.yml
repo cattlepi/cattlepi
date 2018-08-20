@@ -9,7 +9,8 @@
     - busybox
     - initramfs-tools
     - squashfs-tools
-    - unionfs-fuse
+    - git
+    - libfuse-dev
     - jq
     - ufw
 - name: disable swap
