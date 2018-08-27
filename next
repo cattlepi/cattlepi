@@ -1,5 +1,0 @@
-TODO:
-0) make ips and names env vars and/or configurable
-1) refactor the demo server - maybe move to python. pick bootcode + usercode dynamically
-2) add support for altering config.txt via options provided in api/config file (look in config -> replace)
-
