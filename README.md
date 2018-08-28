@@ -48,6 +48,6 @@ Reddit: [/u/cattlepi](https://www.reddit.com/user/cattlepi)
 
 If you would like to receive update on the CattlePi project we also have a low volume, interesting stuff, mailing list: [Subscribe here](http://eepurl.com/dDcwlL)  
 
-The project documetation companion can be found at [https://cattlepi.com/](https://cattlepi.com/) 
+The project documetation companion can be found at [https://cattlepi.com/](https://cattlepi.com/)  
 Raspberry Pi is a trademark of the [Raspberry Pi Foundation](https://www.raspberrypi.org/)
  
