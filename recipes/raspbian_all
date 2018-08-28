@@ -1,3 +1,0 @@
-#!/bin/bash
-export RECIPE_DIR=$TOPDIR"/templates/raspbian"
-export RECIPE_CMD="$UTILDIR/run_playbook.sh $BUILDDIR hosts stages.yml"

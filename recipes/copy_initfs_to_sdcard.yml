@@ -1,0 +1,6 @@
+---
+version: 1.0
+tool: script
+template: "/templates/sdcard"
+params:
+  run: "copy_initfs.sh"
