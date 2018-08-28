@@ -4,7 +4,7 @@ current_dir := $(dir ${mkfile_path})
 
 envsetup:
 	@echo "make: envsetup"
-	bin/myenv.sh ${current_dir}tools/util/setup_env.sh
+	TOPDIR=${current_dir} && ${current_dir}tools/util/setup_env.sh
 
 raspbian_initfs: envsetup
 	@echo "make: raspbian_initfs"

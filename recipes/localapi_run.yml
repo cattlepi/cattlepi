@@ -1,0 +1,6 @@
+---
+version: 1.0
+tool: script
+template: "/templates/localapi"
+params:
+  run: "run.sh"
