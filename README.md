@@ -41,6 +41,13 @@ The following software is used in the project:
  * [unionfs-fuse](http://manpages.ubuntu.com/manpages/trusty/man8/unionfs-fuse.8.html) - the final root filesystem is a [FUSE](https://en.wikipedia.org/wiki/Filesystem_in_Userspace), [union](https://en.wikipedia.org/wiki/UnionFS) filesystem. The union has two layers: a bottom, read-only, one mounted with the **rootfs** image, and a top, copy-on-write, read/write **tmpfs**.
  * [squashfs-tools](http://tldp.org/HOWTO/SquashFS-HOWTO/index.html) - used for the bottom layer of the root union file system. SquashFs is a compressed, read-only file system. 
 
+## Contact
+Email: hello at cattlepi dot com  
+Twitter: [@cattlepi](https://twitter.com/cattlepi)  
+Reddit: [/u/cattlepi](https://www.reddit.com/user/cattlepi)  
 
+If you would like to receive update on the CattlePi project we also have a low volume, interesting stuff, mailing list: [Subscribe here](http://eepurl.com/dDcwlL)  
+
+The project documetation companion can be found at [https://cattlepi.com/](https://cattlepi.com/) 
 Raspberry Pi is a trademark of the [Raspberry Pi Foundation](https://www.raspberrypi.org/)
  
