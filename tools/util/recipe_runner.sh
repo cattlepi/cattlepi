@@ -6,6 +6,8 @@ rm -rf $BUILDDIR/*
 mkdir -p $BUILDDIR/output
 source $UTILDIR/parameters.sh
 
+echo $BUILDDIR/raw_recipe.sh
+
 $UTILDIR/recipe_aide.py -r "$@" -o $BUILDDIR/raw_recipe.sh
 if [ $? -ne 0 ]; then
     echo "failed processing recipe"

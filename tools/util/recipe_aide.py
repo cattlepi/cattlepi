@@ -38,9 +38,9 @@ except ValueError as exc:
     sys.exit(2)
 
 with open(args.output, "w") as o:
-    o.write('export RECIPE_EXPAND_TEMPLATE=yes')
-    o.write('export RECIPE_TEMPLATE=$TOPDIR"%s"' % my_recipe['template'])
-    if my_recipe['tool'] == 'run_playbook':
-        o.write('export RECIPE_CMD="$BUILDDIR/%s"' %s my_recipe['params']['run'])
+    o.write('export RECIPE_EXPAND_TEMPLATE=yes\n')
+    o.write('export RECIPE_TEMPLATE=$TOPDIR"%s"\n' % my_recipe['template'])
     if my_recipe['tool'] == 'script':
-        o.write('export RECIPE_CMD="$UTILDIR/run_playbook.sh $BUILDDIR hosts %s"' %s my_recipe['params']['playbook'])
+        o.write('export RECIPE_CMD="$BUILDDIR/%s"\n' % my_recipe['params']['run'])
+    if my_recipe['tool'] == 'run_playbook':
+        o.write('export RECIPE_CMD="$UTILDIR/run_playbook.sh $BUILDDIR hosts %s"\n' % my_recipe['params']['playbook'])
