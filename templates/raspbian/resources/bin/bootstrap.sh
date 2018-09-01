@@ -21,6 +21,20 @@ if [ $? -ne 0 ]; then
     done
 fi
 echo "-------------------------------------------------------"
+echo "adding the config watcher"
+echo "-------------------------------------------------------"
+/bin/cat /cattlepi/config | /usr/bin/jq -r .config.autoupdate | grep -q null
+if [ $? -ne 0 ]; then
+    AUTOUPDATE=$(/bin/cat /cattlepi/config | /usr/bin/jq -r .config.autoupdate)
+    if [ $AUTOUPDATE == "true" ]; then
+        # enable the autoupdate cron script used to detect the ip
+        # right now it's ran once every 10 minutes - could be made configurable if need arises
+cat <<'EOF' > /etc/cron.d/cattlepi_autoupdate
+*/10 * * * *   root    /etc/autoupdate.sh
+EOF
+    fi # $AUTOUPDATE == "true"
+fi
+echo "-------------------------------------------------------"
 echo "running user code if any"
 echo "-------------------------------------------------------"
 /bin/cat /cattlepi/config | /usr/bin/jq -r .usercode | /usr/bin/base64 -d > /tmp/usercode.sh
