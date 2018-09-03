@@ -13,7 +13,8 @@ if [[ -r $VENVDIR/bin/activate ]]; then
 else
     rm -rf $VENVDIR/*
     $VIRTUALENV $VENVDIR
-    cp $CFGDIR"/requirements.txt" $VENVDIR"/"
+    # do a grep instead of cp to address: https://github.com/cattlepi/cattlepi/issues/29
+    grep -v "pkg-resources==0.0.0" $CFGDIR"/requirements.txt" > $VENVDIR"/requirements.txt"
     source $VENVDIR/bin/activate
     cd $VENVDIR && pip install -r requirements.txt
     deactivate
