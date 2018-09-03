@@ -24,6 +24,8 @@ copy_exec /usr/local/bin/unionfs /bin/unionfs-fuse
 copy_exec /usr/bin/strace /bin
 copy_exec /bin/date /bin/gnudate
 copy_exec /usr/bin/base64 /bin
+copy_exec /sbin/fdisk /bin
+copy_exec /sbin/sfdisk /bin
 
 # make dns and ssl great again
 cp -a /etc/ssl ${DESTDIR}/etc/ssl
