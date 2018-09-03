@@ -28,16 +28,16 @@ copy_exec /usr/bin/base64 /bin
 # things needed to partition/prepare the sdcard if needed
 copy_exec /sbin/fdisk /bin
 copy_exec /sbin/sfdisk /bin
-copy /sbin/mkfs /bin
-copy /sbin/mkfs.bfs /bin
-copy /sbin/mkfs.cramfs /bin
-copy /sbin/mkfs.ext2 /bin
-copy /sbin/mkfs.ext3 /bin
-copy /sbin/mkfs.ext4 /bin
-copy /sbin/mkfs.fat /bin
-copy /sbin/mkfs.minix /bin
-copy /sbin/mkfs.msdos /bin
-copy /sbin/mkfs.vfat /bin
+copy_exec /sbin/mkfs /bin
+copy_exec /sbin/mkfs.bfs /bin
+copy_exec /sbin/mkfs.cramfs /bin
+copy_exec /sbin/mkfs.ext2 /bin
+copy_exec /sbin/mkfs.ext3 /bin
+copy_exec /sbin/mkfs.ext4 /bin
+copy_exec /sbin/mkfs.fat /bin
+copy_exec /sbin/mkfs.minix /bin
+copy_exec /sbin/mkfs.msdos /bin
+copy_exec /sbin/mkfs.vfat /bin
 
 # make dns and ssl great again
 cp -a /etc/ssl ${DESTDIR}/etc/ssl
