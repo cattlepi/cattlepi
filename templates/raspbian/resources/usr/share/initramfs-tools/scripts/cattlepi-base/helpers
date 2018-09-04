@@ -1,5 +1,5 @@
 # inspired by https://stackoverflow.com/questions/8350942/how-to-re-run-the-curl-command-automatically-when-the-error-occurs/8351489#8351489
-with_backoff() 
+with_backoff()
 {
   local max_attempts=${ATTEMPTS-8}
   local timeout=${TIMEOUT-1}
@@ -63,7 +63,7 @@ cattlepi_find_params()
             CATTLEPI_MAC=$(cat /sys/class/net/*/address | grep -v ^00: | sort | head -n 1)
             CATTLEPI_ID=${CATTLEPI_ID-$CATTLEPI_MAC}
         fi
-        
+
         # do the same for the md5skip
         [ -r "${CATTLEPI_DIR}/md5skip" ] && CATTLEPI_MD5SKIP=$(head -n 1 "${CATTLEPI_DIR}/md5skip")
         if [ -z ${CATTLEPI_MD5SKIP+x} ]; then
@@ -78,20 +78,20 @@ cattlepi_find_params()
         export CATTLEPI_MD5SKIP
     fi
     cattlepi_adjust_time
-    cattlepi_find_params_used=yes 
+    cattlepi_find_params_used=yes
 }
 
 # generic download wrapper
 cattlepi_download()
 {
-    cattlepi_find_params        
+    cattlepi_find_params
     local downloc outloc
     downloc="$1"
     outloc="$2"
     cattlepi_absolute_download $CATTLEPI_BASE/$downloc $outloc
 }
 
-# generic time adjust 
+# generic time adjust
 cattlepi_adjust_time()
 {
     if [ "${cattlepi_adjust_time_invoked}" != "yes" ]; then
@@ -108,11 +108,11 @@ cattlepi_absolute_download()
     cattlepi_find_params
     local downloc outloc
     downloc="$1"
-    outloc="$2"    
+    outloc="$2"
     with_backoff curl --cacert /etc/ssl/certs/ca-certificates.crt -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $downloc -o $outloc
 }
 
-# get/update config 
+# get/update config
 cattlepi_fetch_update_config()
 {
     cattlepi_find_params
@@ -124,8 +124,60 @@ cattlepi_fetch_update_config()
     cattlepi_fetch_update_config_invoked=yes
 }
 
+# apply the requested sd disk layout
+cattlepi_check_apply_disk_layout()
+{
+    cattlepi_fetch_update_config
+    cat "${CATTLEPI_DIR}/config" | jq -r .config.sdlayout | grep -q null
+    if [ $? -ne 0 ]; then
+        # pull down and decode the requested disk layout
+        cat "${CATTLEPI_DIR}/config" | jq -r .config.sdlayout | base64 -d > /tmp/sdlayout
+        # TODO: there should be proper error checking here, but do the bare minimum here
+        # dump current config
+        sfdisk -d /dev/mmcblk0 | grep -v label-id: > /tmp/current_sdlayout
+        cmp -s /tmp/sdlayout /tmp/current_sdlayout
+        if [ $? -ne 0 ]; then
+            # we need to apply the requested layout
+            #   to keep things "bootable" we will backup the content under /boot, apply the layout
+            #   and afterwards copy back the backup to the boot partition
+            mkdir /run/bootbk
+            # TODO: here we will need to remove all the images to prevent copying (and filling the memory as the
+            # /run in on a tmpfs, therefore in memory)
+            cp -R /boot/* /run/bootbk
+            umount /boot
+            # showtime: apply the requested layout
+            sfdisk /dev/mmcblk0 < /tmp/sdlayout
+            # now attempt to mkfs on the newly created partitions
+            sfdisk -J /dev/mmcblk0 > /tmp/sdlayout.json
+            PARTC=$(cat /tmp/sdlayout.json | jq '.partitiontable.partitions | length')
+            let PARTC=$((PARTC - 1))
+            for IPART in `seq 0 $PARTC`
+            do
+                PARTNODE=$(cat /tmp/sdlayout.json | jq -r .partitiontable.partitions[$IPART].node)
+                PARTTYPE=$(cat /tmp/sdlayout.json | jq -r .partitiontable.partitions[$IPART].type)
+                echo "$PARTNODE: type $PARTTYPE"
+                if [ $PARTTYPE == "b" ]; then
+                    mkfs.vfat -F 32 $PARTNODE
+                fi
+                if [ $PARTTYPE == "83" ]; then
+                    mkfs.ext4 -t ext4 $PARTNODE
+                fi
+            done
+            # now it's time to restore the boot bits
+            mount -n -t vfat /dev/mmcblk0p1 /boot
+            cp -R /run/bootbk/* /boot/
+            cp /tmp/sdlayout.json /boot/
+            umount /boot
+            # procedure done. rebooting and this time we should not go through this process
+            sleep 5
+            # reboot
+            echo b >/proc/sysrq-trigger
+        fi
+    fi
+}
+
 # run the bootcode
-cattlepi_run_bootcode() 
+cattlepi_run_bootcode()
 {
     cattlepi_fetch_update_config
     if [ "${cattlepi_run_bootcode_invoked}" != "yes" ]; then
@@ -143,13 +195,13 @@ cattlepi_fetch_update_images()
     cattlepi_fetch_update_config
     for img in initfs rootfs; do
         local md5sum=$(cat "${CATTLEPI_DIR}/config" | jq -r .${img}.md5sum )
-        if [ -r "${CATTLEPI_DIR}/${md5sum}" ]; then        
-            if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then 
+        if [ -r "${CATTLEPI_DIR}/${md5sum}" ]; then
+            if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then
                 echo "${md5sum}  ${CATTLEPI_DIR}/${md5sum}" > /tmp/check_md5
                 md5sum --quiet -c /tmp/check_md5 || rm -rf ${CATTLEPI_DIR}/${md5sum}
             fi
         fi
-        if [ ! -r "${CATTLEPI_DIR}/${md5sum}" ]; then 
+        if [ ! -r "${CATTLEPI_DIR}/${md5sum}" ]; then
             local filetodownload=$(cat "${CATTLEPI_DIR}/config" | jq -r .${img}.url )
             cattlepi_absolute_download $filetodownload "${CATTLEPI_DIR}/${md5sum}"
             if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then
@@ -160,17 +212,17 @@ cattlepi_fetch_update_images()
     done
 }
 
-cattlepi_update_boot_part() 
+cattlepi_update_boot_part()
 {
     cattlepi_fetch_update_config
     local target_initfs=$(cat "${CATTLEPI_DIR}/config" | jq -r .initfs.md5sum )
     echo $target_initfs > /tmp/target_initfs
-    cmp -s /boot/initfs /tmp/target_initfs 
+    cmp -s /boot/initfs /tmp/target_initfs
     if [ $? -ne 0 ]; then
         tar -xvzf "${CATTLEPI_DIR}/${target_initfs}" -C /boot/
         mv /tmp/target_initfs /boot/initfs
         echo "initfs updated. will reboot to pick it up shortly"
-        umount /boot        
+        umount /boot
         sleep 5
         # reboot
         echo b >/proc/sysrq-trigger
@@ -189,14 +241,14 @@ cattlepi_build_root_filesystem()
     mkdir -p /rootfs
     mount -n -t tmpfs -o size=512m tmpfs /rootfs
 
-    # bottom layer - squash fs 
+    # bottom layer - squash fs
     mkdir -p /rootfs/bottomro
     mount -n -t squashfs -o loop "${CATTLEPI_DIR}/${target_rootsfs}" /rootfs/bottomro
 
     # top layer - tmpfs
     mkdir -p /rootfs/toprw
 
-    # create root fs which is an union of the 2 layers 
+    # create root fs which is an union of the 2 layers
     unionfs-fuse -o cow,allow_other,suid,use_ino,nonempty,dev /rootfs/toprw=RW:/rootfs/bottomro=RO ${rootmnt}
     mount --bind ${rootmnt} ${rootmnt}
     mkdir -p "${rootmnt}/cattlepi"
