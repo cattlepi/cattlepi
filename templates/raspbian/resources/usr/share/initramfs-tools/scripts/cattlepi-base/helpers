@@ -162,12 +162,15 @@ cattlepi_check_apply_disk_layout()
                 if [ $PARTTYPE == "83" ]; then
                     mkfs.ext4 -t ext4 $PARTNODE
                 fi
+                if [ $PARTNODE == "/dev/mmcblk0p1" ]; then
+                    # restore the boot bits
+                    # do this as early as possible to keep it bootable if possible
+                    mount -n -t vfat /dev/mmcblk0p1 /boot
+                    cp -R /run/bootbk/* /boot/
+                    cp /tmp/sdlayout.json /boot/
+                    umount /boot
+                fi
             done
-            # now it's time to restore the boot bits
-            mount -n -t vfat /dev/mmcblk0p1 /boot
-            cp -R /run/bootbk/* /boot/
-            cp /tmp/sdlayout.json /boot/
-            umount /boot
             # procedure done. rebooting and this time we should not go through this process
             sleep 5
             # reboot
