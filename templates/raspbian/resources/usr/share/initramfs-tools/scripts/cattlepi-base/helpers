@@ -160,7 +160,7 @@ cattlepi_check_apply_disk_layout()
                     mkfs.vfat -F 32 $PARTNODE
                 fi
                 if [ $PARTTYPE == "83" ]; then
-                    mkfs.ext4 -t ext4 $PARTNODE
+                    mkfs.ext4 -F -F $PARTNODE
                 fi
                 if [ $PARTNODE == "/dev/mmcblk0p1" ]; then
                     # restore the boot bits
