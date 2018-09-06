@@ -1,5 +1,5 @@
 # inspired by https://stackoverflow.com/questions/8350942/how-to-re-run-the-curl-command-automatically-when-the-error-occurs/8351489#8351489
-with_backoff() 
+with_backoff()
 {
   local max_attempts=${ATTEMPTS-8}
   local timeout=${TIMEOUT-1}
@@ -63,7 +63,7 @@ cattlepi_find_params()
             CATTLEPI_MAC=$(cat /sys/class/net/*/address | grep -v ^00: | sort | head -n 1)
             CATTLEPI_ID=${CATTLEPI_ID-$CATTLEPI_MAC}
         fi
-        
+
         # do the same for the md5skip
         [ -r "${CATTLEPI_DIR}/md5skip" ] && CATTLEPI_MD5SKIP=$(head -n 1 "${CATTLEPI_DIR}/md5skip")
         if [ -z ${CATTLEPI_MD5SKIP+x} ]; then
@@ -78,20 +78,20 @@ cattlepi_find_params()
         export CATTLEPI_MD5SKIP
     fi
     cattlepi_adjust_time
-    cattlepi_find_params_used=yes 
+    cattlepi_find_params_used=yes
 }
 
 # generic download wrapper
 cattlepi_download()
 {
-    cattlepi_find_params        
+    cattlepi_find_params
     local downloc outloc
     downloc="$1"
     outloc="$2"
     cattlepi_absolute_download $CATTLEPI_BASE/$downloc $outloc
 }
 
-# generic time adjust 
+# generic time adjust
 cattlepi_adjust_time()
 {
     if [ "${cattlepi_adjust_time_invoked}" != "yes" ]; then
@@ -108,11 +108,11 @@ cattlepi_absolute_download()
     cattlepi_find_params
     local downloc outloc
     downloc="$1"
-    outloc="$2"    
+    outloc="$2"
     with_backoff curl --cacert /etc/ssl/certs/ca-certificates.crt -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $downloc -o $outloc
 }
 
-# get/update config 
+# get/update config
 cattlepi_fetch_update_config()
 {
     cattlepi_find_params
@@ -125,11 +125,11 @@ cattlepi_fetch_update_config()
 }
 
 # run the bootcode
-cattlepi_run_bootcode() 
+cattlepi_run_bootcode()
 {
     cattlepi_fetch_update_config
     if [ "${cattlepi_run_bootcode_invoked}" != "yes" ]; then
-        cat "${CATTLEPI_DIR}/config" | jq -r .bootcode | base64 -d > /tmp/bootcode.sh
+        jq -r ".bootcode" "${CATTLEPI_DIR}/config"  | base64 -d > /tmp/bootcode.sh
         if [ $? -eq 0 ]; then
             chmod +x /tmp/bootcode.sh
             /tmp/bootcode.sh || panic "failed to run the bootcode"
@@ -142,15 +142,15 @@ cattlepi_fetch_update_images()
 {
     cattlepi_fetch_update_config
     for img in initfs rootfs; do
-        local md5sum=$(cat "${CATTLEPI_DIR}/config" | jq -r .${img}.md5sum )
-        if [ -r "${CATTLEPI_DIR}/${md5sum}" ]; then        
-            if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then 
+        local md5sum=$(jq -r ".${img}.md5sum" "${CATTLEPI_DIR}/config")
+        if [ -r "${CATTLEPI_DIR}/${md5sum}" ]; then
+            if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then
                 echo "${md5sum}  ${CATTLEPI_DIR}/${md5sum}" > /tmp/check_md5
                 md5sum --quiet -c /tmp/check_md5 || rm -rf ${CATTLEPI_DIR}/${md5sum}
             fi
         fi
-        if [ ! -r "${CATTLEPI_DIR}/${md5sum}" ]; then 
-            local filetodownload=$(cat "${CATTLEPI_DIR}/config" | jq -r .${img}.url )
+        if [ ! -r "${CATTLEPI_DIR}/${md5sum}" ]; then
+            local filetodownload=$(jq -r ".${img}.url" "${CATTLEPI_DIR}/config")
             cattlepi_absolute_download $filetodownload "${CATTLEPI_DIR}/${md5sum}"
             if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then
                 echo "${md5sum}  ${CATTLEPI_DIR}/${md5sum}" > /tmp/check_md5
@@ -160,17 +160,17 @@ cattlepi_fetch_update_images()
     done
 }
 
-cattlepi_update_boot_part() 
+cattlepi_update_boot_part()
 {
     cattlepi_fetch_update_config
-    local target_initfs=$(cat "${CATTLEPI_DIR}/config" | jq -r .initfs.md5sum )
+    local target_initfs=$(jq -r ".initfs.md5sum" "${CATTLEPI_DIR}/config")
     echo $target_initfs > /tmp/target_initfs
-    cmp -s /boot/initfs /tmp/target_initfs 
+    cmp -s /boot/initfs /tmp/target_initfs
     if [ $? -ne 0 ]; then
         tar -xvzf "${CATTLEPI_DIR}/${target_initfs}" -C /boot/
         mv /tmp/target_initfs /boot/initfs
         echo "initfs updated. will reboot to pick it up shortly"
-        umount /boot        
+        umount /boot
         sleep 5
         # reboot
         echo b >/proc/sysrq-trigger
@@ -185,18 +185,18 @@ cattlepi_build_root_filesystem()
     modprobe fuse
 
     # figure out what rootfs squashed file we'll be using
-    local target_rootsfs=$(cat "${CATTLEPI_DIR}/config" | jq -r .rootfs.md5sum )
+    local target_rootsfs=$(jq -r ".rootfs.md5sum" "${CATTLEPI_DIR}/config")
     mkdir -p /rootfs
     mount -n -t tmpfs -o size=512m tmpfs /rootfs
 
-    # bottom layer - squash fs 
+    # bottom layer - squash fs
     mkdir -p /rootfs/bottomro
     mount -n -t squashfs -o loop "${CATTLEPI_DIR}/${target_rootsfs}" /rootfs/bottomro
 
     # top layer - tmpfs
     mkdir -p /rootfs/toprw
 
-    # create root fs which is an union of the 2 layers 
+    # create root fs which is an union of the 2 layers
     unionfs-fuse -o cow,allow_other,suid,use_ino,nonempty,dev /rootfs/toprw=RW:/rootfs/bottomro=RO ${rootmnt}
     mount --bind ${rootmnt} ${rootmnt}
     mkdir -p "${rootmnt}/cattlepi"
