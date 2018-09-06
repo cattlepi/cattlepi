@@ -1,5 +1,8 @@
 # CattlePi
 
+
+[![GitHub tag](https://img.shields.io/github/tag/cattlepi/cattlepi.svg)](https://github.com/cattlepi/cattlepi)
+[![GitHub](https://img.shields.io/github/license/cattlepi/cattlepi.svg)](https://github.com/cattlepi/cattlepi)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3568112149b64458b5b585ba2071cbe3)](https://app.codacy.com/app/cattlepi/cattlepi?utm_source=github.com&utm_medium=referral&utm_content=cattlepi/cattlepi&utm_campaign=Badge_Grade_Dashboard)
 
 A lot of Raspberry Pi projects treat their software and hardware as pets. A lot of time is put into configuring and tweaking the setup. If the hardware dies or the SD card wears out it can be very challenging or time consuming to rebuild/replicate the setup. Normally this is fine for a single DIY and/or educational project. But it's hardly practical or scalable in other cases.  
