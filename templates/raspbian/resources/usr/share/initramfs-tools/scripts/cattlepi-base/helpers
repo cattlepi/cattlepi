@@ -41,15 +41,22 @@ cattlepi_find_params()
             cattlepi_dir=*)
                 CATTLEPI_DIR=${x#cattlepi_dir=}
                 ;;
+            cattlepi_images_dir=*)
+                CATTLEPI_IMAGES_DIR=${x#cattlepi_images_dir=}
+                ;;
             cattlepi_md5skip=*)
                 CATTLEPI_MD5SKIP=${x#cattlepi_md5skip=}
                 ;;
             esac
         done
+
         # set default values
         CATTLEPI_BASE=${CATTLEPI_BASE-'https://api.cattlepi.com'}
         CATTLEPI_DIR=${CATTLEPI_DIR-'/boot/cattlepi'}
+        CATTLEPI_IMAGES_DIR_DEFAULT="$CATTLEPI_DIR/images"
+        CATTLEPI_IMAGES_DIR=${CATTLEPI_IMAGES_DIR-$CATTLEPI_IMAGES_DIR_DEFAULT}
         mkdir -p "${CATTLEPI_DIR}"
+        mkdir -p "${CATTLEPI_IMAGES_DIR}"
 
         # pick it up from kernel boot param, if file present override. if it's not set by any give it the default value
         [ -r "${CATTLEPI_DIR}/apikey" ] && CATTLEPI_APIKEY=$(head -n 1 "${CATTLEPI_DIR}/apikey")
@@ -67,13 +74,14 @@ cattlepi_find_params()
         # do the same for the md5skip
         [ -r "${CATTLEPI_DIR}/md5skip" ] && CATTLEPI_MD5SKIP=$(head -n 1 "${CATTLEPI_DIR}/md5skip")
         if [ -z ${CATTLEPI_MD5SKIP+x} ]; then
-            CATTLEPI_MD5SKIP_DEFAULT=yes
+            CATTLEPI_MD5SKIP_DEFAULT=no
             CATTLEPI_MD5SKIP=${CATTLEPI_MD5SKIP-$CATTLEPI_MD5SKIP_DEFAULT}
         fi
 
         export CATTLEPI_BASE
         export CATTLEPI_APIKEY
         export CATTLEPI_DIR
+        export CATTLEPI_IMAGES_DIR
         export CATTLEPI_ID
         export CATTLEPI_MD5SKIP
     fi
@@ -143,17 +151,17 @@ cattlepi_fetch_update_images()
     cattlepi_fetch_update_config
     for img in initfs rootfs; do
         local md5sum=$(jq -r ".${img}.md5sum" "${CATTLEPI_DIR}/config")
-        if [ -r "${CATTLEPI_DIR}/${md5sum}" ]; then
+        if [ -r "${CATTLEPI_IMAGES_DIR}/${md5sum}" ]; then
             if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then
-                echo "${md5sum}  ${CATTLEPI_DIR}/${md5sum}" > /tmp/check_md5
-                md5sum --quiet -c /tmp/check_md5 || rm -rf ${CATTLEPI_DIR}/${md5sum}
+                echo "${md5sum}  ${CATTLEPI_IMAGES_DIR}/${md5sum}" > /tmp/check_md5
+                md5sum --quiet -c /tmp/check_md5 || rm -rf ${CATTLEPI_IMAGES_DIR}/${md5sum}
             fi
         fi
-        if [ ! -r "${CATTLEPI_DIR}/${md5sum}" ]; then
+        if [ ! -r "${CATTLEPI_IMAGES_DIR}/${md5sum}" ]; then
             local filetodownload=$(jq -r ".${img}.url" "${CATTLEPI_DIR}/config")
-            cattlepi_absolute_download $filetodownload "${CATTLEPI_DIR}/${md5sum}"
+            cattlepi_absolute_download $filetodownload "${CATTLEPI_IMAGES_DIR}/${md5sum}"
             if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then
-                echo "${md5sum}  ${CATTLEPI_DIR}/${md5sum}" > /tmp/check_md5
+                echo "${md5sum}  ${CATTLEPI_IMAGES_DIR}/${md5sum}" > /tmp/check_md5
                 md5sum --quiet -c /tmp/check_md5 || panic "checksum verification failed"
             fi
         fi
@@ -167,7 +175,7 @@ cattlepi_update_boot_part()
     echo $target_initfs > /tmp/target_initfs
     cmp -s /boot/initfs /tmp/target_initfs
     if [ $? -ne 0 ]; then
-        tar -xvzf "${CATTLEPI_DIR}/${target_initfs}" -C /boot/
+        tar -xvzf "${CATTLEPI_IMAGES_DIR}/${target_initfs}" -C /boot/
         mv /tmp/target_initfs /boot/initfs
         echo "initfs updated. will reboot to pick it up shortly"
         umount /boot
@@ -191,7 +199,7 @@ cattlepi_build_root_filesystem()
 
     # bottom layer - squash fs
     mkdir -p /rootfs/bottomro
-    mount -n -t squashfs -o loop "${CATTLEPI_DIR}/${target_rootsfs}" /rootfs/bottomro
+    mount -n -t squashfs -o loop "${CATTLEPI_IMAGES_DIR}/${target_rootsfs}" /rootfs/bottomro
 
     # top layer - tmpfs
     mkdir -p /rootfs/toprw
