@@ -43,6 +43,7 @@ cattlepi_find_params()
                 ;;
             cattlepi_images_dir=*)
                 CATTLEPI_IMAGES_DIR=${x#cattlepi_images_dir=}
+                ;;
             cattlepi_md5skip=*)
                 CATTLEPI_MD5SKIP=${x#cattlepi_md5skip=}
                 ;;
