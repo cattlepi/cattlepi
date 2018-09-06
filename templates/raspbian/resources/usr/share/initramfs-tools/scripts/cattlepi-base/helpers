@@ -128,10 +128,10 @@ cattlepi_fetch_update_config()
 cattlepi_check_apply_disk_layout()
 {
     cattlepi_fetch_update_config
-    cat "${CATTLEPI_DIR}/config" | jq -r .config.sdlayout | grep -q null
+    jq -r ".config.sdlayout" "${CATTLEPI_DIR}/config" | grep -q null
     if [ $? -ne 0 ]; then
         # pull down and decode the requested disk layout
-        cat "${CATTLEPI_DIR}/config" | jq -r .config.sdlayout | base64 -d > /tmp/sdlayout
+        jq -r ".config.sdlayout" "${CATTLEPI_DIR}/config" | base64 -d > /tmp/sdlayout
         # TODO: there should be proper error checking here, but do the bare minimum here
         # dump current config
         sfdisk -d /dev/mmcblk0 | grep -v label-id: > /tmp/current_sdlayout
@@ -149,12 +149,12 @@ cattlepi_check_apply_disk_layout()
             sfdisk /dev/mmcblk0 < /tmp/sdlayout
             # now attempt to mkfs on the newly created partitions
             sfdisk -J /dev/mmcblk0 > /tmp/sdlayout.json
-            PARTC=$(cat /tmp/sdlayout.json | jq '.partitiontable.partitions | length')
+            PARTC=$(jq '.partitiontable.partitions | length' /tmp/sdlayout.json)
             let PARTC=$((PARTC - 1))
             for IPART in `seq 0 $PARTC`
             do
-                PARTNODE=$(cat /tmp/sdlayout.json | jq -r .partitiontable.partitions[$IPART].node)
-                PARTTYPE=$(cat /tmp/sdlayout.json | jq -r .partitiontable.partitions[$IPART].type)
+                PARTNODE=$(jq -r ".partitiontable.partitions[$IPART].node" /tmp/sdlayout.json)
+                PARTTYPE=$(jq -r ".partitiontable.partitions[$IPART].type" /tmp/sdlayout.json | )
                 echo "$PARTNODE: type $PARTTYPE"
                 if [ $PARTTYPE == "b" ]; then
                     mkfs.vfat -F 32 $PARTNODE
@@ -184,7 +184,7 @@ cattlepi_run_bootcode()
 {
     cattlepi_fetch_update_config
     if [ "${cattlepi_run_bootcode_invoked}" != "yes" ]; then
-        cat "${CATTLEPI_DIR}/config" | jq -r .bootcode | base64 -d > /tmp/bootcode.sh
+        jq -r ".bootcode" "${CATTLEPI_DIR}/config"  | base64 -d > /tmp/bootcode.sh
         if [ $? -eq 0 ]; then
             chmod +x /tmp/bootcode.sh
             /tmp/bootcode.sh || panic "failed to run the bootcode"
@@ -197,7 +197,7 @@ cattlepi_fetch_update_images()
 {
     cattlepi_fetch_update_config
     for img in initfs rootfs; do
-        local md5sum=$(cat "${CATTLEPI_DIR}/config" | jq -r .${img}.md5sum )
+        local md5sum=$(jq -r ".${img}.md5sum" "${CATTLEPI_DIR}/config")
         if [ -r "${CATTLEPI_DIR}/${md5sum}" ]; then
             if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then
                 echo "${md5sum}  ${CATTLEPI_DIR}/${md5sum}" > /tmp/check_md5
@@ -205,7 +205,7 @@ cattlepi_fetch_update_images()
             fi
         fi
         if [ ! -r "${CATTLEPI_DIR}/${md5sum}" ]; then
-            local filetodownload=$(cat "${CATTLEPI_DIR}/config" | jq -r .${img}.url )
+            local filetodownload=$(jq -r ".${img}.url" "${CATTLEPI_DIR}/config")
             cattlepi_absolute_download $filetodownload "${CATTLEPI_DIR}/${md5sum}"
             if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then
                 echo "${md5sum}  ${CATTLEPI_DIR}/${md5sum}" > /tmp/check_md5
@@ -218,7 +218,7 @@ cattlepi_fetch_update_images()
 cattlepi_update_boot_part()
 {
     cattlepi_fetch_update_config
-    local target_initfs=$(cat "${CATTLEPI_DIR}/config" | jq -r .initfs.md5sum )
+    local target_initfs=$(jq -r ".initfs.md5sum" "${CATTLEPI_DIR}/config")
     echo $target_initfs > /tmp/target_initfs
     cmp -s /boot/initfs /tmp/target_initfs
     if [ $? -ne 0 ]; then
@@ -240,7 +240,7 @@ cattlepi_build_root_filesystem()
     modprobe fuse
 
     # figure out what rootfs squashed file we'll be using
-    local target_rootsfs=$(cat "${CATTLEPI_DIR}/config" | jq -r .rootfs.md5sum )
+    local target_rootsfs=$(jq -r ".rootfs.md5sum" "${CATTLEPI_DIR}/config")
     mkdir -p /rootfs
     mount -n -t tmpfs -o size=512m tmpfs /rootfs
 
