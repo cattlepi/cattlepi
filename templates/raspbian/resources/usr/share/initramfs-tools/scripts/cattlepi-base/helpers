@@ -136,7 +136,7 @@ cattlepi_fetch_update_config()
 cattlepi_check_apply_disk_layout()
 {
     cattlepi_fetch_update_config
-    if [ -r /boot/sdlayout.json" ]; then
+    if [ -r "/boot/sdlayout.json" ]; then
         # we only allow one manipulation of the sdlayout.
         # after that you need to explicitely remove /boot/sdlayout.json to alter the layout again
         echo "an sdlayout was already applied. will skip this"
@@ -170,7 +170,7 @@ cattlepi_check_apply_disk_layout()
             sfdisk /dev/mmcblk0 < /tmp/sdlayout
             # now attempt to mkfs on the newly created partitions
             sfdisk -J /dev/mmcblk0 > /tmp/sdlayout.json
-            PARTC=$(jq '.partitiontable.partitions | length' /tmp/sdlayout.json)
+            PARTC=$(jq ".partitiontable.partitions | length" /tmp/sdlayout.json)
             let PARTC=$((PARTC - 1))
             for IPART in `seq 0 $PARTC`
             do
