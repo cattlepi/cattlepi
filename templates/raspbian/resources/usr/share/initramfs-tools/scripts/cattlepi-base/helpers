@@ -175,7 +175,7 @@ cattlepi_check_apply_disk_layout()
             for IPART in `seq 0 $PARTC`
             do
                 PARTNODE=$(jq -r ".partitiontable.partitions[$IPART].node" /tmp/sdlayout.json)
-                PARTTYPE=$(jq -r ".partitiontable.partitions[$IPART].type" /tmp/sdlayout.json | )
+                PARTTYPE=$(jq -r ".partitiontable.partitions[$IPART].type" /tmp/sdlayout.json)
                 echo "$PARTNODE: type $PARTTYPE"
                 if [ $PARTTYPE == "b" ]; then
                     mkfs.vfat -F 32 $PARTNODE
