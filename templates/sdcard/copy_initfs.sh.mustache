@@ -21,7 +21,6 @@ sudo rm /mnt/SD/$IMGFILE
 if [ -r /tmp/cattlepi_apikey ]
 then
     sudo mkdir -p /mnt/SD/cattlepi
-    mv /tmp/cattlepi_apikey /mnt/SD/cattlepi/apikey
-    rm -rf /tmp/cattlepi_apikey
+    sudo mv /tmp/cattlepi_apikey /mnt/SD/cattlepi/apikey
 fi
 cd $TOPDIR && sudo umount /mnt/SD
