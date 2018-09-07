@@ -10,8 +10,17 @@ then
     echo "failed mounting"
     exit 1
 fi
+if [ -r /mnt/SD/cattlepi/apikey ]
+then
+    mv /mnt/SD/cattlepi/apikey /tmp/cattlepi_apikey
+fi
 sudo rm -rf /mnt/SD/*
 sudo cp $TOPDIR/"builder/latest/output"/$IMGFILE /mnt/SD/
 cd /mnt/SD && sudo tar --no-same-owner -xvf $IMGFILE
 sudo rm /mnt/SD/$IMGFILE
+if [ -r /tmp/cattlepi_apikey ]
+then
+    mv /tmp/cattlepi_apikey /mnt/SD/cattlepi/apikey
+    rm -rf /tmp/cattlepi_apikey
+fi
 cd $TOPDIR && sudo umount /mnt/SD
