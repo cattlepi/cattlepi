@@ -1,5 +1,5 @@
 #!/bin/bash
-CFGDIR=$TOPDIR"/tools/cfg"
+export CFGDIR=$TOPDIR"/tools/cfg"
 source $TOPDIR/bin/"activate"
 
 rm -rf $BUILDDIR/*
@@ -18,7 +18,7 @@ source $BUILDDIR/raw_recipe.sh
 
 if [ "$RECIPE_EXPAND_TEMPLATE" == "yes" ]; then
     cp -R $RECIPE_TEMPLATE/* $BUILDDIR/
-    for MUSTACHE_FILE in `find $BUILDDIR -type f | grep ".mustache$"`
+    for MUSTACHE_FILE in $(find $BUILDDIR -type f | grep ".mustache$")
     do
         $UTILDIR/filler.py -t $MUSTACHE_FILE -p $PARAM_FILE
         rm $MUSTACHE_FILE

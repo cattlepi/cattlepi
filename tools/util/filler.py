@@ -7,7 +7,7 @@ import sys
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
-parser.add_argument("-t", "--template-file", dest="template", 
+parser.add_argument("-t", "--template-file", dest="template",
                     help="template file to fill in", required=True)
 parser.add_argument("-p", "--param-file", dest="param",
                     help="parameters to use when filling in the template", required=True)

@@ -132,6 +132,74 @@ cattlepi_fetch_update_config()
     cattlepi_fetch_update_config_invoked=yes
 }
 
+# apply the requested sd disk layout
+cattlepi_check_apply_disk_layout()
+{
+    cattlepi_fetch_update_config
+    if [ -r "/boot/sdlayout.json" ]; then
+        # we only allow one manipulation of the sdlayout.
+        # after that you need to explicitely remove /boot/sdlayout.json to alter the layout again
+        echo "an sdlayout was already applied. will skip this"
+        echo "remove /boot/sdlayout.json if you want to apply another layout"
+        return
+    fi
+    jq -r ".config.sdlayout" "${CATTLEPI_DIR}/config" | grep -q null
+    if [ $? -ne 0 ]; then
+        # pull down and decode the requested disk layout
+        jq -r ".config.sdlayout" "${CATTLEPI_DIR}/config" | base64 -d > /tmp/sdlayout
+        if [ $? -ne 0 ]; then
+            echo "invalid sdlayout. skipping"
+            return
+        fi
+        if [ -z "$(cat /tmp/sdlayout)" ]; then
+            echo "configuration is empty. skipping";
+            return
+        fi
+        # dump current config
+        sfdisk -d /dev/mmcblk0 | grep -v label-id: > /tmp/current_sdlayout
+        cmp -s /tmp/sdlayout /tmp/current_sdlayout
+        if [ $? -ne 0 ]; then
+            # we need to apply the requested layout
+            #   to keep things "bootable" we will backup the content under /boot, apply the layout
+            #   and afterwards copy back the backup to the boot partition
+            rm -rf "${CATTLEPI_IMAGES_DIR}"
+            mkdir /run/bootbk
+            cp -R /boot/* /run/bootbk
+            umount /boot
+            # showtime: apply the requested layout
+            sfdisk /dev/mmcblk0 < /tmp/sdlayout
+            # now attempt to mkfs on the newly created partitions
+            sfdisk -J /dev/mmcblk0 > /tmp/sdlayout.json
+            PARTC=$(jq ".partitiontable.partitions | length" /tmp/sdlayout.json)
+            let PARTC=$((PARTC - 1))
+            for IPART in `seq 0 $PARTC`
+            do
+                PARTNODE=$(jq -r ".partitiontable.partitions[$IPART].node" /tmp/sdlayout.json)
+                PARTTYPE=$(jq -r ".partitiontable.partitions[$IPART].type" /tmp/sdlayout.json)
+                echo "$PARTNODE: type $PARTTYPE"
+                if [ $PARTTYPE == "b" ]; then
+                    mkfs.vfat -F 32 $PARTNODE
+                fi
+                if [ $PARTTYPE == "83" ]; then
+                    mkfs.ext4 -F -F $PARTNODE
+                fi
+                if [ $PARTNODE == "/dev/mmcblk0p1" ]; then
+                    # restore the boot bits
+                    # do this as early as possible to keep it bootable if possible
+                    mount -n -t vfat /dev/mmcblk0p1 /boot
+                    cp -R /run/bootbk/* /boot/
+                    cp /tmp/sdlayout.json /boot/
+                    umount /boot
+                fi
+            done
+            # procedure done. rebooting and this time we should not go through this process
+            sleep 5
+            # reboot
+            echo b >/proc/sysrq-trigger
+        fi
+    fi
+}
+
 # run the bootcode
 cattlepi_run_bootcode()
 {

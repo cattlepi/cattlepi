@@ -5,15 +5,15 @@ import sys
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
-parser.add_argument("-r", "--recipe-file", dest="recipe", 
-                    help="recipe file to load", required=True) 
-parser.add_argument("-o", "--output-file", dest="output", 
-                    help="generate target output", required=True) 
+parser.add_argument("-r", "--recipe-file", dest="recipe",
+                    help="recipe file to load", required=True)
+parser.add_argument("-o", "--output-file", dest="output",
+                    help="generate target output", required=True)
 args = parser.parse_args()
 
 with open(args.recipe) as f:
     try:
-        my_recipe = yaml.load(f)
+        my_recipe = yaml.safe_load(f)
     except yaml.YAMLError as exc:
         print(exc)
         sys.exit(2)
@@ -24,7 +24,7 @@ try:
             raise ValueError('%s field not present in recipe' % key)
     supported = False
     for supported_tool in ['script', 'run_playbook']:
-        if my_recipe['tool'] == supported_tool: 
+        if my_recipe['tool'] == supported_tool:
             supported = True
             break
     if my_recipe['tool'] == 'run_playbook':

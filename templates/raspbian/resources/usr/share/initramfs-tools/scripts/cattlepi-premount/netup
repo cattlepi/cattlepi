@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PREREQ="netup"
+PREREQ=""
 
 prereqs()
 {
@@ -14,6 +14,8 @@ case "$1" in
     ;;
 esac
 
-echo "cattlepi pre - sdmount"
-mkdir /boot
-mount -n -t vfat /dev/mmcblk0p1 /boot
+. /scripts/functions
+. /scripts/cattlepi-base/helpers
+
+set -x 
+configure_networking
