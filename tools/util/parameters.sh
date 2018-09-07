@@ -1,3 +1,4 @@
+#!/bin/bash
 DEFAULT_HOME_CFG_PATH="$HOME/.cattlepi/configuration"
 CATTLEPI_CFG_PATH=${CATTLEPI_CFG_PATH:-$DEFAULT_HOME_CFG_PATH}
 echo "looking for cattlepi config at $CATTLEPI_CFG_PATH"
