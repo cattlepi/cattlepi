@@ -1,4 +1,5 @@
 #!/bin/bash
+export CFGDIR=$TOPDIR"/tools/cfg"
 source $TOPDIR/bin/"activate"
 
 rm -rf $BUILDDIR/*
