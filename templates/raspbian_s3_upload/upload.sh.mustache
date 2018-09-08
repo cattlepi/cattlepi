@@ -12,3 +12,8 @@ echo "INITFS={{CATTLEPI_BASE}}/images/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}/initra
 echo "INITFSMD5=$(md5sum ${BUILDDIRLATEST}/output/initramfs.tgz | awk '{print $1'})" >> ${BUILD_IMAGE_FILE}
 echo "ROOTFS={{CATTLEPI_BASE}}/images/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}/rootfs.sqsh" >> ${BUILD_IMAGE_FILE}
 echo "ROOTFSMD5=$(md5sum ${BUILDDIRLATEST}/output/rootfs.sqsh | awk '{print $1'})" >> ${BUILD_IMAGE_FILE}
+
+if [ ! -z {{CATTLEPI_DEFAULT_S3_POST_HOOK}} ]; then
+    echo "invoking the post upload hook"
+    {{CATTLEPI_DEFAULT_S3_POST_HOOK}}
+fi
