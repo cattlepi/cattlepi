@@ -18,6 +18,10 @@ raspbian_all: envsetup
 	@echo "make: raspbian_all"
 	bin/myenv.sh "${current_dir}recipes/raspbian_all.yml"
 
+raspbian_s3_upload: envsetup
+	@echo "make: raspbian_s3_upload"
+	bin/myenv.sh "${current_dir}recipes/raspbian_s3_upload.yml"
+
 copy_initfs_to_sdcard: envsetup
 	@echo "make: copy_initfs_to_sdcard"
 	bin/myenv.sh "${current_dir}recipes/copy_initfs_to_sdcard.yml"
