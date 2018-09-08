@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "executing s3 upload"
+echo "${BUILDDIRLATEST}/output/ -> s3://{{CATTLEPI_DEFAULT_S3_BUCKET}}/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}"
+
+aws s3 sync "${BUILDDIRLATEST}/output/" "s3://{{CATTLEPI_DEFAULT_S3_BUCKET}}/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}/"

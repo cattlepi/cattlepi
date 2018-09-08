@@ -5,3 +5,9 @@ CATTLEPI_APIKEY=${CATTLEPI_APIKEY:-deadbeef}
 CATTLEPI_LOCALAPI=${CATTLEPI_LOCALAPI:-192.168.1.166:4567}
 CATTLEPI_BUILDER_SUPPORT=${CATTLEPI_BUILDER_SUPPORT:-https://github.com/cattlepi/cattlepi-builder-support.git}
 CATTLEPI_BUILDER_SUPPORT_TAG=${CATTLEPI_BUILDER_SUPPORT_TAG:-dd804fa47638f5183a3ebede390a48c613f83663}
+
+# settings for the s3 upload of images - update to your own if you want to upload the images to AWS S3
+#   you also need to have your credentials configured through  ~/.aws/credentials or other mechanism supported by
+#   the awscli
+CATTLEPI_DEFAULT_S3_BUCKET=${CATTLEPI_DEFAULT_S3_BUCKET:-cattlepi-images}
+CATTLEPI_DEFAULT_S3_BUCKET_PATH=${CATTLEPI_DEFAULT_S3_BUCKET_PATH:-global/raspbian-lite/2018-06-29/vtest}
