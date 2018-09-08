@@ -12,17 +12,20 @@ source "$CFGDIR/defaults"
 export PARAM_FILE=$BUILDDIR/params.json
 cat > $PARAM_FILE <<-EOF
 {
-    "BUILDER_NODE":"$BUILDER_NODE",
-    "CATTLEPI_BASE":"$CATTLEPI_BASE",
-    "CATTLEPI_APIKEY":"$CATTLEPI_APIKEY",
-    "CATTLEPI_LOCALAPI":"$CATTLEPI_LOCALAPI",
-    "CATTLEPI_BUILDER_SUPPORT":"$CATTLEPI_BUILDER_SUPPORT",
-    "CATTLEPI_BUILDER_SUPPORT_TAG":"$CATTLEPI_BUILDER_SUPPORT_TAG",
-    "CATTLEPI_DEFAULT_S3_BUCKET":"$CATTLEPI_DEFAULT_S3_BUCKET",
-    "CATTLEPI_DEFAULT_S3_BUCKET_PATH":"$CATTLEPI_DEFAULT_S3_BUCKET_PATH",
-    "CATTLEPI_DEFAULT_S3_POST_HOOK":"$CATTLEPI_DEFAULT_S3_POST_HOOK"
-}
+"BUILDER_NODE":"$BUILDER_NODE",
 EOF
+
+# automatically pick everything that is CATTLEPI_* so that we don't have
+#   to remember to keep adding them here as we are adding them to the default
+#   or the ~/.cattlepi/configuration file
+for CATTLEVAR in $(compgen -v | grep ^CATTLEPI_)
+do
+    eval CATTLEVALUE=\$$CATTLEVAR
+    echo '"'${CATTLEVAR}'":"'$CATTLEVALUE'",' >> $BUILDDIR/params.json
+done
+CATTLEVAR="CATTLEPI_SENTINEL_$RANDOM"
+echo '"'${CATTLEVAR}'":"0"' >> $BUILDDIR/params.json
+echo "}" >> $BUILDDIR/params.json
 
 echo "using parameters: "
 cat $PARAM_FILE
