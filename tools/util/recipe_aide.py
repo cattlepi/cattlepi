@@ -38,6 +38,18 @@ except ValueError as exc:
     sys.exit(2)
 
 with open(args.output, "w") as o:
+    recipes_to_include = []
+    # the include logic - we will prepare the invocation
+    if 'include' in my_recipe:
+        for inc_recipe in my_recipe['include']:
+            for key in ['version', 'name']:
+                if key not in inc_recipe:
+                    raise ValueError('%s field not present in include %s' % (key, inc_recipe))
+            recipes_to_include.append(inc_recipe['name'])
+    if len(recipes_to_include) > 0:
+        o.write('export RECIPE_INCLUDES=(%s)\n' % ' '.join(recipes_to_include))
+
+    # other instructions
     o.write('export RECIPE_EXPAND_TEMPLATE=yes\n')
     o.write('export RECIPE_TEMPLATE=$TOPDIR"%s"\n' % my_recipe['template'])
     if my_recipe['tool'] == 'script':

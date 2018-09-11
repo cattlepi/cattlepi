@@ -5,4 +5,6 @@
   become: yes
   become_method: sudo
   tasks:
-    - import_tasks: tasks/squashfs.yml
+    - import_tasks: tasks/init_squashfs.yml
+    - import_tasks: tasks/custom_hook_squashfs.yml
+    - import_tasks: tasks/complete_squashfs.yml
