@@ -216,8 +216,9 @@ cattlepi_run_bootcode()
 
 cattlepi_fetch_update_images()
 {
-    # Define an array to store md5s of current images
-    local current_imgs=()
+    # /bin/sh doesn't have arrays like bash. Define a variable
+    # to hold our image MD5's
+    local current_imgs=
 
     cattlepi_fetch_update_config
     for img in initfs rootfs; do
@@ -237,10 +238,15 @@ cattlepi_fetch_update_images()
             fi
         fi
         # If we haven't choked by now, all must be well. Save the md5sum for safekeeping
-        current_imgs+=("${md5sum}")
+        if [[ -z "${current_imgs}" ]]; then
+            # Avoid putting a leading "|" in the variable
+            current_imgs="${md5sum}"
+        else
+            current_imgs="${current_imgs}|${md5sum}"
+        fi
     done
     # Remove everything in the images dir except for the current set of images
-    ls "${CATTLEPI_IMAGES_DIR}"/* | grep -vE $(IFS=\| && echo "${current_imgs[*]}") | xargs rm
+    ls "${CATTLEPI_IMAGES_DIR}"/* | grep -vE $(echo "${current_imgs}") | xargs rm
 }
 
 cattlepi_update_boot_part()
