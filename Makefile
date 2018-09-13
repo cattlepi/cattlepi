@@ -18,6 +18,10 @@ raspbian_all: envsetup
 	@echo "make: raspbian_all"
 	bin/myenv.sh "${current_dir}recipes/raspbian_all.yml"
 
+raspbian_provision_latest_only: envsetup
+	@echo "make: raspbian_provision_latest_only"
+	bin/myenv.sh "${current_dir}recipes/raspbian_provision_latest_only.yml"
+
 raspbian_s3_upload: envsetup
 	@echo "make: raspbian_s3_upload"
 	bin/myenv.sh "${current_dir}recipes/raspbian_s3_upload.yml"

@@ -1,0 +1,11 @@
+- name: create the squash fs file
+  shell: sudo mksquashfs /tmp/squashfs/rootfs /tmp/squashfs/rootfs.sqsh -info
+- file:
+    path: /tmp/squashfs/rootfs.sqsh
+    owner: pi
+    group: pi
+    mode: 0644
+- synchronize:
+    mode: pull
+    src: /tmp/squashfs/rootfs.sqsh
+    dest: output/

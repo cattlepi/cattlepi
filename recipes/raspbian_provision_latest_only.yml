@@ -1,0 +1,9 @@
+---
+version: 1.0
+tool: run_playbook
+template: "/templates/raspbian_provision_latest_only"
+include:
+  - name: raspbian_all
+    version: 1.0
+params:
+  playbook: "stages.yml"
