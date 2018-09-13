@@ -1,2 +1,4 @@
-- name: custom hook sentinel
-  command: echo "injecting the custom logic"
+- name: bring in the recipe bootstrap script
+  shell: cp -R /tmp/resources/bin/bootstrap_recipe.sh /tmp/squashfs/rootfs/etc/bootstrap_recipe.sh
+- name: permissions on the recipe bootstrap script
+  shell: chmod 0755 /tmp/squashfs/rootfs/etc/bootstrap_recipe.sh
