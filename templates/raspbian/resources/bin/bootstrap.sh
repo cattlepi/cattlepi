@@ -13,7 +13,7 @@ echo "-------------------------------------------------------"
 if [ $? -ne 0 ]; then
     /bin/mkdir -p /home/pi/.ssh
     for key in $(/usr/bin/seq 1 $(/bin/cat /cattlepi/config | /usr/bin/jq '.config.ssh.pi.authorized_keys | length'))
-    do 
+    do
         let idx=($key-1)
         /bin/echo "$(/bin/cat /cattlepi/config | /usr/bin/jq -r .config.ssh.pi.authorized_keys[$idx])" >> /home/pi/.ssh/authorized_keys
         /bin/chmod 0644 /home/pi/.ssh/authorized_keys
@@ -33,6 +33,13 @@ cat <<'EOF' > /etc/cron.d/cattlepi_autoupdate
 */10 * * * *   root    /etc/autoupdate.sh
 EOF
     fi # $AUTOUPDATE == "true"
+fi
+echo "-------------------------------------------------------"
+echo "running user code baked in via the recipe if any"
+echo "-------------------------------------------------------"
+if [ -f /etc/bootstrap_recipe.sh ]; then
+    chmod +x /tmp/usercode.sh
+    /etc/bootstrap_recipe.sh
 fi
 echo "-------------------------------------------------------"
 echo "running user code if any"
