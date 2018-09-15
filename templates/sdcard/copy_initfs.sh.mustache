@@ -23,4 +23,8 @@ then
     sudo mkdir -p /mnt/SD/cattlepi
     sudo mv /tmp/cattlepi_apikey /mnt/SD/cattlepi/apikey
 fi
+if [ ! -z {{CATTLEPI_COPYTOSD_INITFS_POST_HOOK}} ]; then
+    echo "invoking the post copy to sd hook"
+    {{CATTLEPI_COPYTOSD_INITFS_POST_HOOK}}
+fi
 cd $TOPDIR && sudo umount /mnt/SD
