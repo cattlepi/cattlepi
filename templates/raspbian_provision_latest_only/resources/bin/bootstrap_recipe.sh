@@ -57,20 +57,15 @@ mount -o loop /p2/tmp/boot.img /tmp/boot
 # backup the config and cmdline
 cp /p1/cmdline.txt /p1/cmdline.txt.backup
 cp /p1/config.txt /p1/config.txt.backup
-rm -f /p1/initfs
-# copy the new and overwrite the old
 cp -R /tmp/boot/* /p1/
-
-# tear it down, cross fingers and force a reboot to let the stock raspbian roam
 umount /p1
-umount /tmp/boot
-umount /p2
+sleep 5
+echo b > /proc/sysrq-trigger
 
-sleep 20
 
-/sbin/reboot -f
-if [ $? -ne 0 ]; then
-    # the reboot did not work. force it even more
-    echo 1 > /proc/sys/kernel/sysrq
-    echo b > /proc/sysrq-trigger
-fi
+# THINGS LEFT TO DO:
+- update the partition id in cmdline.txt (use blkid) and in /p2/etc/fstab
+- remove init from the cmdline
+- don't resize the root partition (it expects to be the last partition)
+- install jq in the bootstrap script
+- start ssh (or even better - create the flag file in the /p1 (ie boot) above)
