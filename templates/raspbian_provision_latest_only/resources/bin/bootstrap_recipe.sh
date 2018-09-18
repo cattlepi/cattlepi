@@ -71,9 +71,17 @@ NEW_PTUUID=$(blkid /dev/mmcblk0 | sed -r 's/.+PTUUID="([^"]+).+/\1/')
 sed -ri "s/$OLD_PTUUID/$NEW_PTUUID/" /p1/cmdline.txt
 sed -ri "s/$OLD_PTUUID/$NEW_PTUUID/" /p2/etc/fstab
 
+# debug output
+echo "++++++++"
+find /tmp/boot -print
+cat /p1/cmdline.txt
+echo "++++++++"
+
 # we're done. force restart
+sync
 umount /p1
 umount /tmp/boot
 umount /p2
+sync
 sleep 5
 echo b > /proc/sysrq-trigger
