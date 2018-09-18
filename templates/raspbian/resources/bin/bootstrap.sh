@@ -7,6 +7,10 @@ echo "-------------------------------------------------------"
 /usr/bin/yes | /usr/bin/ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa -b 521
 /usr/bin/yes | /usr/bin/ssh-keygen -f /etc/ssh/ssh_host_ed25519_key -N '' -t ed25519
 echo "-------------------------------------------------------"
+echo "ensure jq is installed"
+echo "-------------------------------------------------------"
+apt-get install --yes --force-yes jq
+echo "-------------------------------------------------------"
 echo "bring in the authorized keys if any"
 echo "-------------------------------------------------------"
 /bin/cat /cattlepi/config | /usr/bin/jq -r .config.ssh.pi.authorized_keys | grep -q null
