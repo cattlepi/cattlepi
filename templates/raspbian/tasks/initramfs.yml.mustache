@@ -34,6 +34,9 @@
   shell: /tmp/resources/bin/build_union_fs.sh
 - name: bring in the cattlepi initramfs script
   shell: cp -R /tmp/resources/usr /
+- file:
+    path: /tmp/initramfs/cattleinit.cpio
+    state: absent
 - name: create the initramfs file
   shell: mkinitramfs -v -o /tmp/initramfs/cattleinit.cpio
 - name: set initramfs permissions
