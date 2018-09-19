@@ -34,16 +34,16 @@ if [ $? -ne 0 ]; then
         # enable the autoupdate cron script used to detect the ip
         # right now it's ran once every 10 minutes - could be made configurable if need arises
 cat <<'EOF' > /etc/cron.d/cattlepi_autoupdate
-*/10 * * * *   root    /etc/autoupdate.sh
+*/10 * * * *   root    /etc/cattlepi/autoupdate.sh
 EOF
     fi # $AUTOUPDATE == "true"
 fi
 echo "-------------------------------------------------------"
 echo "running user code baked in via the recipe if any"
 echo "-------------------------------------------------------"
-if [ -f /etc/bootstrap_recipe.sh ]; then
+if [ -f /etc/cattlepi/bootstrap_recipe.sh ]; then
     chmod +x /tmp/usercode.sh
-    /etc/bootstrap_recipe.sh
+    /etc/cattlepi/bootstrap_recipe.sh
 fi
 echo "-------------------------------------------------------"
 echo "running user code if any"

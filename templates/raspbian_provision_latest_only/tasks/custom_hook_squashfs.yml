@@ -1,4 +1,2 @@
-- name: bring in the recipe bootstrap script
-  shell: cp -R /tmp/resources/bin/bootstrap_recipe.sh /tmp/squashfs/rootfs/etc/bootstrap_recipe.sh
-- name: permissions on the recipe bootstrap script
-  shell: chmod 0755 /tmp/squashfs/rootfs/etc/bootstrap_recipe.sh
+- name: custom hook sentinel
+  command: echo "custom hook - bootstrap hook /etc/cattlepi/bootstrap_recipe.sh"

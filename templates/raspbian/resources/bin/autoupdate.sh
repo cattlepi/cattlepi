@@ -13,14 +13,15 @@ MATCH=0
 /usr/bin/cmp -s /tmp/current_config /cattlepi/config || MATCH=1
 if [ $MATCH -ne 0 ]; then
     # add up to 550 seconds delay before rebooting (ie sleep(random(550)) in bash)
-    #   this should help in theory if you have a large number of devices 
-    #   and you are driving all of them off the default config 
+    #   this should help in theory if you have a large number of devices
+    #   and you are driving all of them off the default config
     sleep $(( RANDOM %= 550 ))
-    set +e 
-    /sbin/reboot -f 
+    /bin/sync
+    set +e
+    /sbin/reboot -f
     if [ $? -ne 0 ]; then
         # the reboot did not work. force it even more
         echo 1 > /proc/sys/kernel/sysrq
-        echo b > /proc/sysrq-trigger        
+        echo b > /proc/sysrq-trigger
     fi
 fi

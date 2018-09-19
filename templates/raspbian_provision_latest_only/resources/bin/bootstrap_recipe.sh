@@ -44,7 +44,7 @@ cp -R /cattlepi/ /p2
 cp /etc/bootstrap.sh /p2/etc/bootstrap.sh
 chmod 0755 /p2/etc/bootstrap.sh
 cp /etc/rc.local /p2/etc/rc.local
-echo '' > /p2/etc/autoupdate.sh
+echo '' > /p2/etc/cattlepi/autoupdate.sh
 
 # now bring in the /boot partition - use a temp file and a loopback for this
 wget -O- $RASPBIAN_LOCATION | gunzip -q -c | pv | dd of=/p2/tmp/boot.img skip=$P1START count=$P1SIZE bs=$BLOCKSIZE  iflag=fullblock
