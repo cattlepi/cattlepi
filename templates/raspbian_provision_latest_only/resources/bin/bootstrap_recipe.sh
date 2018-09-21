@@ -41,8 +41,9 @@ mkdir -p /p2
 mount -o ro /dev/mmcblk0p2 /p2
 mount -o remount,rw /dev/mmcblk0p2 /p2
 cp -R /cattlepi/ /p2
-cp /etc/cattlepi/bootstrap.sh /p2/etc/cattlepi/bootstrap.sh
-chmod 0755 /p2/etc/cattlepi/bootstrap.sh
+mkdir -p /p2/etc/cattlepi
+cp -R /etc/cattlepi/* /p2/etc/cattlepi/
+chmod -R 0755 /p2/etc/cattlepi/*
 cp /etc/rc.local /p2/etc/rc.local
 echo '' > /p2/etc/cattlepi/autoupdate.sh
 
