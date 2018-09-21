@@ -32,7 +32,7 @@ echo $P2START", "$P2SIZE
 
 # actually perform the write - do it by piping to not preseve anything on disk for p2
 wget -O- $RASPBIAN_LOCATION | gunzip -q -c | pv | dd of=/dev/mmcblk0p2 skip=$P2START count=$P2SIZE bs=$BLOCKSIZE iflag=fullblock
-e2fsck -f /dev/mmcblk0p2
+e2fsck -f -p /dev/mmcblk0p2
 resize2fs /dev/mmcblk0p2
 
 # preserve the bootstrap (and run it under stock raspbian)
@@ -42,8 +42,8 @@ mount -o ro /dev/mmcblk0p2 /p2
 mount -o remount,rw /dev/mmcblk0p2 /p2
 cp -R /cattlepi/ /p2
 mkdir -p /p2/etc/cattlepi
-cp -R /etc/cattlepi/* /p2/etc/cattlepi/
-chmod -R 0755 /p2/etc/cattlepi/*
+cp /etc/cattlepi/bootstrap.sh /p2/etc/cattlepi/bootstrap.sh
+chmod 0755 /p2/etc/cattlepi/bootstrap.sh
 cp /etc/rc.local /p2/etc/rc.local
 echo '' > /p2/etc/cattlepi/autoupdate.sh
 
