@@ -6,9 +6,12 @@ echo "-------------------------------------------------------"
 
 apt-get install --yes --force-yes pv
 
-# RASPBIAN_LOCATION="http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-06-29/2018-06-27-raspbian-stretch-lite.zip"
-# for the purpose of testing let's downwload this for now.
-RASPBIAN_LOCATION="http://192.168.1.166/2018-06-27-raspbian-stretch-lite.zip"
+RASPBIAN_LOCATION="http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-06-29/2018-06-27-raspbian-stretch-lite.zip"
+# RASPBIAN_LOCATION="http://192.168.1.166/2018-06-27-raspbian-stretch-lite.zip"
+/bin/cat /cattlepi/config | /usr/bin/jq -r .config.standalone.raspbian_location | grep -q null
+if [ $? -ne 0 ]; then
+    RASPBIAN_LOCATION=$(/bin/cat /cattlepi/config | /usr/bin/jq -r .config.standalone.raspbian_location)
+fi
 
 # figure out the sizes
 wget -O- $RASPBIAN_LOCATION | gunzip -q -c | head -c 512 > /tmp/mbr.img
@@ -42,8 +45,9 @@ mount -o ro /dev/mmcblk0p2 /p2
 mount -o remount,rw /dev/mmcblk0p2 /p2
 cp -R /cattlepi/ /p2
 mkdir -p /p2/etc/cattlepi
-cp /etc/cattlepi/bootstrap.sh /p2/etc/cattlepi/bootstrap.sh
-chmod 0755 /p2/etc/cattlepi/bootstrap.sh
+cp /etc/cattlepi/*.sh /p2/etc/cattlepi/*.sh
+rm /p2/etc/cattlepi/bootstrap_recipe.sh
+chmod 0755 /p2/etc/cattlepi/*.sh
 cp /etc/rc.local /p2/etc/rc.local
 echo '' > /p2/etc/cattlepi/autoupdate.sh
 
