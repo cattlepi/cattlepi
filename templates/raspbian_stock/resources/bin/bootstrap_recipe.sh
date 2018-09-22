@@ -45,7 +45,7 @@ mount -o ro /dev/mmcblk0p2 /p2
 mount -o remount,rw /dev/mmcblk0p2 /p2
 cp -R /cattlepi/ /p2
 mkdir -p /p2/etc/cattlepi
-cp /etc/cattlepi/*.sh /p2/etc/cattlepi/*.sh
+cp /etc/cattlepi/*.sh /p2/etc/cattlepi/
 rm /p2/etc/cattlepi/bootstrap_recipe.sh
 chmod 0755 /p2/etc/cattlepi/*.sh
 cp /etc/rc.local /p2/etc/rc.local
