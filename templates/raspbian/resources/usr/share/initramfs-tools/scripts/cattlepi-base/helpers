@@ -193,6 +193,7 @@ cattlepi_check_apply_disk_layout()
                 fi
             done
             # procedure done. rebooting and this time we should not go through this process
+            sync
             sleep 5
             # reboot
             echo b >/proc/sysrq-trigger
@@ -254,12 +255,13 @@ cattlepi_update_boot_part()
     cattlepi_fetch_update_config
     local target_initfs=$(jq -r ".initfs.md5sum" "${CATTLEPI_DIR}/config")
     echo $target_initfs > /tmp/target_initfs
-    cmp -s /boot/initfs /tmp/target_initfs
+    cmp -s "${CATTLEPI_DIR}/initfs" /tmp/target_initfs
     if [ $? -ne 0 ]; then
         tar -xvzf "${CATTLEPI_IMAGES_DIR}/${target_initfs}" -C /boot/
-        mv /tmp/target_initfs /boot/initfs
+        mv /tmp/target_initfs "${CATTLEPI_DIR}/initfs"
         echo "initfs updated. will reboot to pick it up shortly"
         umount /boot
+        sync
         sleep 5
         # reboot
         echo b >/proc/sysrq-trigger

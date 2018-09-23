@@ -1,10 +1,10 @@
-- file: 
+- file:
     path: /tmp/initramfs
     state: absent
-- file: 
+- file:
     path: /tmp/initramfs.tgz
     state: absent
-- file: 
+- file:
     path: /tmp/initramfs
     state: directory
     mode: 0755
@@ -12,10 +12,10 @@
     path: /tmp/resources
     state: absent
 - lineinfile:
-    path: /etc/initramfs-tools/modules 
+    path: /etc/initramfs-tools/modules
     line: squashfs
 - lineinfile:
-    path: /etc/initramfs-tools/modules 
+    path: /etc/initramfs-tools/modules
     line: fuse
 - file:
     path: /tmp/builder-support
@@ -34,12 +34,18 @@
   shell: /tmp/resources/bin/build_union_fs.sh
 - name: bring in the cattlepi initramfs script
   shell: cp -R /tmp/resources/usr /
+- file:
+    path: /tmp/initramfs/cattleinit.cpio
+    state: absent
 - name: create the initramfs file
   shell: mkinitramfs -v -o /tmp/initramfs/cattleinit.cpio
 - name: set initramfs permissions
   shell: chmod 0755 /tmp/initramfs/cattleinit.cpio
 - name: bring in the rest of boot
   shell: /bin/cp -R /boot/* /tmp/initramfs/
+- file:
+    path: /tmp/initramfs/cattlepi
+    state: absent
 - lineinfile:
     path: /tmp/initramfs/config.txt
     line: initramfs cattleinit.cpio followkernel

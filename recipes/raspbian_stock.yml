@@ -1,7 +1,7 @@
 ---
 version: 1.0
 tool: run_playbook
-template: "/templates/raspbian_provision_latest_only"
+template: "/templates/raspbian_stock"
 include:
   - name: raspbian_all
     version: 1.0

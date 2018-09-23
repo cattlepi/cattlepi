@@ -1,10 +1,10 @@
-- name: install packages 
-  apt: 
+- name: install packages
+  apt:
     name: "{{ item }}"
     update_cache: yes
     force: yes
     state: latest
-  with_items: 
+  with_items:
     - vim
     - busybox
     - initramfs-tools
@@ -13,6 +13,7 @@
     - libfuse-dev
     - jq
     - ufw
+    - pv
 - name: disable swap
   command: dphys-swapfile swapoff
 - name: disable swap - make sure if does not come back

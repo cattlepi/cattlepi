@@ -15,19 +15,24 @@
     group: root
     mode: 0755
 - name: clone the root in order to customize it
-  shell: /tmp/resources/bin/clone_root.sh
-- name: bring in the bootstrap script
-  shell: cp -R /tmp/resources/bin/bootstrap.sh /tmp/squashfs/rootfs/etc/bootstrap.sh
-- name: permissions on the bootstrap script
-  shell: chmod 0755 /tmp/squashfs/rootfs/etc/bootstrap.sh
+  shell: /tmp/resources/bin/build_clone_root.sh
+- file:
+    path: /tmp/squashfs/rootfs/etc/cattlepi
+    state: absent
+- file:
+    path: /tmp/squashfs/rootfs/etc/cattlepi
+    state: directory
+    mode: 0755
+- name: bring in the cattlepi scripts
+  shell: cp -R /tmp/resources/bin/* /tmp/squashfs/rootfs/etc/cattlepi/
+- name: permissions on the cattlepi scripts
+  shell: chmod -R 0755 /tmp/squashfs/rootfs/etc/cattlepi/*
+- name: remove build time scripts
+  shell: rm -rf /tmp/squashfs/rootfs/etc/cattlepi/build_*
 - lineinfile:
     path: /tmp/squashfs/rootfs/etc/rc.local
-    line: /usr/bin/nohup /etc/bootstrap.sh > /tmp/bootstrap.log 2>&1 &
+    line: /usr/bin/nohup /etc/cattlepi/bootstrap.sh > /tmp/bootstrap.log 2>&1 &
     insertbefore: 'exit 0'
-- name: bring in the autoupdate script
-  shell: cp -R /tmp/resources/bin/autoupdate.sh /tmp/squashfs/rootfs/etc/autoupdate.sh
-- name: permissions on the autoupdate script
-  shell: chmod 0755 /tmp/squashfs/rootfs/etc/autoupdate.sh
 - name: clear fstab
   shell: echo '' > /tmp/squashfs/rootfs/etc/fstab
 - lineinfile:
