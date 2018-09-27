@@ -22,6 +22,10 @@ raspbian_stock: envsetup
 	@echo "make: raspbian_stock"
 	bin/myenv.sh "${current_dir}recipes/raspbian_stock.yml"
 
+raspbian_pihole: envsetup
+	@echo "make: raspbian_pihole"
+	bin/myenv.sh "${current_dir}recipes/raspbian_pihole.yml"
+
 raspbian_s3_upload: envsetup
 	@echo "make: raspbian_s3_upload"
 	bin/myenv.sh "${current_dir}recipes/raspbian_s3_upload.yml"
