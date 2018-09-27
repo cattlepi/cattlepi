@@ -108,3 +108,6 @@ builder/
 
 # vscode
 .vscode/
+
+# DS_Store (thanks Apple)
+.DS_Store
