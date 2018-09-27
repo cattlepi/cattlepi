@@ -43,5 +43,5 @@ clean:
 	@rm -rf ${current_dir}builder/*
 	@rm -rf ${current_dir}tools/venv/*
 
-all: clean raspbian_all
+all: clean raspbian_cattlepi
 
