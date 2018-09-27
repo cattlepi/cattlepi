@@ -1,6 +1,6 @@
 ---
 version: 1.0
 tool: run_playbook
-template: "/templates/raspbian"
+template: "/templates/raspbian_cattlepi"
 params:
   playbook: "rootfs.yml"
