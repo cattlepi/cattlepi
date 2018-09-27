@@ -1,2 +1,2 @@
 #!/bin/bash
-echo "raspbian_stock"
+echo "raspbian_cattlepi"
