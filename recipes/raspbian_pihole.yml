@@ -1,7 +1,7 @@
 ---
 version: 1.0
 tool: run_playbook
-template: "/templates/raspbian_stock"
+template: "/templates/raspbian_pihole"
 include:
   - name: raspbian_cattlepi
     version: 1.0
