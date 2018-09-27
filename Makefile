@@ -6,17 +6,17 @@ envsetup:
 	@echo "make: envsetup"
 	export TOPDIR=${current_dir} && ${current_dir}tools/util/setup_env.sh
 
-raspbian_initfs: envsetup
-	@echo "make: raspbian_initfs"
-	bin/myenv.sh "${current_dir}recipes/raspbian_initfs.yml"
+raspbian_cattlepi: envsetup
+	@echo "make: raspbian_cattlepi"
+	bin/myenv.sh "${current_dir}recipes/raspbian_cattlepi.yml"
 
-raspbian_rootfs: envsetup
-	@echo "make: raspbian_rootfs"
-	bin/myenv.sh "${current_dir}recipes/raspbian_rootfs.yml"
+raspbian_cattlepi_initfs: envsetup
+	@echo "make: raspbian_cattlepi_initfs"
+	bin/myenv.sh "${current_dir}recipes/raspbian_cattlepi_initfs.yml"
 
-raspbian_all: envsetup
-	@echo "make: raspbian_all"
-	bin/myenv.sh "${current_dir}recipes/raspbian_all.yml"
+raspbian_cattlepi_rootfs: envsetup
+	@echo "make: raspbian_cattlepi_rootfs"
+	bin/myenv.sh "${current_dir}recipes/raspbian_cattlepi_rootfs.yml"
 
 raspbian_stock: envsetup
 	@echo "make: raspbian_stock"
