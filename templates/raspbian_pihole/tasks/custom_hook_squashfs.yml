@@ -1,2 +1,0 @@
-- name: custom hook sentinel - setup pihole
-  shell: /tmp/resources/bin/build_pihole.sh
