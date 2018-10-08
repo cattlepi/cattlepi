@@ -219,6 +219,8 @@ cattlepi_check_apply_disk_layout()
             umount /boot
             # showtime: apply the requested layout
             sfdisk /dev/mmcblk0 < /tmp/sdlayout
+            # send the memo to the kernel
+            partprobe /dev/mmcblk0
             # now attempt to mkfs on the newly created partitions
             sfdisk -J /dev/mmcblk0 > /tmp/sdlayout.json
             PARTC=$(jq ".partitiontable.partitions | length" /tmp/sdlayout.json)
@@ -239,14 +241,17 @@ cattlepi_check_apply_disk_layout()
                     # do this as early as possible to keep it bootable if possible
                     mount -n -t vfat /dev/mmcblk0p1 /boot
                     cp -R /run/bootbk/* /boot/
-                    cp /tmp/sdlayout.json /boot/
                     umount /boot
+                    sync
                 fi
             done
-            # procedure done. rebooting and this time we should not go through this process
+            # persist sdlayout flag file
+            mount -n -t vfat /dev/mmcblk0p1 /boot
+            cp /tmp/sdlayout.json /boot/
+            umount /boot
             sync
             sleep 5
-            # reboot
+            # procedure done. rebooting and this time we should not go through this process
             echo b >/proc/sysrq-trigger
         fi
     fi
