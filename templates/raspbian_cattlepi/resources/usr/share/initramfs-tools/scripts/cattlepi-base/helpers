@@ -1,3 +1,6 @@
+API_CONNECTIVITY=true
+OFFLINE_MODE=false
+
 # inspired by https://stackoverflow.com/questions/8350942/how-to-re-run-the-curl-command-automatically-when-the-error-occurs/8351489#8351489
 with_backoff()
 {
@@ -20,7 +23,7 @@ with_backoff()
     attempt=$(( attempt + 1 ))
     timeout=$(( timeout * 2 ))
   done
-  panic "failed to execute command with retries"
+  return 1
 }
 
 # identify the params we are working with
@@ -85,7 +88,6 @@ cattlepi_find_params()
         export CATTLEPI_ID
         export CATTLEPI_MD5SKIP
     fi
-    cattlepi_adjust_time
     cattlepi_find_params_used=yes
 }
 
@@ -102,10 +104,14 @@ cattlepi_download()
 # generic time adjust
 cattlepi_adjust_time()
 {
+    cattlepi_find_params
     if [ "${cattlepi_adjust_time_invoked}" != "yes" ]; then
-        with_backoff curl -sSkI $CATTLEPI_BASE/ping | grep -i date | sed -e 's/date: //I' > /tmp/date
-        /bin/gnudate -I -s "$(cat /tmp/date)"
-        rm /tmp/date
+        cattlepi_determine_offline_mode
+        if [ "${OFFLINE_MODE}" == false ]; then
+            with_backoff curl -sSkI $CATTLEPI_BASE/ping | grep -i date | sed -e 's/date: //I' > /tmp/date
+            /bin/gnudate -I -s "$(cat /tmp/date)"
+            rm /tmp/date
+        fi
     fi
     cattlepi_adjust_time_invoked=yes
 }
@@ -120,14 +126,59 @@ cattlepi_absolute_download()
     with_backoff curl --cacert /etc/ssl/certs/ca-certificates.crt -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $downloc -o $outloc
 }
 
+cattlepi_check_API_connectivity()
+{
+    cattlepi_find_params
+    if [ "${cattlepi_check_API_connectivity_invoked}" != "yes" ]; then
+        with_backoff curl -sSkI --connect-timeout 60 -m 90 --retry 1 --retry-max-time 10 $CATTLEPI_BASE/ping > /dev/null 2>&1
+        if [[ $? -ne 0 ]]; then
+            API_CONNECTIVITY=false
+        fi
+    fi
+    cattlepi_check_API_connectivity_invoked=yes
+}
+
+# Determine if we can run without network access
+cattlepi_determine_offline_mode()
+{
+    cattlepi_find_params
+    cattlepi_check_API_connectivity
+    if [ "${cattlepi_determine_offline_mode_invoked}" != "yes" ]; then
+        if [ "${API_CONNECTIVITY}" == true ]; then
+            echo "API is up, continuing normally"
+            return
+        fi
+
+        # If we can't reach the API, but a config file exists
+        # ensure we have the correct image and set OFFLINE_MODE=true
+        # Otherwise, panic because we can't do anything!
+        if [ "${API_CONNECTIVITY}" == false ] && [ -r  "${CATTLEPI_DIR}/config" ]; then
+            # https://github.com/koalaman/shellcheck/wiki/SC2155
+            local md5sum
+            md5sum=$(jq -r ".rootfs.md5sum" "${CATTLEPI_DIR}/config")
+            if [ -n "${md5sum}" ] && [ -r "${CATTLEPI_IMAGES_DIR}/${md5sum}" ]; then
+                OFFLINE_MODE=true
+            else
+                panic "API is down and no VALID config exists!"
+            fi
+        else
+            panic "API is down and no config file exists!"
+        fi
+    fi
+    cattlepi_determine_offline_mode_invoked=yes
+}
+
 # get/update config
 cattlepi_fetch_update_config()
 {
     cattlepi_find_params
     if [ "${cattlepi_fetch_update_config_invoked}" != "yes" ]; then
-        cattlepi_download "boot/${CATTLEPI_ID}/config" /tmp/config
-        mkdir -p "${CATTLEPI_DIR}"
-        cmp -s /tmp/config "${CATTLEPI_DIR}/config" || cp /tmp/config "${CATTLEPI_DIR}/config"
+        cattlepi_determine_offline_mode
+        if [ "${OFFLINE_MODE}" == false ]; then
+            cattlepi_download "boot/${CATTLEPI_ID}/config" /tmp/config
+            mkdir -p "${CATTLEPI_DIR}"
+            cmp -s /tmp/config "${CATTLEPI_DIR}/config" || cp /tmp/config "${CATTLEPI_DIR}/config"
+        fi
     fi
     cattlepi_fetch_update_config_invoked=yes
 }

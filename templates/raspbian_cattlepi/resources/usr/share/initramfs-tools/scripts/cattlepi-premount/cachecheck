@@ -18,6 +18,8 @@ esac
 . /scripts/cattlepi-base/helpers
 
 set -x 
+echo "cattlepi pre - adjust time"
+cattlepi_adjust_time
 echo "cattlepi pre - cache and check"
 cattlepi_fetch_update_images
 echo "cattlepi pre - update boot if needed"
