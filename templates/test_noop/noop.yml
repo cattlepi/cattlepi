@@ -1,0 +1,13 @@
+---
+- hosts: buildernodes
+  gather_facts: no
+  remote_user: pi
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: sentinel start
+      command: echo start
+    - name: noop
+      command: echo noop
+    - name: sentinel done
+      command: echo done

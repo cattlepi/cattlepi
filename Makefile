@@ -6,6 +6,10 @@ envsetup:
 	@echo "make: envsetup"
 	export TOPDIR=${current_dir} && ${current_dir}tools/util/setup_env.sh
 
+test_noop: envsetup
+	@echo "make: test_noop"
+	bin/myenv.sh "${current_dir}recipes/test_noop.yml"
+
 raspbian_cattlepi: envsetup
 	@echo "make: raspbian_cattlepi"
 	bin/myenv.sh "${current_dir}recipes/raspbian_cattlepi.yml"
