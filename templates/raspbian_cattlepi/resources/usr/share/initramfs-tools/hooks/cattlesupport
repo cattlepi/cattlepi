@@ -39,6 +39,11 @@ copy_exec /sbin/mkfs.minix /bin
 copy_exec /sbin/mkfs.msdos /bin
 copy_exec /sbin/mkfs.vfat /bin
 
+# things needed for wireless support
+manual_add_modules brcmfmac
+copy_exec /sbin/wpa_supplicant
+copy_exec /sbin/wpa_cli
+
 # make dns and ssl great again
 cp -a /etc/ssl ${DESTDIR}/etc/ssl
 mkdir -p ${DESTDIR}/usr/share/

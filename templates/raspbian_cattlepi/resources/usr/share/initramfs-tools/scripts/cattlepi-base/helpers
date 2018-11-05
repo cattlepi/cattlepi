@@ -355,3 +355,62 @@ cattlepi_build_root_filesystem()
     echo $CATTLEPI_BASE > "${rootmnt}/cattlepi/base"
     echo "boot/${CATTLEPI_ID}/config" > "${rootmnt}/cattlepi/base_relative_config"
 }
+
+cattlepi_bring_up_wlan() {
+    interface="${1:-wlan0}"
+    wait_limit="30"
+    online=false
+
+    modprobe brcmfmac
+
+    echo "Bringing up wlan0"
+
+    if [ ! -x "/sbin/wpa_supplicant" ]; then
+        echo "/sbin/wpa_supplicant doesn't exist, exiting wlan config"
+        return 1
+    fi
+
+    echo "Starting wireless connection"
+    /sbin/wpa_supplicant  -i"${interface}" -c/etc/wpa_supplicant/wpa_supplicant.conf -P/run/initram-wpa_supplicant.pid -B -f /tmp/wpa_supplicant.log
+
+    echo "Waiting for wirelss connection for ${wait_limit} seconds"
+    while [ $wait_limit -ge 0 ]; do
+        wpa_status=$(/sbin/wpa_cli -i$interface status | grep wpa_state)
+        if [ "${wpa_status}" == "wpa_state=COMPLETED" ]; then
+            echo "${interface} online"
+            online=true
+            break
+        fi
+
+        sleep 1
+        printf "." # omit the newline
+        wait_limit=$((wait_limit - 1))
+    done
+
+    if [ "${online}" != true ]; then
+        echo "${interface} offline"
+        return 1
+    fi
+
+    # Borrow a bit of code from configure_networking for this specific
+    # interface rather than sourcing from cmdline ip options
+    for ROUNDTTT in 2 3 4 6 9 16 25 36 64 100; do
+		# The NIC is to be configured if this file does not exist.
+		# Ip-Config tries to create this file and when it succeds
+		# creating the file, ipconfig is not run again.
+		for x in /run/net-"${interface}".conf ; do
+			[ -e "$x" ] && break 2
+		done
+
+		ipconfig -t ${ROUNDTTT} "${interface}"
+	done
+
+	# source ipconfig output
+	if [ -n "${interface}" ]; then
+		# source specific bootdevice
+		. /run/net-${interface}.conf
+	else
+        echo "Unable to get ip config for ${interface}"
+        return 1
+	fi
+}

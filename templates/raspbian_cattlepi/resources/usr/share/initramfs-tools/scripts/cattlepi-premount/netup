@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PREREQ=""
+PREREQ="udev"
 
 prereqs()
 {
@@ -17,5 +17,12 @@ esac
 . /scripts/functions
 . /scripts/cattlepi-base/helpers
 
-set -x 
+set -x
+
+# If we have a wpa supplicant, try to set up wireless
+if [ -r /etc/wpa_supplicant/wpa_supplicant.conf ]; then
+    cattlepi_bring_up_wlan && exit 0
+fi
+
+# If setting up wireless doesn't work, fall back to wired
 configure_networking
