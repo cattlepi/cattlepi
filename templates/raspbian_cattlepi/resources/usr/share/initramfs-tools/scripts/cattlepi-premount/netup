@@ -19,8 +19,11 @@ esac
 
 set -x
 
+cattlepi_find_params
+
 # If we have a wpa supplicant, try to set up wireless
-if [ -r /etc/wpa_supplicant/wpa_supplicant.conf ]; then
+if [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ]; then
+    cp "${CATTLEPI_DIR}/wpa_supplicant.conf" /etc/wpa_supplicant/wpa_supplicant.conf
     cattlepi_bring_up_wlan && exit 0
 fi
 

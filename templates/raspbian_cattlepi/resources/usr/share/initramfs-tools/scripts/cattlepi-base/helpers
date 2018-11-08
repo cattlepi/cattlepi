@@ -352,12 +352,45 @@ cattlepi_build_root_filesystem()
     cp "${CATTLEPI_DIR}/config" "${rootmnt}/cattlepi/"
     [ -r "${CATTLEPI_DIR}/apikey" ] && cp "${CATTLEPI_DIR}/apikey" "${rootmnt}/cattlepi/"
     [ -r "${CATTLEPI_DIR}/id" ] && cp "${CATTLEPI_DIR}/id" "${rootmnt}/cattlepi/"
+    # Copy the wireless info to the image!
+    [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ] && cp "${CATTLEPI_DIR}/wpa_supplicant.conf" "${rootmnt}/etc/wpa_supplicant/wpa_supplicant.conf"
+    [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ] && cp "${CATTLEPI_DIR}/wpa_supplicant.conf" "${rootmnt}/cattlepi/"
     echo $CATTLEPI_BASE > "${rootmnt}/cattlepi/base"
     echo "boot/${CATTLEPI_ID}/config" > "${rootmnt}/cattlepi/base_relative_config"
 }
 
+cattlepi_handle_wpa_supplicant() {
+    cattlepi_fetch_update_config
+
+    target_wpa_supplicant=$(jq -re ".wpa_supplicant" "${CATTLEPI_DIR}/config")
+    if [ $? -ne 0 ]; then
+        echo "No wpa_supplicant to handle"
+        return
+    fi
+
+    echo "${target_wpa_supplicant}" | base64 -d > /tmp/wpa_supplicant.conf
+    if [ $? -ne 0 ]; then
+        echo "Invalid or empty wpa_supplicant, skipping wireless"
+        return
+    fi
+
+    if [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ]; then
+        cmp -s "${CATTLEPI_DIR}/wpa_supplicant.conf" /tmp/wpa_supplicant.conf
+        if [ $? -ne 0 ]; then
+            mv /tmp/wpa_supplicant.conf "${CATTLEPI_DIR}/wpa_supplicant.conf"
+            echo "wpa_supplicant.conf updated, rebooting..."
+            echo b >/proc/sysrq-trigger
+        fi
+    else
+        mv /tmp/wpa_supplicant.conf "${CATTLEPI_DIR}/wpa_supplicant.conf"
+        echo "wpa_supplicant.conf created; rebooting"
+        echo b >/proc/sysrq-trigger
+    fi
+}
+
 cattlepi_bring_up_wlan() {
     interface="${1:-wlan0}"
+    wpa_supplicant_location="${2:-/etc/wpa_supplicant/wpa_supplicant.conf}"
     wait_limit="30"
     online=false
 
@@ -371,7 +404,7 @@ cattlepi_bring_up_wlan() {
     fi
 
     echo "Starting wireless connection"
-    /sbin/wpa_supplicant  -i"${interface}" -c/etc/wpa_supplicant/wpa_supplicant.conf -P/run/initram-wpa_supplicant.pid -B -f /tmp/wpa_supplicant.log
+    /sbin/wpa_supplicant  -i"${interface}" -c"${wpa_supplicant_location}" -P/run/initram-wpa_supplicant.pid -B -f /tmp/wpa_supplicant.log
 
     echo "Waiting for wirelss connection for ${wait_limit} seconds"
     while [ $wait_limit -ge 0 ]; do
