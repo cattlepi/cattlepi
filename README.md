@@ -28,9 +28,9 @@ You can learn more details about the api itself or how to get your own API key a
 
 ## How does it work?
 Using the builder in this project you can create and use two images: an **initfs** image and a **rootfs** image.  
-The (**initfs**) is written onto an SD card partition. This image contains code to both self-update and to download the final root filesystem (**rootfs**) used by the RPi.  
+The (**initfs**) is written on the an SD card boot partition. This image contains code to both self-update and to download the final root filesystem (**rootfs**) used by the RPi.  
 The boot code communicates with with an external API endpoint, to retrieve the configuration associated with your RPi, as well as to figure out where the image files are located and download them (i.e. both the boot image and the rootfs image can freely change between boots).  
-As an optimization, the images are cached onto the SD card boot partition to make subsequent boots faster (and to avoid any unnecessary network traffic).
+As an optimization, the images are cached on the SD card boot partition to make subsequent boots faster (and to avoid any unnecessary network traffic).
 
 ## What does this repository contain?
 This repository provides the tooling and wiring needed to build/generate the images used to boot and the root filesystem.  
