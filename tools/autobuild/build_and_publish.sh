@@ -92,10 +92,11 @@ do
     # run the build - actually perform the build
     run_recipe
 
-    # publish the results - invoked to upload the build results
-    export CATTLEPI_DEFAULT_S3_BUCKET_PATH="global/autobuild/${RECIPE}/${AB_ID}"
-    RECIPE="raspbian_s3_upload" run_recipe
-
     # post run hook - is invoked to let the external system (if any) know the autobuild is done running a recipe
     hook_post
+
+    # publish the results - invoked to upload the build artifacts. the post (at least the default one restores the
+    #   stock raspbian on the pi, so the idea here is to paralellize the rebuild with the upload)
+    export CATTLEPI_DEFAULT_S3_BUCKET_PATH="global/autobuild/${RECIPE}/${AB_ID}"
+    RECIPE="raspbian_s3_upload" run_recipe
 done
