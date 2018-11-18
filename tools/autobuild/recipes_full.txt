@@ -1,3 +1,0 @@
-raspbian_cattlepi
-raspbian_stock
-raspbian_pihole
