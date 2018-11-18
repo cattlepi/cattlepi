@@ -14,6 +14,6 @@ if [ ${BUILDER_ALIVE} -eq "1" ]; then
     exit 0
 else
     echo "Builder is NOT alive _or_ misconfigured ssh"
-    sleep 5
+    sleep 10
     exit 1
 fi

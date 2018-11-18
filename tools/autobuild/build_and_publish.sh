@@ -69,7 +69,7 @@ fi
 
 SELFDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOPDIR="$(dirname $(dirname ${SELFDIR}))"
-HOOKTIMEOUT=600
+HOOKTIMEOUT=900
 echo "Running in ${SELFDIR} w/ topdir in ${TOPDIR}"
 
 # whole autobuild specific setup
