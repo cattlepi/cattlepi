@@ -77,6 +77,13 @@ echo "Running in ${SELFDIR} w/ topdir in ${TOPDIR}"
 AB_ID=$(date +%Y_%m_%d_%H%M%S)
 echo "Autobuild ID is ${AB_ID}"
 
+# perform cleanup and reset builder before building the recipes
+RECIPE="clean" run_recipe
+hook_pre
+hook_wait_ready
+hook_post
+
+# actually build/run the recipes
 for RECIPE in $(<${SELFDIR}/recipes.txt)
 do
     update_current_time
@@ -100,3 +107,6 @@ do
     export CATTLEPI_DEFAULT_S3_BUCKET_PATH="global/autobuild/${RECIPE}/${AB_ID}"
     RECIPE="raspbian_s3_upload" run_recipe
 done
+
+# TODO: generate an index of all the available images here
+#
