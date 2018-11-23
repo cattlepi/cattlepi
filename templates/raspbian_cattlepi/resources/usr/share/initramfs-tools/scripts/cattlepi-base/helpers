@@ -447,3 +447,22 @@ cattlepi_bring_up_wlan() {
         return 1
 	fi
 }
+
+cattlepi_sdmount() {
+    # Explicitly mount the sdcard partition to /boot
+    # We don't give the caller any other option as of right
+    # now since this partition doesn't need to be mounted
+    # anywhere else and doing so could be dangerous
+    echo "Mounting sdcard to /boot"
+    mkdir /boot
+    mount -n -t vfat /dev/mmcblk0p1 /boot
+}
+
+cattlepi_sdmount_RO() {
+    # Explicitly mount the sdcard patition RO to /boot
+    # As above, don't give the caller any other option
+    # since we don't need to and it could be dangerous yadda yadda
+    echo "Mounting sdcard RO to /boot"
+    umount /boot
+    mount -n -t vfat -o ro /dev/mmcblk0p1 /boot
+}

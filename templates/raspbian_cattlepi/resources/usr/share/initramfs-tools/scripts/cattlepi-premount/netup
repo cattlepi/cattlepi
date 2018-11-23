@@ -21,6 +21,9 @@ set -x
 
 cattlepi_find_params
 
+echo "cattlepi - sdmount"
+cattlepi_sdmount
+
 # If we have a wpa supplicant, try to set up wireless
 if [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ]; then
     cp "${CATTLEPI_DIR}/wpa_supplicant.conf" /etc/wpa_supplicant/wpa_supplicant.conf
