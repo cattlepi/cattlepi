@@ -18,7 +18,7 @@ esac
 . /scripts/cattlepi-base/helpers
 
 echo "cattlepi pre - sdmount RO"
-cattlepi_sdmount_RO
+cattlepi_sdmount_ro
 echo "cattlepi pre - buildroot"
 set -x
 cattlepi_build_root_filesystem

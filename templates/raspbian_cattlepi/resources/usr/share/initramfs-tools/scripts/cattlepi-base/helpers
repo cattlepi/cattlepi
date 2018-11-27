@@ -455,14 +455,16 @@ cattlepi_sdmount() {
     # anywhere else and doing so could be dangerous
     echo "Mounting sdcard to /boot"
     mkdir /boot
+    umount /boot
     mount -n -t vfat /dev/mmcblk0p1 /boot
 }
 
-cattlepi_sdmount_RO() {
+cattlepi_sdmount_ro() {
     # Explicitly mount the sdcard patition RO to /boot
     # As above, don't give the caller any other option
     # since we don't need to and it could be dangerous yadda yadda
     echo "Mounting sdcard RO to /boot"
+    mkdir /boot
     umount /boot
     mount -n -t vfat -o ro /dev/mmcblk0p1 /boot
 }
