@@ -17,5 +17,7 @@ esac
 . /scripts/functions
 . /scripts/cattlepi-base/helpers
 
+echo "cattlepi sdlayout - adjust time"
+cattlepi_adjust_time
 echo "cattlepi - checking and applying sdlayout"
 cattlepi_check_apply_disk_layout
