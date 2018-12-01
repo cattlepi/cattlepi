@@ -78,8 +78,7 @@ AB_ID=$(date +%Y_%m_%d_%H%M%S)
 echo "Autobuild ID is ${AB_ID}"
 
 # perform cleanup and reset builder before building the recipes
-RECIPE="clean"
-run_recipe
+RECIPE="clean" run_recipe
 hook_pre
 hook_wait_ready
 hook_post
@@ -90,6 +89,9 @@ do
     update_current_time
     echo "--------------------------------------------------------------------------------"
     echo "Building recipe: ${RECIPE}"
+
+    # ensure the workspace is clean - extra time but prevents situation in which the build fails and uploads artifacts from different run
+    RECIPE="clean" run_recipe
 
     # prerun hook - is invoked to let the external system (if any) know the autobuild is going to run a recipe
     hook_pre
