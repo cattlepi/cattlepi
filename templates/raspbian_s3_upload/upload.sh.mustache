@@ -3,8 +3,19 @@ echo "executing s3 upload"
 echo "${BUILDDIRLATEST}/output/ -> s3://{{CATTLEPI_DEFAULT_S3_BUCKET}}/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}"
 
 mkdir -p ${HOME}/.cattlepi/
-BUILD_IMAGE_FILE=${HOME}/.cattlepi/latest_built_image
+BUILD_IMAGE_FILE=${BUILDDIRLATEST}/output/info.sh
 rm -rf ${BUILD_IMAGE_FILE}
+
+if [ ! -f "${BUILDDIRLATEST}/output/initramfs.tgz" ]; then
+    echo "initramfs does not exist. stopping"
+    exit 2
+fi
+
+if [ ! -f "${BUILDDIRLATEST}/output/rootfs.sqsh" ]; then
+    echo "rootfs does not exist. stopping"
+    exit 2
+fi
+
 echo "# generated on $(date)" >> ${BUILD_IMAGE_FILE}
 echo "INITFS={{CATTLEPI_BASE}}/images/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}/initramfs.tgz" >> ${BUILD_IMAGE_FILE}
 echo "INITFSMD5=$(md5sum ${BUILDDIRLATEST}/output/initramfs.tgz | awk '{print $1'})" >> ${BUILD_IMAGE_FILE}
@@ -16,5 +27,4 @@ if [ ! -z {{CATTLEPI_DEFAULT_S3_POST_HOOK}} ]; then
     {{CATTLEPI_DEFAULT_S3_POST_HOOK}}
 fi
 
-cp "${BUILD_IMAGE_FILE}" "${BUILDDIRLATEST}/output/info.sh"
 aws s3 sync "${BUILDDIRLATEST}/output/" "s3://{{CATTLEPI_DEFAULT_S3_BUCKET}}/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}/"
