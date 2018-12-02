@@ -75,10 +75,12 @@ echo "Running in ${SELFDIR} w/ topdir in ${TOPDIR}"
 # whole autobuild specific setup
 #   generate the run id
 AB_ID=$(date +%Y_%m_%d_%H%M%S)
+export AB_ID
 echo "Autobuild ID is ${AB_ID}"
 
 # perform cleanup and reset builder before building the recipes
-RECIPE="clean" run_recipe
+RECIPE="clean"
+run_recipe
 hook_pre
 hook_wait_ready
 hook_post
