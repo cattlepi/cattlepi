@@ -113,5 +113,3 @@ do
     RECIPE="raspbian_s3_upload" run_recipe
 done
 
-# TODO: generate an index of all the available images here
-#
