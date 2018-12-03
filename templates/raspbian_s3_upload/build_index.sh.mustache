@@ -1,0 +1,11 @@
+#!/bin/bash
+SELFDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CACHEDIR=${SELFDIR}/"cache"
+mkdir -p ${CACHEDIR}
+
+BUCKET="{{CATTLEPI_DEFAULT_S3_BUCKET}}"
+BUCKET_INDEX_PATH="{{CATTLEPI_DEFAULT_S3_BUCKET_INDEX_PATH}}"
+
+echo "executing s3 image index build - building in ${SELFDIR}"
+echo "running indexing for s3://${BUCKET}/${BUCKET_INDEX_PATH}"
+
