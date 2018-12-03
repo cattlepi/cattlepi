@@ -18,4 +18,5 @@ CUTILDIR=$TOPDIR"/tools/util"
 UTILDIR=${UTILDIR:-$CUTILDIR}
 export UTILDIR
 
-$UTILDIR/recipe_runner.sh "$@"
+mkdir -p ${BUILDDIRLATEST}/output
+$UTILDIR/recipe_runner.sh "$@" | tee -a ${BUILDDIRLATEST}/output/build.log
