@@ -4,25 +4,28 @@ echo "${BUILDDIRLATEST}/output/ -> s3://{{CATTLEPI_DEFAULT_S3_BUCKET}}/{{CATTLEP
 
 mkdir -p ${HOME}/.cattlepi/
 BUILD_IMAGE_FILE=${BUILDDIRLATEST}/output/info.sh
+BUILD_FAILED_FLAG=${BUILDDIRLATEST}/output/failed_incomplete
 rm -rf ${BUILD_IMAGE_FILE}
 
 if [ ! -f "${BUILDDIRLATEST}/output/initramfs.tgz" ]; then
     mkdir -p "${BUILDDIRLATEST}/output/failed"
     touch "${BUILDDIRLATEST}/output/failed/initramfs.tgz"
-    touch "${BUILDDIRLATEST}/output/failed_incomplete"
+    touch "${BUILD_FAILED_FLAG}"
 fi
 
 if [ ! -f "${BUILDDIRLATEST}/output/rootfs.sqsh" ]; then
     mkdir -p "${BUILDDIRLATEST}/output/failed"
     touch "${BUILDDIRLATEST}/output/failed/rootfs.sqsh"
-    touch "${BUILDDIRLATEST}/output/failed_incomplete"
+    touch "${BUILD_FAILED_FLAG}"
 fi
 
 echo "# generated on $(date)" >> ${BUILD_IMAGE_FILE}
-echo "INITFS={{CATTLEPI_BASE}}/images/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}/initramfs.tgz" >> ${BUILD_IMAGE_FILE}
-echo "INITFSMD5=$(md5sum ${BUILDDIRLATEST}/output/initramfs.tgz | awk '{print $1'})" >> ${BUILD_IMAGE_FILE}
-echo "ROOTFS={{CATTLEPI_BASE}}/images/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}/rootfs.sqsh" >> ${BUILD_IMAGE_FILE}
-echo "ROOTFSMD5=$(md5sum ${BUILDDIRLATEST}/output/rootfs.sqsh | awk '{print $1'})" >> ${BUILD_IMAGE_FILE}
+if [ ! -f "${BUILD_FAILED_FLAG}" ]; then
+    echo "INITFS={{CATTLEPI_BASE}}/images/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}/initramfs.tgz" >> ${BUILD_IMAGE_FILE}
+    echo "INITFSMD5=$(md5sum ${BUILDDIRLATEST}/output/initramfs.tgz | awk '{print $1'})" >> ${BUILD_IMAGE_FILE}
+    echo "ROOTFS={{CATTLEPI_BASE}}/images/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}/rootfs.sqsh" >> ${BUILD_IMAGE_FILE}
+    echo "ROOTFSMD5=$(md5sum ${BUILDDIRLATEST}/output/rootfs.sqsh | awk '{print $1'})" >> ${BUILD_IMAGE_FILE}
+fi
 
 if [ ! -z {{CATTLEPI_DEFAULT_S3_POST_HOOK}} ]; then
     echo "invoking the post upload hook"
