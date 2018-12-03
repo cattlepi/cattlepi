@@ -8,6 +8,8 @@ if [[ -z "${VIRTUALENV}" ]]; then
     exit 1
 fi
 
+mkdir -p $TOPDIR"/builder/latest"
+
 if [[ -r $VENVDIR/bin/activate ]]; then
     echo "environment already setup. skipping (make clean to force env rebuild)"
 else
