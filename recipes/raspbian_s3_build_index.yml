@@ -1,0 +1,6 @@
+---
+version: 1.0
+tool: script
+template: "/templates/raspbian_s3_upload"
+params:
+  run: "build_index.sh"
