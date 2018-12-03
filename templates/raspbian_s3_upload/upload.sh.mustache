@@ -7,13 +7,15 @@ BUILD_IMAGE_FILE=${BUILDDIRLATEST}/output/info.sh
 rm -rf ${BUILD_IMAGE_FILE}
 
 if [ ! -f "${BUILDDIRLATEST}/output/initramfs.tgz" ]; then
-    echo "initramfs does not exist. stopping"
-    exit 2
+    mkdir -p "${BUILDDIRLATEST}/output/failed"
+    touch "${BUILDDIRLATEST}/output/failed/initramfs.tgz"
+    touch "${BUILDDIRLATEST}/output/failed_incomplete"
 fi
 
 if [ ! -f "${BUILDDIRLATEST}/output/rootfs.sqsh" ]; then
-    echo "rootfs does not exist. stopping"
-    exit 2
+    mkdir -p "${BUILDDIRLATEST}/output/failed"
+    touch "${BUILDDIRLATEST}/output/failed/rootfs.sqsh"
+    touch "${BUILDDIRLATEST}/output/failed_incomplete"
 fi
 
 echo "# generated on $(date)" >> ${BUILD_IMAGE_FILE}
