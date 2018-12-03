@@ -6,6 +6,42 @@ mkdir -p ${CACHEDIR}
 BUCKET="{{CATTLEPI_DEFAULT_S3_BUCKET}}"
 BUCKET_INDEX_PATH="{{CATTLEPI_DEFAULT_S3_BUCKET_INDEX_PATH}}"
 
-echo "executing s3 image index build - building in ${SELFDIR}"
+echo "executing s3 image index build - building in ${SELFDIR} w/ topdir ${TOPDIR}"
 echo "running indexing for s3://${BUCKET}/${BUCKET_INDEX_PATH}"
 
+aws s3 ls "s3://${BUCKET}/${BUCKET_INDEX_PATH}" --recursive | awk '{print $4}'> ${CACHEDIR}/"listing"
+
+# figure out the info and the failed runs
+cat ${CACHEDIR}/"listing" | grep 'info.sh$' | xargs dirname > ${CACHEDIR}/"listing.info"
+touch ${CACHEDIR}/"listing.info"
+cat ${CACHEDIR}/"listing" | grep 'failed_incomplete' | xargs dirname > ${CACHEDIR}/"listing.failed"
+touch ${CACHEDIR}/"listing.failed"
+
+# filter valid runs
+comm -23 ${CACHEDIR}/"listing.info" ${CACHEDIR}/"listing.failed" > ${CACHEDIR}/"listing.valid"
+
+# now split and generate the build ids
+cat ${CACHEDIR}/"listing.valid" | awk -F "/" '{print $NF}' | sort -u > ${CACHEDIR}/"listing.uniqids"
+
+for UQID in $(cat ${CACHEDIR}/"listing.uniqids")
+do
+    VALID=1
+    for RECIPE in $(cat ${TOPDIR}/"tools/autobuild/recipes.txt")
+    do
+        NEEDS_TO_MATCH="${BUCKET_INDEX_PATH}/${RECIPE}/${UQID}"
+        grep -q ${NEEDS_TO_MATCH} ${CACHEDIR}/"listing.valid" || VALID=0
+    done
+    if [ ${VALID} -eq "1" ]; then
+        for RECIPE in $(tac ${TOPDIR}/"tools/autobuild/recipes.txt")
+        do
+            BUILT_RECIPE_NFO="${BUCKET_INDEX_PATH}/${RECIPE}/${UQID}/info.sh"
+            aws s3 cp "s3://${BUCKET}/${BUILT_RECIPE_NFO}" ${CACHEDIR}/"tmp.nfo"
+            tac ${CACHEDIR}/"tmp.nfo" >> ${CACHEDIR}/"index.valid"
+            echo "${RECIPE} (${UQID})" >> ${CACHEDIR}/"index.valid"
+            echo "" >> ${CACHEDIR}/"index.valid"
+        done
+    fi
+done
+
+echo "------------------------------"
+tac ${CACHEDIR}/"index.valid"
