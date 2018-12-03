@@ -379,11 +379,13 @@ cattlepi_handle_wpa_supplicant() {
         if [ $? -ne 0 ]; then
             mv /tmp/wpa_supplicant.conf "${CATTLEPI_DIR}/wpa_supplicant.conf"
             echo "wpa_supplicant.conf updated, rebooting..."
+            /bin/sync
             echo b >/proc/sysrq-trigger
         fi
     else
         mv /tmp/wpa_supplicant.conf "${CATTLEPI_DIR}/wpa_supplicant.conf"
         echo "wpa_supplicant.conf created; rebooting"
+        /bin/sync
         echo b >/proc/sysrq-trigger
     fi
 }
@@ -455,6 +457,7 @@ cattlepi_sdmount() {
     # anywhere else and doing so could be dangerous
     echo "Mounting sdcard to /boot"
     mkdir /boot
+    /bin/sync
     umount /boot
     mount -n -t vfat /dev/mmcblk0p1 /boot
 }
@@ -465,6 +468,7 @@ cattlepi_sdmount_ro() {
     # since we don't need to and it could be dangerous yadda yadda
     echo "Mounting sdcard RO to /boot"
     mkdir /boot
+    /bin/sync
     umount /boot
     mount -n -t vfat -o ro /dev/mmcblk0p1 /boot
 }
