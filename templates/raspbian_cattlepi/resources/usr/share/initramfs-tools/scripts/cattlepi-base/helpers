@@ -392,7 +392,7 @@ cattlepi_handle_wpa_supplicant() {
 
 cattlepi_bring_up_wlan() {
     interface="${1:-wlan0}"
-    wpa_supplicant_location="${2:-/etc/wpa_supplicant/wpa_supplicant.conf}"
+    wpa_supplicant_location="${2:-${CATTLEPI_DIR}/wpa_supplicant.conf}"
     wait_limit="30"
     online=false
 
@@ -406,11 +406,16 @@ cattlepi_bring_up_wlan() {
     fi
 
     echo "Starting wireless connection"
-    /sbin/wpa_supplicant  -i"${interface}" -c"${wpa_supplicant_location}" -P/run/initram-wpa_supplicant.pid -B -f /tmp/wpa_supplicant.log
+    # Explicitly use /run/wpa_supplicant as the location of the control
+    # interface for initramfs.
+    if ! /sbin/wpa_supplicant  -Dwext -i"${interface}" -C /run/wpa_supplicant/ -c"${wpa_supplicant_location}" -P/run/initram-wpa_supplicant.pid -B; then
+        echo "Unable to run wpa_supplicant, exiting wlan config"
+        return 1
+    fi
 
     echo "Waiting for wirelss connection for ${wait_limit} seconds"
     while [ $wait_limit -ge 0 ]; do
-        wpa_status=$(/sbin/wpa_cli -i$interface status | grep wpa_state)
+        wpa_status=$(/sbin/wpa_cli -i$interface -p /run/wpa_supplicant/ status | grep wpa_state)
         if [ "${wpa_status}" == "wpa_state=COMPLETED" ]; then
             echo "${interface} online"
             online=true

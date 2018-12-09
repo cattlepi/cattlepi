@@ -41,6 +41,8 @@ copy_exec /sbin/mkfs.vfat /bin
 
 # things needed for wireless support
 manual_add_modules brcmfmac
+manual_add_modules brcmutil
+manual_add_modules cfg80211
 copy_exec /sbin/wpa_supplicant
 copy_exec /sbin/wpa_cli
 
@@ -48,7 +50,11 @@ copy_exec /sbin/wpa_cli
 cp -a /etc/ssl ${DESTDIR}/etc/ssl
 mkdir -p ${DESTDIR}/usr/share/
 echo "nameserver 8.8.8.8" > ${DESTDIR}/etc/resolv.conf
-cp -a /usr/share/ca-certificates ${DESTDIR}/usr/share/      
+cp -a /usr/share/ca-certificates ${DESTDIR}/usr/share/
 cp -a /lib/arm-linux-gnueabihf/libnss_dns* ${DESTDIR}/lib/arm-linux-gnueabihf/
+# manual_add_modules doesn't add any .txt files, only the .bin files.
+# These .txt files are needed by the firmware binaries.
+# https://www.raspberrypi.org/forums/viewtopic.php?t=225906
+cp -a /lib/firmware/brcm/*.txt ${DESTDIR}/lib/firmware/brcm/
 
 exit 0
