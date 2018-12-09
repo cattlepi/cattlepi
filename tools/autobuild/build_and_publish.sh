@@ -19,6 +19,7 @@ function hook_generic () {
     HOOK_NAME=$1
     RESULT=1
     update_current_time
+    echo "BUILD TIMESTAMP @ "$(date +%Y_%m_%d_%H%M%S)
     while [ ${RESULT} -ne 0 ]
     do
         echo "run:${AB_ID}:${RECIPE}:${BUILDER_NODE}"
@@ -46,14 +47,15 @@ function hook_post() {
 }
 
 function run_recipe() {
-    # TODO: preserve the image build log
-
+    echo "BUILD TIMESTAMP @ "$(date +%Y_%m_%d_%H%M%S)
     cd ${TOPDIR} && make ${RECIPE}
     RESULT=$?
     if [ ${RESULT} -ne 0 ]; then
         echo "FAILED building recipe ${RECIPE}"
+        echo "BUILD TIMESTAMP @ "$(date +%Y_%m_%d_%H%M%S)
         exit 2
     fi
+    echo "BUILD TIMESTAMP @ "$(date +%Y_%m_%d_%H%M%S)
 }
 
 function run_test() {
@@ -109,6 +111,7 @@ do
 
     # publish the results - invoked to upload the build artifacts. the post (at least the default one restores the
     #   stock raspbian on the pi, so the idea here is to paralellize the rebuild with the upload)
+    echo "BUILD TIMESTAMP @ "$(date +%Y_%m_%d_%H%M%S)
     export CATTLEPI_DEFAULT_S3_BUCKET_PATH="global/autobuild/${RECIPE}/${AB_ID}"
     RECIPE="raspbian_s3_upload" run_recipe
 done
