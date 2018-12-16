@@ -352,12 +352,47 @@ cattlepi_build_root_filesystem()
     cp "${CATTLEPI_DIR}/config" "${rootmnt}/cattlepi/"
     [ -r "${CATTLEPI_DIR}/apikey" ] && cp "${CATTLEPI_DIR}/apikey" "${rootmnt}/cattlepi/"
     [ -r "${CATTLEPI_DIR}/id" ] && cp "${CATTLEPI_DIR}/id" "${rootmnt}/cattlepi/"
+    # Copy the wireless info to the image!
+    [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ] && cp "${CATTLEPI_DIR}/wpa_supplicant.conf" "${rootmnt}/etc/wpa_supplicant/wpa_supplicant.conf"
+    [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ] && cp "${CATTLEPI_DIR}/wpa_supplicant.conf" "${rootmnt}/cattlepi/"
     echo $CATTLEPI_BASE > "${rootmnt}/cattlepi/base"
     echo "boot/${CATTLEPI_ID}/config" > "${rootmnt}/cattlepi/base_relative_config"
 }
 
+cattlepi_handle_wpa_supplicant() {
+    cattlepi_fetch_update_config
+
+    target_wpa_supplicant=$(jq -re ".wpa_supplicant" "${CATTLEPI_DIR}/config")
+    if [ $? -ne 0 ]; then
+        echo "No wpa_supplicant to handle"
+        return
+    fi
+
+    echo "${target_wpa_supplicant}" | base64 -d > /tmp/wpa_supplicant.conf
+    if [ $? -ne 0 ]; then
+        echo "Invalid or empty wpa_supplicant, skipping wireless"
+        return
+    fi
+
+    if [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ]; then
+        cmp -s "${CATTLEPI_DIR}/wpa_supplicant.conf" /tmp/wpa_supplicant.conf
+        if [ $? -ne 0 ]; then
+            mv /tmp/wpa_supplicant.conf "${CATTLEPI_DIR}/wpa_supplicant.conf"
+            echo "wpa_supplicant.conf updated, rebooting..."
+            /bin/sync
+            echo b >/proc/sysrq-trigger
+        fi
+    else
+        mv /tmp/wpa_supplicant.conf "${CATTLEPI_DIR}/wpa_supplicant.conf"
+        echo "wpa_supplicant.conf created; rebooting"
+        /bin/sync
+        echo b >/proc/sysrq-trigger
+    fi
+}
+
 cattlepi_bring_up_wlan() {
     interface="${1:-wlan0}"
+    wpa_supplicant_location="${2:-${CATTLEPI_DIR}/wpa_supplicant.conf}"
     wait_limit="30"
     online=false
 
@@ -371,11 +406,16 @@ cattlepi_bring_up_wlan() {
     fi
 
     echo "Starting wireless connection"
-    /sbin/wpa_supplicant  -i"${interface}" -c/etc/wpa_supplicant/wpa_supplicant.conf -P/run/initram-wpa_supplicant.pid -B -f /tmp/wpa_supplicant.log
+    # Explicitly use /run/wpa_supplicant as the location of the control
+    # interface for initramfs.
+    if ! /sbin/wpa_supplicant  -Dwext -i"${interface}" -C /run/wpa_supplicant/ -c"${wpa_supplicant_location}" -P/run/initram-wpa_supplicant.pid -B; then
+        echo "Unable to run wpa_supplicant, exiting wlan config"
+        return 1
+    fi
 
     echo "Waiting for wirelss connection for ${wait_limit} seconds"
     while [ $wait_limit -ge 0 ]; do
-        wpa_status=$(/sbin/wpa_cli -i$interface status | grep wpa_state)
+        wpa_status=$(/sbin/wpa_cli -i$interface -p /run/wpa_supplicant/ status | grep wpa_state)
         if [ "${wpa_status}" == "wpa_state=COMPLETED" ]; then
             echo "${interface} online"
             online=true
@@ -413,4 +453,27 @@ cattlepi_bring_up_wlan() {
         echo "Unable to get ip config for ${interface}"
         return 1
 	fi
+}
+
+cattlepi_sdmount() {
+    # Explicitly mount the sdcard partition to /boot
+    # We don't give the caller any other option as of right
+    # now since this partition doesn't need to be mounted
+    # anywhere else and doing so could be dangerous
+    echo "Mounting sdcard to /boot"
+    mkdir /boot
+    /bin/sync
+    umount /boot
+    mount -n -t vfat /dev/mmcblk0p1 /boot
+}
+
+cattlepi_sdmount_ro() {
+    # Explicitly mount the sdcard patition RO to /boot
+    # As above, don't give the caller any other option
+    # since we don't need to and it could be dangerous yadda yadda
+    echo "Mounting sdcard RO to /boot"
+    mkdir /boot
+    /bin/sync
+    umount /boot
+    mount -n -t vfat -o ro /dev/mmcblk0p1 /boot
 }

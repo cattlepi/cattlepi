@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PREREQ="sdmountro"
+PREREQ="cachecheck"
 
 prereqs()
 {
@@ -17,6 +17,8 @@ esac
 . /scripts/functions
 . /scripts/cattlepi-base/helpers
 
+echo "cattlepi pre - sdmount RO"
+cattlepi_sdmount_ro
 echo "cattlepi pre - buildroot"
 set -x
 cattlepi_build_root_filesystem
