@@ -6,8 +6,7 @@ echo "-------------------------------------------------------"
 
 apt-get install --yes --force-yes pv
 
-RASPBIAN_LOCATION="http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-06-29/2018-06-27-raspbian-stretch-lite.zip"
-# RASPBIAN_LOCATION="http://192.168.1.166/2018-06-27-raspbian-stretch-lite.zip"
+RASPBIAN_LOCATION="http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-11-15/2018-11-13-raspbian-stretch-lite.zip"
 /bin/cat /cattlepi/config | /usr/bin/jq -r .config.standalone.raspbian_location | grep -q null
 if [ $? -ne 0 ]; then
     RASPBIAN_LOCATION=$(/bin/cat /cattlepi/config | /usr/bin/jq -r .config.standalone.raspbian_location)
