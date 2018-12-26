@@ -67,5 +67,9 @@ do
 done
 echo '```' | tee -a ${OUTINDEX}
 
-# done
 echo "BUILT TO ${OUTINDEX}"
+
+# now it's time to upload the index to s3
+CATTLEPI_S3_BUILD_INDEX="global/autobuild/"
+aws s3 cp "${OUTINDEX}" "s3://{{CATTLEPI_DEFAULT_S3_BUCKET}}/${CATTLEPI_S3_BUILD_INDEX}"
+
