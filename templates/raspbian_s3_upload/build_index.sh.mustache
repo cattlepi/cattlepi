@@ -44,18 +44,28 @@ do
     fi
 done
 
+OUTDIR=${SELFDIR}/"output"
+OUTINDEX=${OUTDIR}/"index.md"
+rm -rf ${OUTINDEX}
+
+# build the actual index
+echo '```bash' | tee -a ${OUTINDEX}
 for UQID in $(ls -1 ${INDEX_VALID} | tac)
 do
-    echo ${UQID}
+    echo ${UQID} | tee -a ${OUTINDEX}
     for RECIPE in $(ls -1 ${INDEX_VALID}/${UQID})
     do
-        echo "  "
-        echo "  "${RECIPE}
+        echo "  " | tee -a ${OUTINDEX}
+        echo "  "${RECIPE} | tee -a ${OUTINDEX}
         cat ${INDEX_VALID}/${UQID}/${RECIPE}/"info.sh" | while read LINE
         do
-            echo "    "${LINE}
+            echo "    "${LINE} | tee -a ${OUTINDEX}
         done
     done
-    echo "  "
-    echo "  "
+    echo "  " | tee -a ${OUTINDEX}
+    echo "  " | tee -a ${OUTINDEX}
 done
+echo '```' | tee -a ${OUTINDEX}
+
+# done
+echo "BUILT TO ${OUTINDEX}"
