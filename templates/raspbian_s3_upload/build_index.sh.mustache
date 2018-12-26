@@ -22,6 +22,9 @@ comm -23 ${CACHEDIR}/"listing.info" ${CACHEDIR}/"listing.failed" > ${CACHEDIR}/"
 
 # now split and generate the build ids
 cat ${CACHEDIR}/"listing.valid" | awk -F "/" '{print $NF}' | sort -u > ${CACHEDIR}/"listing.uniqids"
+INDEX_VALID=${CACHEDIR}/index.valid
+rm -rf ${INDEX_VALID}
+mkdir -p ${INDEX_VALID}
 
 for UQID in $(cat ${CACHEDIR}/"listing.uniqids")
 do
@@ -35,13 +38,38 @@ do
         for RECIPE in $(tac ${TOPDIR}/"tools/autobuild/recipes.txt")
         do
             BUILT_RECIPE_NFO="${BUCKET_INDEX_PATH}/${RECIPE}/${UQID}/info.sh"
-            aws s3 cp "s3://${BUCKET}/${BUILT_RECIPE_NFO}" ${CACHEDIR}/"tmp.nfo"
-            tac ${CACHEDIR}/"tmp.nfo" >> ${CACHEDIR}/"index.valid"
-            echo "${RECIPE} (${UQID})" >> ${CACHEDIR}/"index.valid"
-            echo "" >> ${CACHEDIR}/"index.valid"
+            mkdir -p ${INDEX_VALID}/${UQID}/${RECIPE}
+            aws s3 cp "s3://${BUCKET}/${BUILT_RECIPE_NFO}" ${INDEX_VALID}/${UQID}/${RECIPE}/"info.sh"
         done
     fi
 done
 
-echo "------------------------------"
-tac ${CACHEDIR}/"index.valid"
+OUTDIR=${SELFDIR}/"output"
+OUTINDEX=${OUTDIR}/"index.md"
+rm -rf ${OUTINDEX}
+
+# build the actual index
+echo '```bash' | tee -a ${OUTINDEX}
+for UQID in $(ls -1 ${INDEX_VALID} | tac)
+do
+    echo ${UQID} | tee -a ${OUTINDEX}
+    for RECIPE in $(ls -1 ${INDEX_VALID}/${UQID})
+    do
+        echo "  " | tee -a ${OUTINDEX}
+        echo "  "${RECIPE} | tee -a ${OUTINDEX}
+        cat ${INDEX_VALID}/${UQID}/${RECIPE}/"info.sh" | while read LINE
+        do
+            echo "    "${LINE} | tee -a ${OUTINDEX}
+        done
+    done
+    echo "  " | tee -a ${OUTINDEX}
+    echo "  " | tee -a ${OUTINDEX}
+done
+echo '```' | tee -a ${OUTINDEX}
+
+echo "BUILT TO ${OUTINDEX}"
+
+# now it's time to upload the index to s3
+CATTLEPI_S3_BUILD_INDEX="global/autobuild/"
+aws s3 cp "${OUTINDEX}" "s3://{{CATTLEPI_DEFAULT_S3_BUCKET}}/${CATTLEPI_S3_BUILD_INDEX}"
+
