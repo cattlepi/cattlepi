@@ -116,3 +116,5 @@ do
     RECIPE="raspbian_s3_upload" run_recipe
 done
 
+# now rebuild the index which lists all the autobuild images
+RECIPE="raspbian_s3_build_index" run_recipe
