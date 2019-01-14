@@ -15,7 +15,7 @@ We want to **turn your pet project into a cattle project**.
  * minimization of state on the device (ideally zero state)
  * minimization of failure scenarios (in most cases the solution should merely require rebooting)
 
-## Quick-start
+## Quickstart
 To quickly get going, you can use a prebuilt **initfs** image that you can find [here (cattlepi.zip download)](https://api.cattlepi.com/images/global/raspbian-lite/2018-06-29/bootstrap/cattlepi.zip?apiKey=deadbeef).  
 This image uses the following API endpoint: https://api.cattlepi.com and the following API key: **deadbeef**   
 
