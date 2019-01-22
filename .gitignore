@@ -103,7 +103,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# builder 
+# builder
 builder/
 
 # vscode
@@ -111,3 +111,6 @@ builder/
 
 # DS_Store (thanks Apple)
 .DS_Store
+
+# makefile tmp
+Makefile.tmp
