@@ -1,10 +1,18 @@
+- name: update cache
+  apt:
+    update_cache: yes
+  retries: 3
+  delay: 30
+  register: result
+  until: result is succeeded
+  failed_when: result is failure
 - name: install packages
   apt:
-    name: "{{ item }}"
-    update_cache: yes
+    name: "{{ packages }}"
     force: yes
     state: latest
-  with_items:
+  vars:
+    packages:
     - vim
     - busybox
     - initramfs-tools
@@ -14,6 +22,11 @@
     - jq
     - ufw
     - pv
+  retries: 3
+  delay: 30
+  register: result
+  until: result is succeeded
+  failed_when: result is failure
 - name: disable swap
   command: dphys-swapfile swapoff
 - name: disable swap - make sure if does not come back
@@ -25,3 +38,8 @@
 - name: upgrade packages and dist
   apt:
     upgrade: full
+  retries: 3
+  delay: 30
+  register: result
+  until: result is succeeded
+  failed_when: result is failure
