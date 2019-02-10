@@ -91,6 +91,23 @@ if [ "$ARG_H_BEFORE" != "NONE" ]; then
   fi
 fi
 
+# now wire the after lifecycle hook - trap it to run on exit
+if [ "$ARG_H_AFTER" != "NONE" ]; then
+  if [ -x "$ARG_H_AFTER" ]; then
+    function exterminator {
+      $ARG_H_AFTER
+      if [ $? -ne 0 ]; then
+        echo "Error: Failed executing the _after_ lifecycle hook" >&2
+        exit 1
+      fi
+    }
+    trap exterminator EXIT
+  else
+      echo "Error: _after_ lifecycle hook is not executable" >&2
+      exit 1
+  fi
+fi
+
 # incremental means that we take the config we currently have and just update element in it
 # non-incremental means that we need to build and provide the whole config
 BASE_CONFIG="{}"
