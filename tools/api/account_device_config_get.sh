@@ -3,6 +3,7 @@ SELFDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOPDIR="$(dirname $(dirname ${SELFDIR}))"
 ARG_APIENDPOINT="https://api.cattlepi.com"
 ARG_APIKEY="NONE"
+ARG_DEVICE="default"
 
 while (( "$#" )); do
   case "$1" in
@@ -12,6 +13,10 @@ while (( "$#" )); do
       ;;
     -a|--api-endpoint)
       ARG_APIENDPOINT=$2
+      shift 2
+      ;;
+    -d|--device)
+      ARG_DEVICE=$2
       shift 2
       ;;
     --) # end argument parsing
@@ -36,13 +41,11 @@ fi
 RESULT=$(curl -fsL -H "Accept: application/json" \
     -H "Content-Type: application/json" \
     -H "X-Api-Key: $ARG_APIKEY" \
-    "$ARG_APIENDPOINT"/track)
+    "$ARG_APIENDPOINT"/boot/"$ARG_DEVICE/config")
 
 if [ $? -ne 0 ]; then
-    echo "Error: Failed listing the tracked devices" >&2
+    echo "Error: Failed getting the device config" >&2
     exit 1
 fi
 
-# include default even if it's not there
-(echo $RESULT | jq -r ".[]" ; echo "default")  | sort -u
-
+echo $RESULT
