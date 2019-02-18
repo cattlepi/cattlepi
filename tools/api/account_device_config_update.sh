@@ -16,6 +16,13 @@ ARG_P_USERCODE="NONE"
 ARG_P_C_AUTOUPDATE=0
 ARG_P_C_SDLAYOUT="NONE"
 
+# images arguments
+ARG_I_INITFS_URL="NONE"
+ARG_I_INITFS_MD5SUM="NONE"
+ARG_I_ROOTFS_URL="NONE"
+ARG_I_ROOTFS_MD5SUM="NONE"
+ARG_I_PACKAGE="NONE"
+
 while (( "$#" )); do
   case "$1" in
     -k|--api-key)
@@ -57,6 +64,26 @@ while (( "$#" )); do
     -pcs|--payload-config-sdlayout)
       ARG_P_C_SDLAYOUT=$2
       shift 2
+      ;;
+    -iiu|--image-initfs-url)
+      ARG_I_INITFS_URL=$2
+      shift 2
+      ;;
+    -iim|--image-initfs-md5sum)
+      ARG_I_INITFS_MD5SUM=$2
+      shift
+      ;;
+    -iru|--image-rootfs-url)
+      ARG_I_ROOTFS_URL=$2
+      shift 2
+      ;;
+    -irm|--image-rootfs-md5sum)
+      ARG_I_ROOTFS_MD5SUM=$2
+      shift
+      ;;
+    -ipkg|--image-packaged-config)
+      ARG_I_PACKAGE=$2
+      shift
       ;;
     --) # end argument parsing
       shift
@@ -107,6 +134,22 @@ if [ "$ARG_H_AFTER" != "NONE" ]; then
       exit 1
   fi
 fi
+
+# check if tools needed are present
+for TOOL in curl jq
+do
+  which ${TOOL} 2>&1 > /dev/null
+  if [ $? -ne 0 ]; then
+    echo "Error: ${TOOL} does not appear to be installed" >&2
+    exit 1
+  fi
+
+   ${TOOL} -h 2>&1 > /dev/null
+  if [ $? -ne 0 ]; then
+    echo "Error: ${TOOL} does not appear to be installed" >&2
+    exit 1
+  fi
+done
 
 # incremental means that we take the config we currently have and just update element in it
 # non-incremental means that we need to build and provide the whole config
@@ -169,6 +212,37 @@ else
     BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.config.sdlayout=env.SDLAYOUT')
   fi
 fi
+
+# meta image-update
+if [ "$ARG_I_PACKAGE" != "NONE" ]; then
+  IMAGE_CONTENT=$(curl -fsSL ${ARG_I_PACKAGE}?apiKey=${ARG_APIKEY} || echo "INVALID")
+  if [ "$IMAGE_CONTENT" != "INVALID" ]; then
+    ARG_I_INITFS_URL=$(echo "$IMAGE_CONTENT" | grep "^INITFS=" | cut -d '=' -f 2)
+    ARG_I_INITFS_MD5SUM=$(echo "$IMAGE_CONTENT" | grep "^INITFSMD5=" | cut -d '=' -f 2)
+    ARG_I_ROOTFS_URL=$(echo "$IMAGE_CONTENT" | grep "^ROOTFS=" | cut -d '=' -f 2)
+    ARG_I_ROOTFS_MD5SUM=$(echo "$IMAGE_CONTENT" | grep "^ROOTFSMD5=" | cut -d '=' -f 2)
+  fi
+fi
+
+# update initfs image
+if [ "$ARG_I_INITFS_URL" != "NONE" ]; then
+  export ARG_I_INITFS_URL
+  BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.initfs.url=env.ARG_I_INITFS_URL')
+fi
+if [ "$ARG_I_INITFS_MD5SUM" != "NONE" ]; then
+  export ARG_I_INITFS_MD5SUM
+  BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.initfs.md5sum=env.ARG_I_INITFS_MD5SUM')
+fi
+# update root image
+if [ "$ARG_I_ROOTFS_URL" != "NONE" ]; then
+  export ARG_I_ROOTFS_URL
+  BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.rootfs.url=env.ARG_I_ROOTFS_URL')
+fi
+if [ "$ARG_I_ROOTFS_MD5SUM" != "NONE" ]; then
+  export ARG_I_ROOTFS_MD5SUM
+  BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.rootfs.md5sum=env.ARG_I_ROOTFS_MD5SUM')
+fi
+
 
 echo $BASE_CONFIG | jq
 
