@@ -119,7 +119,7 @@ if [ "$ARG_INCREMENTAL" -eq 1 ]; then
   fi
 fi
 
-# now go through the configs and patch update the config
+# now go through the configs and patch/update the config
 
 # bootcode
 if [ "$ARG_P_BOOTCODE" == "WIPE" ]; then
