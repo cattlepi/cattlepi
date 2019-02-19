@@ -5,6 +5,7 @@ ARG_APIENDPOINT="https://api.cattlepi.com"
 ARG_APIKEY="NONE"
 ARG_INCREMENTAL=0
 ARG_SHOWONLY=0
+ARGS_SHOWHELP=0
 ARG_DEVICE="default"
 
 # lifecycle hooks
@@ -99,12 +100,17 @@ while (( "$#" )); do
       ARG_SHOWONLY=1
       shift
       ;;
+    -h|--help|-?)
+      ARGS_SHOWHELP=1
+      shift
+      ;;
     --) # end argument parsing
       shift
       break
       ;;
     -*|--*=) # unsupported flags
       echo "Error: Unsupported flag $1" >&2
+      echo "use -h to see all help options" >&2
       exit 1
       ;;
     *) # preserve positional arguments
@@ -112,6 +118,65 @@ while (( "$#" )); do
       ;;
   esac
 done
+
+if [ "$ARGS_SHOWHELP" -eq 1 ]; then
+  echo "Usage: $(basename $0) [options]"
+  echo "  "
+  echo "  Mandatory arguments:"
+    echo "  "
+  echo "    -k, --api-key API_KEY           provides the api key to use when making the calls"
+  echo "  "
+  echo "  Optional arguments (pass any or a combination of them - usually each touches a different part of the config)"
+  echo "  "
+  echo "    -a --api-endpoint API_ENDPOINT  provides the api endpoint to use when"
+  echo "                                    making the calls (default: https://api.cattlepi.com)"
+  echo "    -d --device DEVICE              target device (default: default)"
+  echo "    -i --incremental                if specified the current configuration is updated"
+  echo "                                    after being retrieved from the api. if not config is built from scratch"
+  echo "    -hkb --hook-before FILE         executable to invoke before performing the updates (used in automation)"
+  echo "    -hka --hook-after FILE          executable to invoke after performing the updates (used in automation)"
+  echo "    -pb --payload-bootcode FILE     file containing the payload we want to put in the bootcode field"
+  echo "    -pu --payload-usercode FILE     file containing the payload we want to put in the usercode field"
+  echo "    -pca --payload-config-autoupdate    set autoupdate flag to true (if not specified set to false)"
+  echo "    -pcs --payload-config-sdlayout FILE   file containing the sdlayout we want to use"
+  echo "    -iiu --image-initfs-url URL     initfs image url we want to use"
+  echo "    -iim --image-initfs-md5sum MD5    md5sum for the initfs image"
+  echo "    -iru --image-rootfs-url URL     rootfs image url we want to use"
+  echo "    -irm --image-rootfs-md5sum MD5  md5sum for the rootfs image"
+  echo "    -ipkg --image-packaged-config URL   passes in an url that contains iiu,iim,iru,irm as vars"
+  echo "    -sshak --ssh-add-public-key FILE    add the public key found in the specified file"
+  echo "    -sshadk --ssh-add-default-public-key   add the public key found in HOME/.ssh/id_rsa.pub"
+  echo "    -so --show-only                 only show what the config generated would be without issuing the update"
+  echo "  "
+  echo "  Clarification on combinining certain options: "
+  echo "    1) passing in -ipkg will override all previously defined -i?? options"
+  echo "    2) you can use sshak or sshadk but not both. last option specified will take priority"
+  echo "    3) for bootcode, usercode and sdlayout options you can pass in WIPE instead of a filename to remove what is currently defined"
+  echo " "
+  echo " "
+  echo "  Examples (assumes TEST_API_KEY has you api key):"
+  echo " "
+  echo "  Set the bootcode to the contents of the /tmp/zoo file:"
+  echo "    $(basename $0) -k \$TEST_API_KEY -i -pb /tmp/zoo"
+  echo " "
+  echo "  Set the sdlayour to the contents of the default_sfdisk file:"
+  echo "    $(basename $0) -k \$TEST_API_KEY -i -pcs /tmp/default_sfdisk"
+  echo " "
+  echo "  Set the autoupdate behavior to on:"
+  echo "    $(basename $0) -k \$TEST_API_KEY -i -pca"
+  echo " "
+  echo "  Update the initfs used:"
+  echo "    $(basename $0) -k \$TEST_API_KEY -i -iiu https://api.cattlepi.com/images/global/autobuild/raspbian_cattlepi/2019_02_01_114249/initramfs.tgz -iim 10ee8171691d091f8ee708271f695d97"
+  echo " "
+  echo "  Use the ipkg to update both initfs and roots urls and md5s at the same time:"
+  echo "    $(basename $0) -k \$TEST_API_KEY -i -ipkg https://api.cattlepi.com/images/global/autobuild/raspbian_cattlepi/2019_02_01_114249/info.sh"
+  echo " "
+  echo "  Simulate an update (show only used): "
+  echo "    $(basename $0) -k \$TEST_API_KEY -i -pca -so"
+  echo " "
+  echo " More documetation on: https://cattlepi.com/"
+  exit 0
+fi
 
 if [ "$ARG_APIKEY" == "NONE" ]; then
     echo "Error: Expecting api key" >&2
@@ -176,6 +241,7 @@ if [ "$ARG_INCREMENTAL" -eq 1 ]; then
   fi
 fi
 
+#
 # now go through the configs and patch/update the config
 
 # bootcode
@@ -291,7 +357,7 @@ if [ "$ARG_SSH_ADD_PUBLIC_KEY" != "NONE" ]; then
   rm -rf TMPKEYSFILE
 fi
 
-
+# actually emit the api calls to update the configuration
 if [ "$ARG_SHOWONLY" -eq 1 ]; then
   echo $BASE_CONFIG | jq .
   exit 0
