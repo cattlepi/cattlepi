@@ -16,6 +16,7 @@ ARG_P_BOOTCODE="NONE"
 ARG_P_USERCODE="NONE"
 ARG_P_C_AUTOUPDATE=0
 ARG_P_C_SDLAYOUT="NONE"
+ARG_SSH_ADD_PUBLIC_KEY="NONE"
 
 # images arguments
 ARG_I_INITFS_URL="NONE"
@@ -85,6 +86,14 @@ while (( "$#" )); do
     -ipkg|--image-packaged-config)
       ARG_I_PACKAGE=$2
       shift 2
+      ;;
+    -sshak|--ssh-add-public-key)
+      ARG_SSH_ADD_PUBLIC_KEY=$2
+      shift 2
+      ;;
+    -sshadk|--ssh-add-default-public-key)
+      ARG_SSH_ADD_PUBLIC_KEY="$HOME/.ssh/id_rsa.pub"
+      shift
       ;;
     -so|--show-only)
       ARG_SHOWONLY=1
@@ -248,8 +257,43 @@ if [ "$ARG_I_ROOTFS_MD5SUM" != "NONE" ]; then
   BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.rootfs.md5sum=env.ARG_I_ROOTFS_MD5SUM')
 fi
 
+# inject any ssh keys that were specified
+if [ "$ARG_SSH_ADD_PUBLIC_KEY" != "NONE" ]; then
+  if [ ! -r "$ARG_SSH_ADD_PUBLIC_KEY" ]; then
+    echo "Error: Cannot read file with ssh key ("$ARG_SSH_ADD_PUBLIC_KEY")" >&2
+    exit 1
+  fi
+  TMPKEYSFILE=$(mktemp)
+  TMPBASEFILE=$(mktemp)
+  SSH_KEY_TO_ADD=$(head -1 ${ARG_SSH_ADD_PUBLIC_KEY})
+  echo $SSH_KEY_TO_ADD > $TMPKEYSFILE
+
+  KEYSC=$(echo "$BASE_CONFIG" | jq -r ".config.ssh.pi.authorized_keys | length")
+  let KEYSC=$((KEYSC - 1))
+  for KEYSI in `seq 0 $KEYSC`
+  do
+      echo "$BASE_CONFIG" | jq -r '.config.ssh.pi.authorized_keys['$KEYSI']' >> $TMPKEYSFILE
+  done
+
+  BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.config.ssh.pi.authorized_keys=[]')
+
+  echo $BASE_CONFIG > $TMPBASEFILE
+  cat $TMPKEYSFILE | sort -u | while read LINE
+  do
+    export LINE
+    BASE_CONFIG=$(cat ${TMPBASEFILE})
+    BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.config.ssh.pi.authorized_keys += [env.LINE]')
+    echo $BASE_CONFIG > $TMPBASEFILE
+  done
+  BASE_CONFIG=$(cat ${TMPBASEFILE})
+  # cleanup
+  rm -rf $TMPBASEFILE
+  rm -rf TMPKEYSFILE
+fi
+
+
 if [ "$ARG_SHOWONLY" -eq 1 ]; then
-  echo $BASE_CONFIG | jq
+  echo $BASE_CONFIG | jq .
   exit 0
 else
   curl -fsSL -H "Accept: application/json" \
