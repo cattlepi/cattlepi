@@ -4,6 +4,7 @@ TOPDIR="$(dirname $(dirname ${SELFDIR}))"
 ARG_APIENDPOINT="https://api.cattlepi.com"
 ARG_APIKEY="NONE"
 ARG_INCREMENTAL=0
+ARG_SHOWONLY=0
 ARG_DEVICE="default"
 
 # lifecycle hooks
@@ -83,6 +84,10 @@ while (( "$#" )); do
       ;;
     -ipkg|--image-packaged-config)
       ARG_I_PACKAGE=$2
+      shift 2
+      ;;
+    -so|--show-only)
+      ARG_SHOWONLY=1
       shift
       ;;
     --) # end argument parsing
@@ -243,17 +248,17 @@ if [ "$ARG_I_ROOTFS_MD5SUM" != "NONE" ]; then
   BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.rootfs.md5sum=env.ARG_I_ROOTFS_MD5SUM')
 fi
 
-
-echo $BASE_CONFIG | jq
-
-# RESULT=$(curl -fsL -H "Accept: application/json" \
-#     -H "Content-Type: application/json" \
-#     -H "X-Api-Key: $ARG_APIKEY" \
-#     "$ARG_APIENDPOINT"/boot/"$ARG_DEVICE/config")
-
-# if [ $? -ne 0 ]; then
-#     echo "Error: Failed getting the device config" >&2
-#     exit 1
-# fi
-
-# echo $RESULT
+if [ "$ARG_SHOWONLY" -eq 1 ]; then
+  echo $BASE_CONFIG | jq
+  exit 0
+else
+  curl -fsSL -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -H "X-Api-Key: $ARG_APIKEY" \
+    -X POST -d "$BASE_CONFIG" \
+    "$ARG_APIENDPOINT"/boot/"$ARG_DEVICE/config"
+  if [ $? -ne 0 ]; then
+    echo "failed to update the configuration via the api"
+    exit 1
+  fi
+fi
