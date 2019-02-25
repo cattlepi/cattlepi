@@ -1,8 +1,21 @@
 #!/bin/bash
 VENVDIR=$TOPDIR"/tools/venv"
 CFGDIR=$TOPDIR"/tools/cfg"
-VIRTUALENV=$(type -p virtualenv)
 
+PYTHON=$(type -p python)
+if [[ -z "${PYTHON}" ]]; then
+    echo "'python' is not installed on this system, can't continue..."
+    exit 1
+fi
+PYTHON_VERSION=$(python -c "import sys; print('{0[0]}'.format(sys.version_info))")
+if [ ${PYTHON_VERSION} -ne "3" ];
+then
+    echo "found python version ${PYTHON_VERSION}"
+    echo "python3 is required for cattlepi. please install/fix and try again..."
+    exit 1
+fi
+
+VIRTUALENV=$(type -p virtualenv)
 if [[ -z "${VIRTUALENV}" ]]; then
     echo "'virtualenv' is not installed on this system, can't continue..."
     exit 1
