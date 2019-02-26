@@ -19,30 +19,24 @@ cd cattlepi/
 ```bash
 python --version
 ```
-Follow the installation instructions for your own OS version/flavor if you don't have python installed.  
+Follow the installation instructions for your own OS version/flavor if you don't have python installed.   
 
-## Step 3 - ensure you have virtualenv installed
-```bash
-virtualenv --version
-```
-Again, follow installation instructions for your own OS version/flavor if you don't have virtualenv installed.  
-
-## Step 4 - ensure you have make installed
+## Step 3 - ensure you have make installed
 ```bash
 make --version
 ```
 Again, follow installation instructions for your own OS version/flavor if you don't have make installed.  
 
-## Step 5 - download the latest version of RASPBIAN STRETCH LITE
+## Step 4 - download the latest version of RASPBIAN STRETCH LITE
 You can find it here: [https://downloads.raspberrypi.org/raspbian_lite_latest](https://downloads.raspberrypi.org/raspbian_lite_latest)
 
-## Step 6 - write this latest image of Raspian to the SD card  
+## Step 5 - write this latest image of Raspian to the SD card  
 You can use something like [Etcher](https://etcher.io/) for a painless, quick operation
 
-## Step 7 - enable ssh
+## Step 6 - enable ssh
 On the **/boot** partition for the sdcard, create an empty file named ssh. Also [see here](https://www.raspberrypi.org/documentation/remote-access/ssh/), method 3
 
-## Step 8 - Boot up the Raspberry Pi
+## Step 7 - Boot up the Raspberry Pi
 Insert the SD card into the Raspberry Pi. 
 
 The RPi requires:
@@ -54,7 +48,7 @@ Power up the Pi, let it boot, and note its IP Address (this can be done by looki
 For the rest of the guide let's assume the the IP of the PI is 192.168.1.12  
 Please replace this with your own IP for the rest of the steps.  
 
-## Step 9 - Copy your SSH key to the PI
+## Step 8 - Copy your SSH key to the PI
 ```bash
 ssh pi@192.168.1.12 "mkdir -p ~/.ssh/"
 cat ~/.ssh/id_rsa.pub | (ssh pi@192.168.1.12 "cat >> ~/.ssh/authorized_keys")
@@ -69,7 +63,7 @@ ssh pi@192.168.1.12 whoami
 ```
 The previous command should no longer prompt you for a password
 
-## Step 10 - update the configuration with your values
+## Step 9 - update the configuration with your values
 The default configuration values used during the build are specified in **tools/cfg/defaults**
 ```bash
 $ cat tools/cfg/defaults 
@@ -97,7 +91,7 @@ export CATTLEPI_APIKEY=alivebeef
 export CATTLEPI_LOCALAPI=192.168.1.166:4567
 ```
 
-## Step 11 - build the images
+## Step 10 - build the images
 
 In the cattlepi directory, run:
 ```bash
@@ -107,7 +101,7 @@ This will take anywhere between 15 - 40 minutes (depending on your internet conn
 The build process will output two images in **builder/latest/output**: initramfs.tgz is the **initfs** and rootfs.sqsh is the **rootfs**.  
 You can — and are actively encouraged to — explore these files. 
 
-## Step 12 - copy the initfs onto [another] SD card
+## Step 11 - copy the initfs onto [another] SD card
 I recommend having a second SD card and RPi, in order to avoid the tedium of the setup process each time you want to build the image. The builder used **/tmp** on the builder Pi; you can re-use the builder if you have the same hardware. Alternatively, you can use the same SD card/RPi, or even one RPi with two SD cards (just be sure to properly shut down the RPis between swapping out the SD cards).
 
 Create a FAT partition and uncompress the contents of builder/latest/output/initramfs.tgz onto the partition. You can do this manually, or you can try:
@@ -116,11 +110,11 @@ make copy_initfs_to_sdcard
 ```
 Keep in mind that the script assumes that the FAT partition is at **/dev/mmcblk0p1** and that you don't have anything at **/mnt/SD**. Consequently, you may require an alternative, manual, work-around. 
 
-## Step 13 - start the local server (used to serve the images)
+## Step 12 - start the local server (used to serve the images)
 ```bash
 make localapi_run
 ```
 This assumes that the CATTLEPI_BASE point to the same location as CATTLEPI_LOCALAPI. If that's not the case, the Pi will boot with whatever API endpoint you have specified.
 
-## Step 14 - insert the SD card into the RPi and boot it up
+## Step 13 - insert the SD card into the RPi and boot it up
 The Pi should boot and you should see it downloading the image files and the configuration, applying it and switching to the root filestystem that it has built.
