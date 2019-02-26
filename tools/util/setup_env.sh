@@ -7,7 +7,6 @@ if [[ -z "${PYTHON}" ]]; then
     echo "'python' is not installed on this system, can't continue..."
     exit 1
 fi
-
 PYTHON_VERSION=$(python -c "import sys; print('{0[0]}'.format(sys.version_info))")
 if [ ${PYTHON_VERSION} -ne "3" ];
 then
