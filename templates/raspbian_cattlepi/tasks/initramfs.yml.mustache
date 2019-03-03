@@ -34,6 +34,8 @@
   shell: /tmp/resources/bin/build_union_fs.sh
 - name: bring in the cattlepi initramfs script
   shell: cp -R /tmp/resources/usr /
+- name: bring in the rest of boot
+  shell: /bin/cp -R /boot/* /tmp/initramfs/
 - file:
     path: /tmp/initramfs/cattleinit.cpio
     state: absent
@@ -41,8 +43,6 @@
   shell: mkinitramfs -v -o /tmp/initramfs/cattleinit.cpio
 - name: set initramfs permissions
   shell: chmod 0755 /tmp/initramfs/cattleinit.cpio
-- name: bring in the rest of boot
-  shell: /bin/cp -R /boot/* /tmp/initramfs/
 - file:
     path: /tmp/initramfs/cattlepi
     state: absent
