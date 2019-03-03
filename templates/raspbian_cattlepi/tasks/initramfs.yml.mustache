@@ -20,6 +20,10 @@
 - file:
     path: /tmp/builder-support
     state: absent
+- replace: 
+    path: /usr/share/initramfs-tools/scripts/functions
+    regexp: 'for ROUNDTTT in 2 3 4 6 9 16 25 36 64 100; do'
+    replace: "for ROUNDTTT in 2 4 12; do"
 - lineinfile:
     path: /usr/share/initramfs-tools/init
     line: . /scripts/cattlepi
