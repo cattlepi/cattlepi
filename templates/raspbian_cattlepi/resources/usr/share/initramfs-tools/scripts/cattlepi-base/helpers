@@ -443,7 +443,7 @@ cattlepi_bring_up_wlan() {
 
     # Borrow a bit of code from configure_networking for this specific
     # interface rather than sourcing from cmdline ip options
-    for ROUNDTTT in 2 3 4 6 9 16 25 36 64 100; do
+    for ROUNDTTT in 2 4 12; do
 		# The NIC is to be configured if this file does not exist.
 		# Ip-Config tries to create this file and when it succeds
 		# creating the file, ipconfig is not run again.
