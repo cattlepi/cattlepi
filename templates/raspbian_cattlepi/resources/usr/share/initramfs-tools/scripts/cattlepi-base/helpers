@@ -405,14 +405,13 @@ cattlepi_bring_up_wlan() {
     wait_limit="30"
     online=false
 
-    modprobe brcmfmac
-
-    echo "Bringing up wlan0"
-
     if [ ! -x "/sbin/wpa_supplicant" ]; then
         echo "/sbin/wpa_supplicant doesn't exist, exiting wlan config"
         return 1
     fi
+    
+    echo "Bringing up wlan0"
+    modprobe brcmfmac
 
     echo "Starting wireless connection"
     # Explicitly use /run/wpa_supplicant as the location of the control
