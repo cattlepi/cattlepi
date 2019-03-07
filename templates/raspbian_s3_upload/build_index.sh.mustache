@@ -12,9 +12,9 @@ echo "running indexing for s3://${BUCKET}/${BUCKET_INDEX_PATH}"
 aws s3 ls "s3://${BUCKET}/${BUCKET_INDEX_PATH}" --recursive | awk '{print $4}'> ${CACHEDIR}/"listing"
 
 # figure out the info and the failed runs
-cat ${CACHEDIR}/"listing" | grep 'info.sh$' | xargs dirname > ${CACHEDIR}/"listing.info"
+cat ${CACHEDIR}/"listing" | grep 'info.sh$' | xargs -I {} dirname {} > ${CACHEDIR}/"listing.info"
 touch ${CACHEDIR}/"listing.info"
-cat ${CACHEDIR}/"listing" | grep 'failed_incomplete' | xargs dirname > ${CACHEDIR}/"listing.failed"
+cat ${CACHEDIR}/"listing" | grep 'failed_incomplete' | xargs -I {} dirname {} > ${CACHEDIR}/"listing.failed"
 touch ${CACHEDIR}/"listing.failed"
 
 # filter valid runs
