@@ -370,6 +370,13 @@ cattlepi_build_root_filesystem()
 
 cattlepi_handle_wpa_supplicant() {
     cattlepi_fetch_update_config
+    if [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ]; then
+        # this ensure that the wireless modules get unloaded and we will
+        # not spend a lot of time + fail in the network config portion
+        rmmod brcmfmac
+        rmmod brcmutil
+        rmmod cfg80211
+    fi
 
     target_wpa_supplicant=$(jq -re ".wpa_supplicant" "${CATTLEPI_DIR}/config")
     if [ $? -ne 0 ]; then
@@ -407,11 +414,6 @@ cattlepi_bring_up_wlan() {
 
     if [ ! -x "/sbin/wpa_supplicant" ]; then
         echo "/sbin/wpa_supplicant doesn't exist, exiting wlan config"
-        # this ensure that the wireless modules get unloaded and we will
-        # not spend a lot of time + fail in the network config portion
-        rmmod brcmfmac
-        rmmod brcmutil
-        rmmod cfg80211
         return 1
     fi
     
