@@ -370,7 +370,7 @@ cattlepi_build_root_filesystem()
 
 cattlepi_handle_wpa_supplicant() {
     cattlepi_fetch_update_config
-    if [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ]; then
+    if [ ! -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ]; then
         # this ensure that the wireless modules get unloaded and we will
         # not spend a lot of time + fail in the network config portion
         rmmod brcmfmac
