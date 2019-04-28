@@ -24,6 +24,10 @@ cattlepi_find_params
 echo "cattlepi - sdmount"
 cattlepi_sdmount
 
+echo "preprocess wpa supplicant"
+cattlepi_unload_wpa_supplicant_if_not_needed
+
+echo "wpa supplicant initialization"
 # If we have a wpa supplicant, try to set up wireless
 if [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ]; then
     cattlepi_bring_up_wlan && exit 0
