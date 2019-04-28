@@ -1,0 +1,31 @@
+#!/bin/bash
+set -x
+IMGFILE="initramfs.tgz"
+sudo umount /mnt/SD
+sudo rm -rf /mnt/SD
+sudo mkdir -p /mnt/SD
+sudo diskutil umount {{CATTLEPI_COPYTOSD_SDDEV_MAC}}
+sudo diskutil mount -mountPoint /mnt/SD {{CATTLEPI_COPYTOSD_SDDEV_MAC}}
+if [ $? -ne 0 ]
+then
+    echo "failed mounting"
+    exit 1
+fi
+if [ -r /mnt/SD/cattlepi/apikey ]
+then
+    sudo mv /mnt/SD/cattlepi/apikey /tmp/cattlepi_apikey
+fi
+sudo rm -rf /mnt/SD/*
+sudo cp $TOPDIR/"builder/latest/output"/$IMGFILE /mnt/SD/
+cd /mnt/SD && sudo tar --no-same-owner -xvf $IMGFILE
+sudo rm /mnt/SD/$IMGFILE
+if [ -r /tmp/cattlepi_apikey ]
+then
+    sudo mkdir -p /mnt/SD/cattlepi
+    sudo mv /tmp/cattlepi_apikey /mnt/SD/cattlepi/apikey
+fi
+if [ ! -z {{CATTLEPI_COPYTOSD_INITFS_POST_HOOK}} ]; then
+    echo "invoking the post copy to sd hook"
+    {{CATTLEPI_COPYTOSD_INITFS_POST_HOOK}}
+fi
+cd $TOPDIR && diskutil umount {{CATTLEPI_COPYTOSD_SDDEV_MAC}}
