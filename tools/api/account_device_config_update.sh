@@ -269,7 +269,7 @@ else
       echo "Error: Cannot read file with bootcode ("$ARG_P_BOOTCODE")" >&2
       exit 1
     fi
-    export BOOTCODE=$(cat "$ARG_P_BOOTCODE" | ${BUILDER_MACHINE_FLAVOR})
+    export BOOTCODE=$(cat "$ARG_P_BOOTCODE" | ${BASE64_ENCODE})
     BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.bootcode=env.BOOTCODE')
   fi
 fi
@@ -283,7 +283,7 @@ else
       echo "Error: Cannot read file with usercode ("$ARG_P_USERCODE")" >&2
       exit 1
     fi
-    export USERCODE=$(cat "$ARG_P_USERCODE" | ${BUILDER_MACHINE_FLAVOR})
+    export USERCODE=$(cat "$ARG_P_USERCODE" | ${BASE64_ENCODE})
     BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.usercode=env.USERCODE')
   fi
 fi
@@ -304,7 +304,7 @@ else
       echo "Error: Cannot read file with sdlayout ("$ARG_P_C_SDLAYOUT")" >&2
       exit 1
     fi
-    export SDLAYOUT=$(cat "$ARG_P_C_SDLAYOUT" | ${BUILDER_MACHINE_FLAVOR})
+    export SDLAYOUT=$(cat "$ARG_P_C_SDLAYOUT" | ${BASE64_ENCODE})
     BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.config.sdlayout=env.SDLAYOUT')
   fi
 fi
