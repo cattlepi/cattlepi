@@ -1,3 +1,17 @@
+# detect the OS this runs on
+case "$OSTYPE" in
+  darwin*)
+    BUILDER_MACHINE_FLAVOR='osx'
+    ;;
+  linux*)
+    BUILDER_MACHINE_FLAVOR='linux'
+    ;;
+  *)
+    echo "unsupported os: $OSTYPE"
+    exit 1
+  ;;
+esac
+
 # conditionally set the params if not set
 BUILDER_NODE=${BUILDER_NODE:-192.168.1.12}
 CATTLEPI_BASE=${CATTLEPI_BASE:-https://api.cattlepi.com}

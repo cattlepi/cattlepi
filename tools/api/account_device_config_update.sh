@@ -26,6 +26,22 @@ ARG_I_ROOTFS_URL="NONE"
 ARG_I_ROOTFS_MD5SUM="NONE"
 ARG_I_PACKAGE="NONE"
 
+# detect the OS this runs on
+case "$OSTYPE" in
+  darwin*)
+    BUILDER_MACHINE_FLAVOR='osx'
+    BASE64_ENCODE='base64'
+    ;;
+  linux*)
+    BUILDER_MACHINE_FLAVOR='linux'
+    BASE64_ENCODE='base64 -w 0'
+    ;;
+  *)
+    echo "unsupported os: $OSTYPE"
+    exit 1
+  ;;
+esac
+
 while (( "$#" )); do
   case "$1" in
     -k|--api-key)
@@ -253,7 +269,7 @@ else
       echo "Error: Cannot read file with bootcode ("$ARG_P_BOOTCODE")" >&2
       exit 1
     fi
-    export BOOTCODE=$(cat "$ARG_P_BOOTCODE" | base64 -w 0)
+    export BOOTCODE=$(cat "$ARG_P_BOOTCODE" | ${BUILDER_MACHINE_FLAVOR})
     BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.bootcode=env.BOOTCODE')
   fi
 fi
@@ -267,7 +283,7 @@ else
       echo "Error: Cannot read file with usercode ("$ARG_P_USERCODE")" >&2
       exit 1
     fi
-    export USERCODE=$(cat "$ARG_P_USERCODE" | base64 -w 0)
+    export USERCODE=$(cat "$ARG_P_USERCODE" | ${BUILDER_MACHINE_FLAVOR})
     BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.usercode=env.USERCODE')
   fi
 fi
@@ -288,7 +304,7 @@ else
       echo "Error: Cannot read file with sdlayout ("$ARG_P_C_SDLAYOUT")" >&2
       exit 1
     fi
-    export SDLAYOUT=$(cat "$ARG_P_C_SDLAYOUT" | base64 -w 0)
+    export SDLAYOUT=$(cat "$ARG_P_C_SDLAYOUT" | ${BUILDER_MACHINE_FLAVOR})
     BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.config.sdlayout=env.SDLAYOUT')
   fi
 fi
