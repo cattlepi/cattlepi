@@ -38,6 +38,7 @@ copy_exec /sbin/mkfs.fat /bin
 copy_exec /sbin/mkfs.minix /bin
 copy_exec /sbin/mkfs.msdos /bin
 copy_exec /sbin/mkfs.vfat /bin
+copy_exec /sbin/partprobe /bin
 
 # things needed for wireless support
 manual_add_modules brcmfmac
