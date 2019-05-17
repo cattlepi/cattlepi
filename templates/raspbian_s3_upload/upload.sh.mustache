@@ -21,6 +21,7 @@ fi
 
 echo "# generated on $(date)" >> ${BUILD_IMAGE_FILE}
 if [ ! -f "${BUILD_FAILED_FLAG}" ]; then
+    echo "INFO={{CATTLEPI_BASE}}/images/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}/info.sh" >> ${BUILD_IMAGE_FILE}
     echo "INITFS={{CATTLEPI_BASE}}/images/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}/initramfs.tgz" >> ${BUILD_IMAGE_FILE}
     echo "INITFSMD5=$(md5sum ${BUILDDIRLATEST}/output/initramfs.tgz | awk '{print $1'})" >> ${BUILD_IMAGE_FILE}
     echo "ROOTFS={{CATTLEPI_BASE}}/images/{{CATTLEPI_DEFAULT_S3_BUCKET_PATH}}/rootfs.sqsh" >> ${BUILD_IMAGE_FILE}
