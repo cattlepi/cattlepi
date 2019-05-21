@@ -17,6 +17,7 @@ ARG_P_BOOTCODE="NONE"
 ARG_P_USERCODE="NONE"
 ARG_P_C_AUTOUPDATE=0
 ARG_P_C_SDLAYOUT="NONE"
+ARG_P_C_WIRELESS="NONE"
 ARG_SSH_ADD_PUBLIC_KEY="NONE"
 
 # images arguments
@@ -82,6 +83,10 @@ while (( "$#" )); do
       ;;
     -pcs|--payload-config-sdlayout)
       ARG_P_C_SDLAYOUT=$2
+      shift 2
+      ;;
+    -pcw|--payload-config-wireless)
+      ARG_P_C_WIRELESS=$2
       shift 2
       ;;
     -iiu|--image-initfs-url)
@@ -155,6 +160,7 @@ if [ "$ARGS_SHOWHELP" -eq 1 ]; then
   echo "    -pu --payload-usercode FILE     file containing the payload we want to put in the usercode field"
   echo "    -pca --payload-config-autoupdate    set autoupdate flag to true (if not specified set to false)"
   echo "    -pcs --payload-config-sdlayout FILE   file containing the sdlayout we want to use"
+  echo "    -pcw --payload-config-wireless FILE   file containing the wpa supplicant config we want to use"
   echo "    -iiu --image-initfs-url URL     initfs image url we want to use"
   echo "    -iim --image-initfs-md5sum MD5    md5sum for the initfs image"
   echo "    -iru --image-rootfs-url URL     rootfs image url we want to use"
@@ -306,6 +312,20 @@ else
     fi
     export SDLAYOUT=$(cat "$ARG_P_C_SDLAYOUT" | ${BASE64_ENCODE})
     BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.config.sdlayout=env.SDLAYOUT')
+  fi
+fi
+
+# wpa_supplicant
+if [ "$ARG_P_C_WIRELESS" == "WIPE" ]; then
+  BASE_CONFIG=$(echo "$BASE_CONFIG" | jq 'del(.config.wpa_supplicant)')
+else
+  if [ "$ARG_P_C_WIRELESS" != "NONE" ]; then
+    if [ ! -r "$ARG_P_C_WIRELESS" ]; then
+      echo "Error: Cannot read file with wpa_supplicant ("$ARG_P_C_WIRELESS")" >&2
+      exit 1
+    fi
+    export WIRELESS=$(cat "$ARG_P_C_WIRELESS" | ${BASE64_ENCODE})
+    BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.config.wpa_supplicant=env.WIRELESS')
   fi
 fi
 
