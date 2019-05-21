@@ -382,7 +382,7 @@ cattlepi_unload_wpa_supplicant_if_not_needed() {
 cattlepi_handle_wpa_supplicant() {
     cattlepi_fetch_update_config
 
-    target_wpa_supplicant=$(jq -re ".wpa_supplicant" "${CATTLEPI_DIR}/config")
+    target_wpa_supplicant=$(jq -re ".config.wpa_supplicant" "${CATTLEPI_DIR}/config")
     if [ $? -ne 0 ]; then
         echo "No wpa_supplicant to handle"
         return
