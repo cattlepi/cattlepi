@@ -427,7 +427,7 @@ cattlepi_bring_up_wlan() {
     echo "Starting wireless connection"
     # Explicitly use /run/wpa_supplicant as the location of the control
     # interface for initramfs.
-    if ! /sbin/wpa_supplicant  -Dwext -i"${interface}" -C /run/wpa_supplicant/ -c"${wpa_supplicant_location}" -P/run/initram-wpa_supplicant.pid -B; then
+    if ! /sbin/wpa_supplicant  -Dnl80211 -dd -i"${interface}" -C /run/wpa_supplicant/ -c"${wpa_supplicant_location}" -P/run/initram-wpa_supplicant.pid -B; then
         echo "Unable to run wpa_supplicant, exiting wlan config"
         return 1
     fi
