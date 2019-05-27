@@ -330,15 +330,6 @@ cattlepi_build_root_filesystem()
     cattlepi_find_params
     modprobe squashfs
     modprobe fuse
-    sleep 1
-    
-    # debug check for modules 
-    lsmod
-    sleep 1
-    
-    #debug check for loopback
-    ls -l /dev/loop*
-    sleep 1
 
     # figure out what rootfs squashed file we'll be using
     local target_rootsfs=$(jq -r ".rootfs.md5sum" "${CATTLEPI_DIR}/config")
@@ -368,11 +359,6 @@ cattlepi_build_root_filesystem()
     echo "boot/${CATTLEPI_ID}/config" > "${rootmnt}/cattlepi/base_relative_config"
 }
 
-cattlepi_unload_wpa_supplicant_if_not_needed() {
-    rmmod brcmfmac
-    rmmod brcmutil
-    rmmod cfg80211
-}
 
 cattlepi_handle_wpa_supplicant() {
     cattlepi_fetch_update_config
@@ -403,70 +389,6 @@ cattlepi_handle_wpa_supplicant() {
         /bin/sync
         echo b >/proc/sysrq-trigger
     fi
-}
-
-cattlepi_bring_up_wlan() {
-    interface="${1:-wlan0}"
-    wpa_supplicant_location="${2:-${CATTLEPI_DIR}/wpa_supplicant.conf}"
-    wait_limit="30"
-    online=false
-
-    if [ ! -x "/sbin/wpa_supplicant" ]; then
-        echo "/sbin/wpa_supplicant doesn't exist, exiting wlan config"
-        return 1
-    fi
-    
-    echo "Bringing up wlan0"
-    modprobe brcmfmac
-
-    echo "Starting wireless connection"
-    # Explicitly use /run/wpa_supplicant as the location of the control
-    # interface for initramfs.
-    if ! /sbin/wpa_supplicant  -Dnl80211 -dd -i"${interface}" -C /run/wpa_supplicant/ -c"${wpa_supplicant_location}" -P/run/initram-wpa_supplicant.pid -B; then
-        echo "Unable to run wpa_supplicant, exiting wlan config"
-        return 1
-    fi
-
-    echo "Waiting for wirelss connection for ${wait_limit} seconds"
-    while [ $wait_limit -ge 0 ]; do
-        wpa_status=$(/sbin/wpa_cli -i$interface -p /run/wpa_supplicant/ status | grep wpa_state)
-        if [ "${wpa_status}" == "wpa_state=COMPLETED" ]; then
-            echo "${interface} online"
-            online=true
-            break
-        fi
-
-        sleep 1
-        printf "." # omit the newline
-        wait_limit=$((wait_limit - 1))
-    done
-
-    if [ "${online}" != true ]; then
-        echo "${interface} offline"
-        return 1
-    fi
-
-    # Borrow a bit of code from configure_networking for this specific
-    # interface rather than sourcing from cmdline ip options
-    for ROUNDTTT in 2 4 12; do
-		# The NIC is to be configured if this file does not exist.
-		# Ip-Config tries to create this file and when it succeds
-		# creating the file, ipconfig is not run again.
-		for x in /run/net-"${interface}".conf ; do
-			[ -e "$x" ] && break 2
-		done
-
-		ipconfig -t ${ROUNDTTT} "${interface}"
-	done
-
-	# source ipconfig output
-	if [ -n "${interface}" ]; then
-		# source specific bootdevice
-		. /run/net-${interface}.conf
-	else
-        echo "Unable to get ip config for ${interface}"
-        return 1
-	fi
 }
 
 cattlepi_sdmount() {
