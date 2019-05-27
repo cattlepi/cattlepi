@@ -369,14 +369,9 @@ cattlepi_build_root_filesystem()
 }
 
 cattlepi_unload_wpa_supplicant_if_not_needed() {
-    cattlepi_find_params
-    if [ ! -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ]; then
-        # this ensure that the wireless modules get unloaded and we will
-        # not spend a lot of time + fail in the network config portion
-        rmmod brcmfmac
-        rmmod brcmutil
-        rmmod cfg80211
-    fi
+    rmmod brcmfmac
+    rmmod brcmutil
+    rmmod cfg80211
 }
 
 cattlepi_handle_wpa_supplicant() {
