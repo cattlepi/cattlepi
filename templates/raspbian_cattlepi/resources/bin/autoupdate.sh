@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euxo pipefail
+SELFDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 APIKEY=$(/usr/bin/head -1 /cattlepi/apikey)
 BASE=$(/usr/bin/head -1 /cattlepi/base)
 CONFIG_REL=$(/usr/bin/head -1 /cattlepi/base_relative_config)
@@ -12,10 +13,11 @@ CONFIG_REL=$(/usr/bin/head -1 /cattlepi/base_relative_config)
 MATCH=0
 /usr/bin/cmp -s /tmp/current_config /cattlepi/config || MATCH=1
 if [ $MATCH -ne 0 ]; then
-    # add up to 550 seconds delay before rebooting (ie sleep(random(550)) in bash)
+    # add up to 110 seconds delay before rebooting (ie sleep(random(110)) in bash)
     #   this should help in theory if you have a large number of devices
     #   and you are driving all of them off the default config
-    sleep $(( RANDOM %= 550 ))
+    sleep $(( RANDOM %= 110 ))
+    ${SELFDIR}/inline_update.sh || echo "failed updating"
     /bin/sync
     set +e
     /sbin/reboot -f
