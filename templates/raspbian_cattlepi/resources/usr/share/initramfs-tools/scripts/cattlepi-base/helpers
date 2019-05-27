@@ -330,15 +330,6 @@ cattlepi_build_root_filesystem()
     cattlepi_find_params
     modprobe squashfs
     modprobe fuse
-    sleep 1
-    
-    # debug check for modules 
-    lsmod
-    sleep 1
-    
-    #debug check for loopback
-    ls -l /dev/loop*
-    sleep 1
 
     # figure out what rootfs squashed file we'll be using
     local target_rootsfs=$(jq -r ".rootfs.md5sum" "${CATTLEPI_DIR}/config")
