@@ -42,7 +42,7 @@ echo "-------------------------------------------------------"
 echo "running user code baked in via the recipe if any"
 echo "-------------------------------------------------------"
 if [ -f /etc/cattlepi/bootstrap_recipe.sh ]; then
-    chmod +x /tmp/usercode.sh
+    chmod +x /etc/cattlepi/bootstrap_recipe.sh
     /etc/cattlepi/bootstrap_recipe.sh
 fi
 echo "-------------------------------------------------------"

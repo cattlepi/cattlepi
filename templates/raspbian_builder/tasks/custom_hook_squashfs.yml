@@ -1,0 +1,2 @@
+- name: custom hook sentinel
+  command: echo "custom hook - builder"
