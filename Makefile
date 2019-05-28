@@ -35,6 +35,10 @@ localapi_test: envsetup
 	@echo "make: localapi_test"
 	bin/myenv.sh "${current_dir}recipes/localapi_test.yml"
 
+raspbian_builder: envsetup
+	@echo "make: raspbian_builder"
+	bin/myenv.sh "${current_dir}recipes/raspbian_builder.yml"
+
 raspbian_cattlepi: envsetup
 	@echo "make: raspbian_cattlepi"
 	bin/myenv.sh "${current_dir}recipes/raspbian_cattlepi.yml"

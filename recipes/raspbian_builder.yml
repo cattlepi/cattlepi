@@ -1,0 +1,9 @@
+---
+version: 1.0
+tool: run_playbook
+template: "/templates/raspbian_builder"
+include:
+  - name: raspbian_cattlepi
+    version: 1.0
+params:
+  playbook: "stages.yml"
