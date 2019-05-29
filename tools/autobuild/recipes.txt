@@ -1,3 +1,4 @@
 raspbian_cattlepi
+raspbian_builder
 raspbian_stock
 raspbian_pihole
