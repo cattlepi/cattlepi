@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # script used to build and publish the recipes
 # this script does the base work of invoking the build process for the recipes
 #   and integrating with the external hooks needed to drive the process end to end
