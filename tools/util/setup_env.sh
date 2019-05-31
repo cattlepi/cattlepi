@@ -30,6 +30,8 @@ else
         echo "failed to activate environment"
         exit 1
     fi 
+    cd $VENVDIR && pip install --upgrade setuptools
+    cd $VENVDIR && pip install --upgrade pip
     cd $VENVDIR && pip install -r requirements.txt
     deactivate
 fi
