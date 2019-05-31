@@ -22,7 +22,7 @@ CATTLEPI_BUILDER_SUPPORT_TAG=${CATTLEPI_BUILDER_SUPPORT_TAG:-dd804fa47638f5183a3
 CATTLEPI_BUILDER_AUTOBUILD_ID=${AB_ID:-$(date +%Y_%m_%d_%H%M%S)}
 
 # conditionally set the image used for building the raspbian_stock recipe
-CATTLEPI_RASPBIAN_LOCATION=${CATTLEPI_RASPBIAN_LOCATION:-http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-11-15/2018-11-13-raspbian-stretch-lite.zip}
+CATTLEPI_RASPBIAN_LOCATION=${CATTLEPI_RASPBIAN_LOCATION:-http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-04-09/2019-04-08-raspbian-stretch-lite.zip}
 CATTLEPI_RASPBIAN_FILE=$(basename ${CATTLEPI_RASPBIAN_LOCATION})
 
 # settings for the s3 upload of images - update to your own if you want to upload the images to AWS S3
