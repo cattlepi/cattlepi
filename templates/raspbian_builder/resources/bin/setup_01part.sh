@@ -21,9 +21,9 @@ sudo update-alternatives --remove-all python
 sudo update-alternatives --install /usr/bin/python python $(readlink -f $(which python2)) 1
 sudo update-alternatives --install /usr/bin/python python $(readlink -f $(which python3)) 2
 
-# sudo umount ${SDROOT}/tmp
-# test -d ${SDROOT}/tmp || sudo mkdir -m 1777 ${SDROOT}/tmp
-# sudo mount --bind ${SDROOT}/tmp /tmp
+sudo umount ${SDROOT}/tmp
+test -d ${SDROOT}/tmp || sudo mkdir -m 1777 ${SDROOT}/tmp
+sudo mount --bind ${SDROOT}/tmp /tmp
 
 # rerun the update after the tmp update
 /etc/cattlepi/autoupdate.sh
