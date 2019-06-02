@@ -15,7 +15,7 @@ ARG_H_AFTER="NONE"
 # payload arguments
 ARG_P_BOOTCODE="NONE"
 ARG_P_USERCODE="NONE"
-ARG_P_C_AUTOUPDATE=0
+ARG_P_C_AUTOUPDATE="NONE"
 ARG_P_C_SDLAYOUT="NONE"
 ARG_P_C_WIRELESS="NONE"
 ARG_SSH_ADD_PUBLIC_KEY="NONE"
@@ -295,10 +295,12 @@ else
 fi
 
 # autoupdate
-if [ "$ARG_P_C_AUTOUPDATE" -eq 1 ]; then
-  BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.config.autoupdate=true')
-else
-  BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.config.autoupdate=false')
+if [ "$ARG_P_C_AUTOUPDATE" != "NONE" ]; then
+  if [ "$ARG_P_C_AUTOUPDATE" -eq 1 ]; then
+    BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.config.autoupdate=true')
+  else
+    BASE_CONFIG=$(echo "$BASE_CONFIG" | jq '.config.autoupdate=false')
+  fi
 fi
 
 # sdlayout
