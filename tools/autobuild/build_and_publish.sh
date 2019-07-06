@@ -62,6 +62,28 @@ function run_test() {
     echo "RUN TEST ${RECIPE}"
 }
 
+function parse_params() {
+    while (( "$#" )); do
+        case "$1" in
+            -b|--base-recipes)
+            ARG_RECIPESFILE=${SELFDIR}/recipes.txt
+            shift
+            ;;
+            -e|--extended-recipes)
+            ARG_RECIPESFILE=${SELFDIR}/extended_recipes.txt
+            shift
+            ;;
+            -*|--*=) # unsupported flags
+            echo "Error: Unsupported flag $1" >&2
+            exit 1
+            ;;
+            *) # preserve positional arguments
+            shift
+            ;;
+        esac
+    done
+}
+
 ## actual functionality
 if [ ! -v BUILDER_NODE ]; then
     echo "did not find a builder node specified"
@@ -72,7 +94,10 @@ fi
 SELFDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOPDIR="$(dirname $(dirname ${SELFDIR}))"
 HOOKTIMEOUT=900
+ARG_RECIPESFILE=${SELFDIR}/recipes.txt
 echo "Running in ${SELFDIR} w/ topdir in ${TOPDIR}"
+echo "$@"
+parse_params "$@"
 
 # whole autobuild specific setup
 #   generate the run id
@@ -88,7 +113,7 @@ hook_wait_ready
 hook_post
 
 # actually build/run the recipes
-for RECIPE in $(<${SELFDIR}/recipes.txt)
+for RECIPE in $(<${ARG_RECIPESFILE})
 do
     update_current_time
     echo "--------------------------------------------------------------------------------"
