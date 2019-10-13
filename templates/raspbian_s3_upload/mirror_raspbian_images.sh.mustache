@@ -3,9 +3,9 @@ SELFDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CACHEDIR=${SELFDIR}/"cache"
 mkdir -p ${CACHEDIR}
 
-cd ${CACHEDIR} && wget http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-11-15/2018-11-13-raspbian-stretch-lite.zip
-cd ${CACHEDIR} && wget http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-04-09/2019-04-08-raspbian-stretch-lite.zip
 cd ${CACHEDIR} && wget http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-06-24/2019-06-20-raspbian-buster-lite.zip
+cd ${CACHEDIR} && wget https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-07-12/2019-07-10-raspbian-buster-lite.zip
+cd ${CACHEDIR} && wget https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
 
 BUCKET="{{CATTLEPI_DEFAULT_S3_BUCKET}}"
 BUCKET_RASPBIAN_PATH="{{CATTLEPI_DEFAULT_S3_BUCKET_RASPBIAN_PATH}}"
