@@ -23,7 +23,7 @@ pystache==0.5.4
 python-dateutil==2.7.3
 python-mimeparse==1.6.0
 PyYAML==3.13
-rsa==3.4.2
+rsa==4.1
 s3transfer==0.2.0
 six==1.11.0
 urllib3==1.24.2
