@@ -1,0 +1,69 @@
+- file:
+    path: /tmp/initramfs
+    state: absent
+- file:
+    path: /tmp/initramfs.tgz
+    state: absent
+- file:
+    path: /tmp/initramfs
+    state: directory
+    mode: 0755
+- file:
+    path: /tmp/resources
+    state: absent
+- lineinfile:
+    path: /etc/initramfs-tools/modules
+    line: squashfs
+- lineinfile:
+    path: /etc/initramfs-tools/modules
+    line: fuse
+- file:
+    path: /tmp/builder-support
+    state: absent
+- replace: 
+    path: /usr/share/initramfs-tools/scripts/functions
+    regexp: 'for ROUNDTTT in 2 3 4 6 9 16 25 36 64 100; do'
+    replace: "for ROUNDTTT in 2 4 12; do"
+- lineinfile:
+    path: /usr/share/initramfs-tools/init
+    line: . /scripts/cattlepi
+    insertbefore: '^\.\s\/scripts\/\${BOOT}'
+- copy:
+    src: resources
+    dest: /tmp
+    owner: root
+    group: root
+    mode: 0755
+- name: build unionfs-fuse binaries
+  shell: /tmp/resources/bin/build_union_fs.sh
+- name: bring in the cattlepi initramfs script
+  shell: cp -R /tmp/resources/usr /
+- name: bring in the rest of boot
+  shell: /bin/cp -R /boot/* /tmp/initramfs/
+- file:
+    path: /tmp/initramfs/cattleinit.cpio
+    state: absent
+- name: create the initramfs file
+  shell: mkinitramfs -v -o /tmp/initramfs/cattleinit.cpio
+- name: set initramfs permissions
+  shell: chmod 0755 /tmp/initramfs/cattleinit.cpio
+- file:
+    path: /tmp/initramfs/cattlepi
+    state: absent
+- lineinfile:
+    path: /tmp/initramfs/config.txt
+    line: initramfs cattleinit.cpio followkernel
+- lineinfile:
+    path: /tmp/initramfs/config.txt
+    line: '# end config'
+- name: build the cmdline
+  shell: echo "dwc_otg.lpm_enable=0 console=tty1 boot=cattlepi cattlepi_base={{CATTLEPI_BASE}} cattlepi_apikey={{CATTLEPI_APIKEY}} initrd=-1 elevator=deadline rw rootwait panic=20" > /tmp/initramfs/cmdline.txt
+- name: set cmline permissions
+  shell: chmod 0755 /tmp/initramfs/cmdline.txt
+- archive:
+    path: /tmp/initramfs/
+    dest: /tmp/initramfs.tgz
+- synchronize:
+    mode: pull
+    src: /tmp/initramfs.tgz
+    dest: output/

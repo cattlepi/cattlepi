@@ -1,0 +1,50 @@
+#!/bin/sh
+
+set -e
+
+PREREQ=""
+
+prereqs () {
+	echo "${PREREQ}"
+}
+
+case "${1}" in
+	prereqs)
+		prereqs
+		exit 0
+		;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+copy_exec /usr/bin/md5sum /bin
+copy_exec /usr/bin/jq /bin
+copy_exec /usr/bin/curl /bin
+copy_exec /usr/local/bin/unionfs /bin/unionfs-fuse
+copy_exec /usr/bin/strace /bin
+copy_exec /bin/date /bin/gnudate
+copy_exec /usr/bin/base64 /bin
+
+# things needed to partition/prepare the sdcard if needed
+copy_exec /sbin/fdisk /bin
+copy_exec /sbin/sfdisk /bin
+copy_exec /sbin/mkfs /bin
+copy_exec /sbin/mkfs.bfs /bin
+copy_exec /sbin/mkfs.cramfs /bin
+copy_exec /sbin/mkfs.ext2 /bin
+copy_exec /sbin/mkfs.ext3 /bin
+copy_exec /sbin/mkfs.ext4 /bin
+copy_exec /sbin/mkfs.fat /bin
+copy_exec /sbin/mkfs.minix /bin
+copy_exec /sbin/mkfs.msdos /bin
+copy_exec /sbin/mkfs.vfat /bin
+copy_exec /sbin/partprobe /bin
+
+# make dns and ssl great again
+cp -a /etc/ssl ${DESTDIR}/etc/ssl
+mkdir -p ${DESTDIR}/usr/share/
+echo "nameserver 8.8.8.8" > ${DESTDIR}/etc/resolv.conf
+cp -a /usr/share/ca-certificates ${DESTDIR}/usr/share/
+cp -a /lib/arm-linux-gnueabihf/libnss_dns* ${DESTDIR}/lib/arm-linux-gnueabihf/
+
+exit 0

@@ -1,0 +1,30 @@
+#!/bin/sh
+
+PREREQ="sdlayout"
+
+prereqs()
+{
+	echo "${PREREQ}"
+}
+
+case "$1" in
+    prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+. /scripts/functions
+. /scripts/cattlepi-base/helpers
+
+set -x 
+echo "cattlepi pre - adjust time"
+cattlepi_adjust_time
+echo "cattlepi pre - cache and check"
+cattlepi_fetch_update_images
+echo "cattlepi pre - update or create wireless config"
+cattlepi_handle_wpa_supplicant
+echo "cattlepi pre - update boot if needed"
+cattlepi_update_boot_part
+echo "cattlepi pre - running bootcode if any"
+cattlepi_run_bootcode

@@ -1,0 +1,6 @@
+---
+version: 1.0
+tool: run_playbook
+template: "/templates/test_noop"
+params:
+  playbook: "noop.yml"

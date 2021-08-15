@@ -1,0 +1,11 @@
+- name: Rebooting host
+  become: true
+  shell: /sbin/shutdown -r +1
+  async: 1
+  poll: 0
+  ignore_errors: true
+- name: Wait for host to come back - 600 seconds for port 22 to become open and contain "OpenSSH"
+  wait_for_connection:
+    timeout: 600
+    sleep: 5
+    delay: 75

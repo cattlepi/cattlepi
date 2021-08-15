@@ -1,0 +1,25 @@
+#!/bin/sh
+
+PREREQ="netup"
+
+prereqs()
+{
+	echo "${PREREQ}"
+}
+
+case "$1" in
+    prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+. /scripts/functions
+. /scripts/cattlepi-base/helpers
+
+echo "cattlepi sdlayout - adjust time"
+cattlepi_adjust_time
+echo "cattlepi - sdmount"
+cattlepi_sdmount
+echo "cattlepi - checking and applying sdlayout"
+cattlepi_check_apply_disk_layout

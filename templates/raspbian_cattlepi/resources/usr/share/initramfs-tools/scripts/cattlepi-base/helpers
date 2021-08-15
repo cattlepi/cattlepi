@@ -1,0 +1,415 @@
+API_CONNECTIVITY=true
+OFFLINE_MODE=false
+
+# inspired by https://stackoverflow.com/questions/8350942/how-to-re-run-the-curl-command-automatically-when-the-error-occurs/8351489#8351489
+with_backoff()
+{
+  local max_attempts=${ATTEMPTS-8}
+  local timeout=${TIMEOUT-1}
+  local attempt=1
+  local exitCode=0
+
+  while [ $attempt -lt $max_attempts ]
+  do
+    if "$@"
+    then
+      return 0
+    else
+      exitCode=$?
+    fi
+
+    echo "Failure! Retrying in $timeout.." 1>&2
+    sleep $timeout
+    attempt=$(( attempt + 1 ))
+    timeout=$(( timeout * 2 ))
+  done
+  return 1
+}
+
+# identify the params we are working with
+cattlepi_find_params()
+{
+    if [ "${cattlepi_find_params_used}" != "yes" ]; then
+        for x in $(cat /proc/cmdline); do
+            case $x in
+            cattlepi_base=*)
+                CATTLEPI_BASE=${x#cattlepi_base=}
+                ;;
+            cattlepi_apikey=*)
+                CATTLEPI_APIKEY=${x#cattlepi_apikey=}
+                ;;
+            cattlepi_id=*)
+                CATTLEPI_ID=${x#cattlepi_id=}
+                ;;
+            cattlepi_dir=*)
+                CATTLEPI_DIR=${x#cattlepi_dir=}
+                ;;
+            cattlepi_images_dir=*)
+                CATTLEPI_IMAGES_DIR=${x#cattlepi_images_dir=}
+                ;;
+            cattlepi_md5skip=*)
+                CATTLEPI_MD5SKIP=${x#cattlepi_md5skip=}
+                ;;
+            esac
+        done
+
+        # set default values
+        CATTLEPI_BASE=${CATTLEPI_BASE-'https://api.cattlepi.com'}
+        CATTLEPI_DIR=${CATTLEPI_DIR-'/boot/cattlepi'}
+        CATTLEPI_IMAGES_DIR_DEFAULT="$CATTLEPI_DIR/images"
+        CATTLEPI_IMAGES_DIR=${CATTLEPI_IMAGES_DIR-$CATTLEPI_IMAGES_DIR_DEFAULT}
+        mkdir -p "${CATTLEPI_DIR}"
+        mkdir -p "${CATTLEPI_IMAGES_DIR}"
+
+        # pick it up from kernel boot param, if file present override. if it's not set by any give it the default value
+        [ -r "${CATTLEPI_DIR}/apikey" ] && CATTLEPI_APIKEY=$(head -n 1 "${CATTLEPI_DIR}/apikey")
+        if [ -z ${CATTLEPI_APIKEY+x} ]; then
+            CATTLEPI_APIKEY=${CATTLEPI_APIKEY-'deadbeef'}
+        fi
+
+        # same as with the api key - default value is the mac address
+        [ -r "${CATTLEPI_DIR}/id" ] && CATTLEPI_ID=$(head -n 1 "${CATTLEPI_DIR}/id")
+        if [ -z ${CATTLEPI_ID+x} ]; then
+            CATTLEPI_MAC=$(cat /sys/class/net/*/address | grep -v ^00: | sort | head -n 1)
+            CATTLEPI_ID=${CATTLEPI_ID-$CATTLEPI_MAC}
+        fi
+
+        # do the same for the md5skip
+        [ -r "${CATTLEPI_DIR}/md5skip" ] && CATTLEPI_MD5SKIP=$(head -n 1 "${CATTLEPI_DIR}/md5skip")
+        if [ -z ${CATTLEPI_MD5SKIP+x} ]; then
+            CATTLEPI_MD5SKIP_DEFAULT=no
+            CATTLEPI_MD5SKIP=${CATTLEPI_MD5SKIP-$CATTLEPI_MD5SKIP_DEFAULT}
+        fi
+
+        export CATTLEPI_BASE
+        export CATTLEPI_APIKEY
+        export CATTLEPI_DIR
+        export CATTLEPI_IMAGES_DIR
+        export CATTLEPI_ID
+        export CATTLEPI_MD5SKIP
+    fi
+    cattlepi_find_params_used=yes
+}
+
+# generic download wrapper
+cattlepi_download()
+{
+    cattlepi_find_params
+    local downloc outloc
+    downloc="$1"
+    outloc="$2"
+    cattlepi_absolute_download $CATTLEPI_BASE/$downloc $outloc
+}
+
+# generic time adjust
+cattlepi_adjust_time()
+{
+    cattlepi_find_params
+    if [ "${cattlepi_adjust_time_invoked}" != "yes" ]; then
+        cattlepi_determine_offline_mode
+        if [ "${OFFLINE_MODE}" == false ]; then
+            with_backoff curl -sSkI $CATTLEPI_BASE/ping | grep -i date | sed -e 's/date: //I' > /tmp/date
+            /bin/gnudate -I -s "$(cat /tmp/date)"
+            rm /tmp/date
+        fi
+    fi
+    cattlepi_adjust_time_invoked=yes
+}
+
+# generic donwnload wrapper w/ absolute path
+cattlepi_absolute_download()
+{
+    cattlepi_find_params
+    local downloc outloc
+    downloc="$1"
+    outloc="$2"
+    with_backoff curl --cacert /etc/ssl/certs/ca-certificates.crt -fsSL -H "X-Api-Key: $CATTLEPI_APIKEY" $downloc -o $outloc
+}
+
+cattlepi_check_API_connectivity()
+{
+    cattlepi_find_params
+    if [ "${cattlepi_check_API_connectivity_invoked}" != "yes" ]; then
+        with_backoff curl -sSkI --connect-timeout 60 -m 90 --retry 1 --retry-max-time 10 $CATTLEPI_BASE/ping > /dev/null 2>&1
+        if [[ $? -ne 0 ]]; then
+            API_CONNECTIVITY=false
+        fi
+    fi
+    cattlepi_check_API_connectivity_invoked=yes
+}
+
+# Determine if we can run without network access
+cattlepi_determine_offline_mode()
+{
+    cattlepi_find_params
+    cattlepi_check_API_connectivity
+    if [ "${cattlepi_determine_offline_mode_invoked}" != "yes" ]; then
+        if [ "${API_CONNECTIVITY}" == true ]; then
+            echo "API is up, continuing normally"
+            return
+        fi
+
+        # If we can't reach the API, but a config file exists
+        # ensure we have the correct image and set OFFLINE_MODE=true
+        # Otherwise, panic because we can't do anything!
+        if [ "${API_CONNECTIVITY}" == false ] && [ -r  "${CATTLEPI_DIR}/config" ]; then
+            # https://github.com/koalaman/shellcheck/wiki/SC2155
+            local md5sum
+            md5sum=$(jq -r ".rootfs.md5sum" "${CATTLEPI_DIR}/config")
+            if [ -n "${md5sum}" ] && [ -r "${CATTLEPI_IMAGES_DIR}/${md5sum}" ]; then
+                OFFLINE_MODE=true
+            else
+                panic "API is down and no VALID config exists!"
+            fi
+        else
+            panic "API is down and no config file exists!"
+        fi
+    fi
+    cattlepi_determine_offline_mode_invoked=yes
+}
+
+# get/update config
+cattlepi_fetch_update_config()
+{
+    cattlepi_find_params
+    if [ "${cattlepi_fetch_update_config_invoked}" != "yes" ]; then
+        cattlepi_determine_offline_mode
+        if [ "${OFFLINE_MODE}" == false ]; then
+            cattlepi_download "boot/${CATTLEPI_ID}/config" /tmp/config
+            mkdir -p "${CATTLEPI_DIR}"
+            cmp -s /tmp/config "${CATTLEPI_DIR}/config" || cp /tmp/config "${CATTLEPI_DIR}/config"
+        fi
+    fi
+    cattlepi_fetch_update_config_invoked=yes
+}
+
+# apply the requested sd disk layout
+cattlepi_check_apply_disk_layout()
+{
+    cattlepi_fetch_update_config
+    if [ -r "/boot/sdlayout.json" ]; then
+        # we only allow one manipulation of the sdlayout.
+        # after that you need to explicitely remove /boot/sdlayout.json to alter the layout again
+        echo "an sdlayout was already applied. will skip this"
+        echo "remove /boot/sdlayout.json if you want to apply another layout"
+        return
+    fi
+    jq -r ".config.sdlayout" "${CATTLEPI_DIR}/config" | grep -q null
+    if [ $? -ne 0 ]; then
+        # pull down and decode the requested disk layout
+        jq -r ".config.sdlayout" "${CATTLEPI_DIR}/config" | base64 -d > /tmp/sdlayout
+        if [ $? -ne 0 ]; then
+            echo "invalid sdlayout. skipping"
+            return
+        fi
+        if [ -z "$(cat /tmp/sdlayout)" ]; then
+            echo "configuration is empty. skipping";
+            return
+        fi
+        # dump current config
+        sfdisk -d /dev/mmcblk0 | grep -v label-id: > /tmp/current_sdlayout
+        cmp -s /tmp/sdlayout /tmp/current_sdlayout
+        if [ $? -ne 0 ]; then
+            # we need to apply the requested layout
+            #   to keep things "bootable" we will backup the content under /boot, apply the layout
+            #   and afterwards copy back the backup to the boot partition
+            rm -rf "${CATTLEPI_IMAGES_DIR}"
+            mkdir /run/bootbk
+            cp -R /boot/* /run/bootbk
+            umount /boot
+            # showtime: apply the requested layout
+            sfdisk /dev/mmcblk0 < /tmp/sdlayout
+            # send the memo to the kernel
+            partprobe /dev/mmcblk0
+            # now attempt to mkfs on the newly created partitions
+            sfdisk -J /dev/mmcblk0 > /tmp/sdlayout.json
+            PARTC=$(jq ".partitiontable.partitions | length" /tmp/sdlayout.json)
+            let PARTC=$((PARTC - 1))
+            for IPART in `seq 0 $PARTC`
+            do
+                PARTNODE=$(jq -r ".partitiontable.partitions[$IPART].node" /tmp/sdlayout.json)
+                PARTTYPE=$(jq -r ".partitiontable.partitions[$IPART].type" /tmp/sdlayout.json)
+                echo "$PARTNODE: type $PARTTYPE"
+                if [ $PARTTYPE == "b" ]; then
+                    mkfs.vfat -F 32 $PARTNODE
+                fi
+                if [ $PARTTYPE == "83" ]; then
+                    mkfs.ext4 -F -F $PARTNODE
+                fi
+                if [ $PARTNODE == "/dev/mmcblk0p1" ]; then
+                    # restore the boot bits
+                    # do this as early as possible to keep it bootable if possible
+                    mount -n -t vfat /dev/mmcblk0p1 /boot
+                    cp -R /run/bootbk/* /boot/
+                    umount /boot
+                    sync
+                fi
+            done
+            # persist sdlayout flag file
+            mount -n -t vfat /dev/mmcblk0p1 /boot
+            cp /tmp/sdlayout.json /boot/
+            umount /boot
+            sync
+            sleep 5
+            # procedure done. rebooting and this time we should not go through this process
+            echo b >/proc/sysrq-trigger
+        fi
+    fi
+}
+
+# run the bootcode
+cattlepi_run_bootcode()
+{
+    cattlepi_fetch_update_config
+    if [ "${cattlepi_run_bootcode_invoked}" != "yes" ]; then
+        jq -r ".bootcode" "${CATTLEPI_DIR}/config"  | base64 -d > /tmp/bootcode.sh
+        if [ $? -eq 0 ]; then
+            chmod +x /tmp/bootcode.sh
+            /tmp/bootcode.sh || panic "failed to run the bootcode"
+        fi
+    fi
+    cattlepi_run_bootcode_invoked=yes
+}
+
+cattlepi_fetch_update_images()
+{
+    # /bin/sh doesn't have arrays like bash. Define a variable
+    # to hold our image MD5's
+    local current_imgs=
+
+    cattlepi_fetch_update_config
+    for img in initfs rootfs; do
+        local md5sum=$(jq -r ".${img}.md5sum" "${CATTLEPI_DIR}/config")
+        if [ -r "${CATTLEPI_IMAGES_DIR}/${md5sum}" ]; then
+            if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then
+                echo "${md5sum}  ${CATTLEPI_IMAGES_DIR}/${md5sum}" > /tmp/check_md5
+                md5sum --quiet -c /tmp/check_md5 || rm -rf ${CATTLEPI_IMAGES_DIR}/${md5sum}
+            fi
+        fi
+        if [ ! -r "${CATTLEPI_IMAGES_DIR}/${md5sum}" ]; then
+            local filetodownload=$(jq -r ".${img}.url" "${CATTLEPI_DIR}/config")
+            cattlepi_absolute_download $filetodownload "${CATTLEPI_IMAGES_DIR}/${md5sum}"
+            if [ "${CATTLEPI_MD5SKIP}" != "yes" ]; then
+                echo "${md5sum}  ${CATTLEPI_IMAGES_DIR}/${md5sum}" > /tmp/check_md5
+                md5sum --quiet -c /tmp/check_md5 || panic "checksum verification failed"
+            fi
+        fi
+        # If we haven't choked by now, all must be well. Save the md5sum for safekeeping
+        if [[ -z "${current_imgs}" ]]; then
+            # Avoid putting a leading "|" in the variable
+            current_imgs="${md5sum}"
+        else
+            current_imgs="${current_imgs}|${md5sum}"
+        fi
+    done
+    # Remove everything in the images dir except for the current set of images
+    ls "${CATTLEPI_IMAGES_DIR}"/* | grep -vE $(echo "${current_imgs}") | xargs rm
+}
+
+cattlepi_update_boot_part()
+{
+    cattlepi_fetch_update_config
+    local target_initfs=$(jq -r ".initfs.md5sum" "${CATTLEPI_DIR}/config")
+    echo $target_initfs > /tmp/target_initfs
+    cmp -s "${CATTLEPI_DIR}/initfs" /tmp/target_initfs
+    if [ $? -ne 0 ]; then
+        tar -xvzf "${CATTLEPI_IMAGES_DIR}/${target_initfs}" -C /boot/
+        mv /tmp/target_initfs "${CATTLEPI_DIR}/initfs"
+        echo "initfs updated. will reboot to pick it up shortly"
+        umount /boot
+        sync
+        sleep 5
+        # reboot
+        echo b >/proc/sysrq-trigger
+    fi
+}
+
+cattlepi_build_root_filesystem()
+{
+    # ensure we have the needed params and load the modules we use
+    cattlepi_find_params
+    modprobe squashfs
+    modprobe fuse
+
+    # figure out what rootfs squashed file we'll be using
+    local target_rootsfs=$(jq -r ".rootfs.md5sum" "${CATTLEPI_DIR}/config")
+    mkdir -p /rootfs
+    mount -n -t tmpfs -o size=512m tmpfs /rootfs
+
+    # bottom layer - squash fs
+    mkdir -p /rootfs/bottomro
+    mount -n -t squashfs -o loop "${CATTLEPI_IMAGES_DIR}/${target_rootsfs}" /rootfs/bottomro
+
+    # top layer - tmpfs
+    mkdir -p /rootfs/toprw
+
+    # create root fs which is an union of the 2 layers
+    unionfs-fuse -o cow,allow_other,suid,use_ino,nonempty,dev /rootfs/toprw=RW:/rootfs/bottomro=RO ${rootmnt}
+    mount --bind ${rootmnt} ${rootmnt}
+    mkdir -p "${rootmnt}/cattlepi"
+
+    # copy the env vars
+    cp "${CATTLEPI_DIR}/config" "${rootmnt}/cattlepi/"
+    [ -r "${CATTLEPI_DIR}/apikey" ] && cp "${CATTLEPI_DIR}/apikey" "${rootmnt}/cattlepi/"
+    [ -r "${CATTLEPI_DIR}/id" ] && cp "${CATTLEPI_DIR}/id" "${rootmnt}/cattlepi/"
+    # Copy the wireless info to the image!
+    [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ] && cp "${CATTLEPI_DIR}/wpa_supplicant.conf" "${rootmnt}/etc/wpa_supplicant/wpa_supplicant.conf"
+    [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ] && cp "${CATTLEPI_DIR}/wpa_supplicant.conf" "${rootmnt}/cattlepi/"
+    echo $CATTLEPI_BASE > "${rootmnt}/cattlepi/base"
+    echo "boot/${CATTLEPI_ID}/config" > "${rootmnt}/cattlepi/base_relative_config"
+}
+
+
+cattlepi_handle_wpa_supplicant() {
+    cattlepi_fetch_update_config
+
+    target_wpa_supplicant=$(jq -re ".config.wpa_supplicant" "${CATTLEPI_DIR}/config")
+    if [ $? -ne 0 ]; then
+        echo "No wpa_supplicant to handle"
+        return
+    fi
+
+    echo "${target_wpa_supplicant}" | base64 -d > /tmp/wpa_supplicant.conf
+    if [ $? -ne 0 ]; then
+        echo "Invalid or empty wpa_supplicant, skipping wireless"
+        return
+    fi
+
+    if [ -r "${CATTLEPI_DIR}/wpa_supplicant.conf" ]; then
+        cmp -s "${CATTLEPI_DIR}/wpa_supplicant.conf" /tmp/wpa_supplicant.conf
+        if [ $? -ne 0 ]; then
+            mv /tmp/wpa_supplicant.conf "${CATTLEPI_DIR}/wpa_supplicant.conf"
+            echo "wpa_supplicant.conf updated, rebooting..."
+            /bin/sync
+            echo b >/proc/sysrq-trigger
+        fi
+    else
+        mv /tmp/wpa_supplicant.conf "${CATTLEPI_DIR}/wpa_supplicant.conf"
+        echo "wpa_supplicant.conf created; rebooting"
+        /bin/sync
+        echo b >/proc/sysrq-trigger
+    fi
+}
+
+cattlepi_sdmount() {
+    # Explicitly mount the sdcard partition to /boot
+    # We don't give the caller any other option as of right
+    # now since this partition doesn't need to be mounted
+    # anywhere else and doing so could be dangerous
+    echo "Mounting sdcard to /boot"
+    mkdir /boot
+    /bin/sync
+    umount /boot
+    mount -n -t vfat /dev/mmcblk0p1 /boot
+}
+
+cattlepi_sdmount_ro() {
+    # Explicitly mount the sdcard patition RO to /boot
+    # As above, don't give the caller any other option
+    # since we don't need to and it could be dangerous yadda yadda
+    echo "Mounting sdcard RO to /boot"
+    mkdir /boot
+    /bin/sync
+    umount /boot
+    mount -n -t vfat -o ro /dev/mmcblk0p1 /boot
+}

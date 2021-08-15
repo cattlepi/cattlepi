@@ -1,0 +1,45 @@
+- name: update cache
+  apt:
+    update_cache: yes
+  retries: 3
+  delay: 30
+  register: result
+  until: result is succeeded
+  failed_when: result is failure
+- name: install packages
+  apt:
+    name: "{{ packages }}"
+    force: yes
+    state: latest
+  vars:
+    packages:
+    - vim
+    - busybox
+    - initramfs-tools
+    - squashfs-tools
+    - git
+    - libfuse-dev
+    - jq
+    - ufw
+    - pv
+  retries: 3
+  delay: 30
+  register: result
+  until: result is succeeded
+  failed_when: result is failure
+- name: disable swap
+  command: dphys-swapfile swapoff
+- name: disable swap - make sure if does not come back
+  command: dphys-swapfile uninstall
+- name: ufw allow ssh connectivity
+  shell: ufw allow ssh/tcp
+- name: enable ufw (ufw is UncomplicatedFirewall)
+  shell: yes | ufw enable
+- name: upgrade packages and dist
+  apt:
+    upgrade: full
+  retries: 3
+  delay: 30
+  register: result
+  until: result is succeeded
+  failed_when: result is failure

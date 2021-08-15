@@ -1,0 +1,16 @@
+- file:
+    path: /tmp/squashfs
+    state: absent
+- file:
+    path: /tmp/squashfs/rootfs
+    state: directory
+    mode: 0755
+- file:
+    path: /tmp/resources
+    state: absent
+- copy:
+    src: resources
+    dest: /tmp
+    owner: root
+    group: root
+    mode: 0755
